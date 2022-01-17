@@ -2,7 +2,7 @@
 LoginName Validity Checker is a API responsible for cross-checking the validity of a given loginName within the confines of the Views for a institution.
 
 ## Requests.
-The API expects to recieve a **JSON** formatted request following the Schema described below.
+The API expects to receive a **JSON** formatted request following the Schema described below.
 
 - [Request Schema Attributes.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Request-properties)
 - [Request Schema Validator.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Request-schema)
