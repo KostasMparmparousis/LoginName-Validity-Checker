@@ -108,6 +108,7 @@ public class LoginNameValidityCheckRoute implements Route{
         String conflictsJson = "\n  \"conflicts\": " ;
         verbose=reqPerson.getVerbose();
         if(verbose){
+            conflictsJson = "\n  \"detailedConflicts\": " ;
             boolean firstElem = true;
             for(Conflict conflict : conflicts){
               if(firstElem){
