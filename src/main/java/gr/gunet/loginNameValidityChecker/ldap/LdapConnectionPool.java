@@ -2,7 +2,6 @@ package gr.gunet.loginNameValidityChecker.ldap;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import org.ldaptive.LdapException;
 
 public class LdapConnectionPool {

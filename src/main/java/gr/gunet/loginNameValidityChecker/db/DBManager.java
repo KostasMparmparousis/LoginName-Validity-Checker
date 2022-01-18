@@ -7,9 +7,6 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
-import java.util.Hashtable;
-import java.util.Set;
-import java.util.Map.Entry;
 
 public class DBManager {
     protected final static String CONN_FILE_DIR = "/etc/v_vd/conn";

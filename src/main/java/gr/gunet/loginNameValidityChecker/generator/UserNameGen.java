@@ -1,12 +1,19 @@
 package gr.gunet.loginNameValidityChecker.generator;
 import gr.gunet.loginNameValidityChecker.AcademicPerson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonElement;
+
+import java.util.Collection;
 import java.util.Vector;
 import java.util.Collections;
+
+import gr.gunet.loginNameValidityChecker.db.DBConnectionPool;
+import gr.gunet.loginNameValidityChecker.db.HRMSDBView;
+import gr.gunet.loginNameValidityChecker.db.SISDBView;
+import gr.gunet.loginNameValidityChecker.ldap.LdapConnectionPool;
+import gr.gunet.loginNameValidityChecker.ldap.LdapManager;
 import org.ldaptive.LdapEntry;
 
 public class UserNameGen {
+
     private AcademicPerson academicPerson;
     private LdapEntry dsPerson;
     private int FNchars=3;
@@ -150,5 +157,31 @@ public class UserNameGen {
             ProposedNames.remove(i);
         }
         return ProposedNames;
+    }
+
+    public boolean checkIfUserNameExists(String loginName, DBConnectionPool Views, LdapConnectionPool ldapDS){
+        String disabledGracePeriod=null;
+        SISDBView sis=null;
+        HRMSDBView hrms=null;
+        HRMSDBView hrms2=null;
+        LdapManager ldap=null;
+
+        try{
+            sis=Views.getSISConn();
+            hrms=Views.getHRMSConn();
+            hrms2=Views.getHRMS2Conn();
+            ldap=ldapDS.getConn();
+
+            Collection<AcademicPerson> existingOwners= sis.fetchAll("loginName",loginName,disabledGracePeriod);
+            if (hrms!=null) existingOwners.addAll(hrms.fetchAll("loginName",loginName,disabledGracePeriod));
+            if (hrms2!=null) existingOwners.addAll(hrms2.fetchAll("loginName",loginName,disabledGracePeriod));
+            Collection<LdapEntry> existingDSOwners= ldap.search(ldap.createSearchFilter("(schGrAcPersonID=*)","uid="+loginName));
+            if (!existingOwners.isEmpty() || !existingDSOwners.isEmpty()) return true;
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+        return false;
+
     }
 }

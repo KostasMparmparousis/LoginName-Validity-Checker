@@ -86,6 +86,29 @@ public class SISDBView extends DBManager{
         return retVals;
     }
 
+    public Collection<AcademicPerson> fetchAll(String ssn, String ssnCountry) throws Exception{
+        String sql = "SELECT sp FROM SISPersonEntity_v"+entityVersion+" sp WHERE sp.SSN='" + ssn;
+        sql += "' AND sp.ssnCountry = '"+ssnCountry+"'";
+
+        List<AcademicPerson> retVals = new LinkedList();
+        if(entityVersion.equals("1")){
+            List<SISPersonEntity_v1> results = select(sql,SISPersonEntity_v1.class);
+            retVals.addAll(results);
+        }else if(entityVersion.equals("2")){
+            List<SISPersonEntity_v2> results = select(sql,SISPersonEntity_v2.class);
+            retVals.addAll(results);
+        }else if(entityVersion.equals("3")){
+            List<SISPersonEntity_v3> results = select(sql,SISPersonEntity_v3.class);
+            retVals.addAll(results);
+        }else if(entityVersion.equals("4")){
+            List<SISPersonEntity_v4> results = select(sql,SISPersonEntity_v4.class);
+            retVals.addAll(results);
+        }else{
+            throw new Exception("Unsupported entity version '"+entityVersion+"' on HRMS DB View.");
+        }
+        return retVals;
+    }
+
     public Collection<AcademicPerson> fetchAll(AcademicPerson person, String disabledGracePeriod) throws Exception{
         String sql = "SELECT sp FROM SISPersonEntity_v"+entityVersion+" sp WHERE sp.SSN='" + person.getSSN();
         sql += "' AND sp.ssnCountry = '"+person.getSSNCountry()+"'";

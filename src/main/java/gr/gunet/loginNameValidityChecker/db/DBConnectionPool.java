@@ -1,7 +1,6 @@
 package gr.gunet.loginNameValidityChecker.db;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,7 +14,7 @@ public class DBConnectionPool {
   private final static HashMap<String,HRMSDBView> HRMS2connections = new HashMap();
   private final static HashMap<String,Long> hrms2_last_usage = new HashMap();
   private String View;
-  private String CONN_FILE_DIR = "/etc/v_vd/conn/";
+  private String CONN_FILE_DIR = "/etc/v_vd/conn";
   
 
   public DBConnectionPool(String View){

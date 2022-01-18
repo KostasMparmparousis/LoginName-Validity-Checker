@@ -6,25 +6,17 @@ import gr.gunet.loginNameValidityChecker.ldap.LdapManager;
 import gr.gunet.loginNameValidityChecker.ldap.SchGrAcPerson;
 import gr.gunet.loginNameValidityChecker.ldap.LdapConnectionPool;
 import gr.gunet.loginNameValidityChecker.db.DBConnectionPool;
-import gr.gunet.loginNameValidityChecker.db.DBManager;
-import gr.gunet.loginNameValidityChecker.db.SISDBView;
-import gr.gunet.loginNameValidityChecker.db.HRMSDBView;
-import java.nio.file.Path;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.Vector;
-import java.util.HashMap;
 import java.util.HashSet;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.LdapException;
 
-public class LoginNameValidityChecker{
+public class LoginNameConflictDetector {
     private DBConnectionPool Views;
     private LdapConnectionPool ldapDS;
-    private static  String CONN_FILE_DIR = "/etc/v_vd/conn/";
+    private static  String CONN_FILE_DIR = "/etc/v_vd/conn";
 
-    public LoginNameValidityChecker(DBConnectionPool Views, LdapConnectionPool ldapDS) {
+    public LoginNameConflictDetector(DBConnectionPool Views, LdapConnectionPool ldapDS) {
         this.Views=Views;
         this.ldapDS=ldapDS;
     }
@@ -104,32 +96,6 @@ public class LoginNameValidityChecker{
             e.printStackTrace();
         }
         return UIDPersons;
-    }
-
-    public boolean checkIfUserNameExists(String loginName) throws LdapException,Exception{
-        boolean returns= false;
-        String disabledGracePeriod=null;
-        SISDBView sis=null;
-        HRMSDBView hrms=null;
-        HRMSDBView hrms2=null;
-        LdapManager ldap=null;
-
-        try{
-            sis=Views.getSISConn();
-            hrms=Views.getHRMSConn();
-            hrms2=Views.getHRMS2Conn();
-            ldap=ldapDS.getConn();
-
-            Collection<AcademicPerson> existingOwners= sis.fetchAll("loginName",loginName,disabledGracePeriod);
-            if (hrms!=null) existingOwners.addAll(hrms.fetchAll("loginName",loginName,disabledGracePeriod));
-            if (hrms2!=null) existingOwners.addAll(hrms2.fetchAll("loginName",loginName,disabledGracePeriod));
-            Collection<LdapEntry> existingDSOwners= ldap.search(ldap.createSearchFilter("(schGrAcPersonID=*)","uid="+loginName));
-            if (!existingOwners.isEmpty() || !existingDSOwners.isEmpty()) return true;
-        }
-        catch(Exception e){
-            e.printStackTrace();
-        }
-        return false;
     }
 
     private Collection<Conflict> samePersonChecks(AcademicPerson loginNameOwner, AcademicPerson existingOwner, String existingOwnerSource){

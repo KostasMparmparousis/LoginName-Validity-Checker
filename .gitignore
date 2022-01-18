@@ -1,6 +1,6 @@
 # Build folder
 target/
-
+.idea/
 # Compiled class file
 *.class
 

@@ -1,10 +1,7 @@
 package gr.gunet.loginNameValidityChecker.db;
 
 import gr.gunet.loginNameValidityChecker.AcademicPerson;
-import gr.gunet.loginNameValidityChecker.db.viewentities.HRMSPersonEntity_v1;
-import gr.gunet.loginNameValidityChecker.db.viewentities.HRMSPersonEntity_v2;
-import gr.gunet.loginNameValidityChecker.db.viewentities.HRMSPersonEntity_v3;
-import gr.gunet.loginNameValidityChecker.db.viewentities.HRMSPersonEntity_v4;
+import gr.gunet.loginNameValidityChecker.db.viewentities.*;
 import gr.gunet.loginNameValidityChecker.tools.PropertyReader;
 import java.util.Collection;
 import java.util.HashMap;
@@ -108,6 +105,29 @@ public class HRMSDBView extends DBManager{
         }else{
             sql += " AND (hp.employeeStatus IN ('active','interim') OR hp.employeeStatusDate > '"+disabledGracePeriod+"')";
         }
+
+        List<AcademicPerson> retVals = new LinkedList();
+        if(entityVersion.equals("1")){
+            List<HRMSPersonEntity_v1> results = select(sql,HRMSPersonEntity_v1.class);
+            retVals.addAll(results);
+        }else if(entityVersion.equals("2")){
+            List<HRMSPersonEntity_v2> results = select(sql,HRMSPersonEntity_v2.class);
+            retVals.addAll(results);
+        }else if(entityVersion.equals("3")){
+            List<HRMSPersonEntity_v3> results = select(sql,HRMSPersonEntity_v3.class);
+            retVals.addAll(results);
+        }else if(entityVersion.equals("4")){
+            List<HRMSPersonEntity_v4> results = select(sql,HRMSPersonEntity_v4.class);
+            retVals.addAll(results);
+        }else{
+            throw new Exception("Unsupported entity version '"+entityVersion+"' on HRMS DB View.");
+        }
+        return retVals;
+    }
+
+    public Collection<AcademicPerson> fetchAll(String ssn, String ssnCountry) throws Exception{
+        String sql = "SELECT hp FROM HRMSPersonEntity_v"+entityVersion+" hp WHERE hp.SSN='" + ssn;
+        sql += "' AND hp.ssnCountry = '"+ssnCountry+"'";
 
         List<AcademicPerson> retVals = new LinkedList();
         if(entityVersion.equals("1")){
