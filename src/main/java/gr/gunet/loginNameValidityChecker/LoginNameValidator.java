@@ -11,12 +11,12 @@ import java.util.HashSet;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.LdapException;
 
-public class LoginNameConflictDetector {
+public class LoginNameValidator {
     private DBConnectionPool Views;
     private LdapConnectionPool ldapDS;
-    private static  String CONN_FILE_DIR = "/etc/v_vd/conn";
+    private static  String CONN_FILE_DIR = "./etc/v_vd/conn";
 
-    public LoginNameConflictDetector(DBConnectionPool Views, LdapConnectionPool ldapDS) {
+    public LoginNameValidator(DBConnectionPool Views, LdapConnectionPool ldapDS) {
         this.Views=Views;
         this.ldapDS=ldapDS;
     }

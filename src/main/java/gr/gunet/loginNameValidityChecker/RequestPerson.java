@@ -24,7 +24,7 @@ public class RequestPerson implements AcademicPerson{
     private String loginName;
     private String institution;
     private boolean verbose;
-
+    private boolean findExisting;
     public RequestPerson(CustomJsonReader jsonReader) throws Exception{
       this.ssn=new HashSet();
       this.ssnCountry=new HashSet();
@@ -74,6 +74,11 @@ public class RequestPerson implements AcademicPerson{
       }
 
       verbose=jsonReader.readPropertyAsBoolean("verbose");
+      String Existing=jsonReader.readPropertyAsString("findExisting");
+      if (Existing== null || Existing.trim().equals("") || Existing.equals("true")){
+          findExisting=true;
+      }
+      else findExisting=false;
     }
 
     @Override
@@ -176,5 +181,9 @@ public class RequestPerson implements AcademicPerson{
 
     public Boolean getVerbose(){
         return verbose;
+    }
+
+    public Boolean findExisting(){
+        return findExisting;
     }
 }

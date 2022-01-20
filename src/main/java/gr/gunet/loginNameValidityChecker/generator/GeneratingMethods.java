@@ -31,10 +31,12 @@ public class GeneratingMethods {
         this.Separators=Separators;
         this.FNplacement=FNplacement;
         this.LNplacement=LNplacement;
-        String displayName= dsPerson.getAttribute("displayName").getStringValue();
-        String names[]= displayName.split(" ");
-        this.firstName=names[0];
-        this.lastName=names[1];
+        if (dsPerson.getAttribute("displayName")!=null) {
+            String displayName = dsPerson.getAttribute("displayName").getStringValue();
+            String names[] = displayName.split(" ");
+            this.firstName = names[0];
+            this.lastName = names[1];
+        }
     }
 
     public  Vector<String> FullNames(){
