@@ -14,7 +14,7 @@ import spark.Route;
 
 import java.util.Collection;
 
-public class RoleFinderRoute /*implements Route*/ {
+public class RoleFinderRoute implements Route {
     DBConnectionPool Views;
     LdapConnectionPool ldapDS;
     String loginName;
@@ -22,11 +22,11 @@ public class RoleFinderRoute /*implements Route*/ {
     public RoleFinderRoute() {
     }
 
-    //@Override
-    public Object handle(String req /*Request req, Response res*/) throws Exception {
-        //res.type("application/json");
-        String CONN_FILE_DIR = "./etc/v_vd/conn";
-        String reqBody = req; /*req.body();*/
+    @Override
+    public Object handle(Request req, Response res) throws Exception {
+        res.type("application/json");
+        String CONN_FILE_DIR = "/etc/v_vd/conn";
+        String reqBody = req.body();
         CustomJsonReader reader;
         try {
             reader = new CustomJsonReader(reqBody);
@@ -99,7 +99,7 @@ public class RoleFinderRoute /*implements Route*/ {
             roleJson+=roles;
             roleJson+="\n}\n";
             //res.status(200);
-            //res.body(new Gson().toJson(roleJson));
+            res.body(new Gson().toJson(roleJson));
 
             return roleJson;
         }catch (Exception e){

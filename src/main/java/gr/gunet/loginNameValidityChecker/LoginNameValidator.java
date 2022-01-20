@@ -14,7 +14,7 @@ import org.ldaptive.LdapException;
 public class LoginNameValidator {
     private DBConnectionPool Views;
     private LdapConnectionPool ldapDS;
-    private static  String CONN_FILE_DIR = "./etc/v_vd/conn";
+    private static  String CONN_FILE_DIR = "/etc/v_vd/conn";
 
     public LoginNameValidator(DBConnectionPool Views, LdapConnectionPool ldapDS) {
         this.Views=Views;

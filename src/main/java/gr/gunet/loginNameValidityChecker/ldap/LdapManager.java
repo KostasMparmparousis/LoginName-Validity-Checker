@@ -18,7 +18,7 @@ import org.ldaptive.SearchResult;
 import java.util.List;
 
 public class LdapManager {
-    protected final static String CONN_FILE_DIR = "./etc/v_vd/conn/";
+    protected final static String CONN_FILE_DIR = "/etc/v_vd/conn/";
 
     private final ConnectionFactory cf;
     private Connection conn = null;

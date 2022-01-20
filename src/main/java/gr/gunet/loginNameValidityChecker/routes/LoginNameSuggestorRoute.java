@@ -17,7 +17,7 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
-public class LoginNameSuggestorRoute /*implements Route*/ {
+public class LoginNameSuggestorRoute implements Route {
     DBConnectionPool Views;
     LdapConnectionPool ldapDS;
     String SSN;
@@ -30,14 +30,14 @@ public class LoginNameSuggestorRoute /*implements Route*/ {
     public LoginNameSuggestorRoute() {
     }
 
-    //@Override
-    public Object handle(String req /*Request req, Response res*/) throws Exception {
-        //res.type("application/json");
+    @Override
+    public Object handle(Request req, Response res) throws Exception {
+        res.type("application/json");
         response_code="";
         message="";
         responseJson="";
-        String CONN_FILE_DIR = "./etc/v_vd/conn";
-        String reqBody= req; /*req.body();*/
+        String CONN_FILE_DIR = "/etc/v_vd/conn";
+        String reqBody= req.body();
         CustomJsonReader reader;
         try {
             reader= new CustomJsonReader(reqBody);
@@ -118,10 +118,9 @@ public class LoginNameSuggestorRoute /*implements Route*/ {
             returnJson+=message;
             returnJson+=responseJson;
             returnJson+="\n}";
+            res.body(new Gson().toJson(returnJson));
             return returnJson;
-            //                res.status(200);
-            //                res.body(new Gson().toJson(ssnJson));
-            //                return ssnJson;
+            //res.status(200);
 
         }catch (Exception e){
             e.printStackTrace(System.err);

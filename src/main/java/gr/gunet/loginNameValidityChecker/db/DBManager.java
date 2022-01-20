@@ -9,7 +9,7 @@ import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
 
 public class DBManager {
-    protected final static String CONN_FILE_DIR = "./etc/v_vd/conn";
+    protected final static String CONN_FILE_DIR = "/etc/v_vd/conn";
 
     private final EntityManagerFactory emFactory;
     private EntityManager entityManager;

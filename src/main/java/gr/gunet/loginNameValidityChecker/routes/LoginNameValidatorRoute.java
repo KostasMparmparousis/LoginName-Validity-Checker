@@ -1,4 +1,5 @@
 package gr.gunet.loginNameValidityChecker.routes;
+import com.google.gson.Gson;
 import gr.gunet.loginNameValidityChecker.AcademicPerson;
 import gr.gunet.loginNameValidityChecker.Conflict;
 import gr.gunet.loginNameValidityChecker.LoginNameValidator;
@@ -14,9 +15,12 @@ import gr.gunet.loginNameValidityChecker.ldap.LdapConnectionPool;
 import java.util.*;
 
 import org.ldaptive.LdapEntry;
+import spark.Request;
+import spark.Response;
+import spark.Route;
 
 
-public class LoginNameValidatorRoute /*implements Route*/{
+public class LoginNameValidatorRoute implements Route {
     DBConnectionPool Views;
     LdapConnectionPool ldapDS;
     boolean verbose= false;
@@ -27,11 +31,11 @@ public class LoginNameValidatorRoute /*implements Route*/{
 
     public LoginNameValidatorRoute() {
     }
-    //@Override
-    public Object handle(String req /*Request req, Response res*/) throws Exception{
+    @Override
+    public Object handle(Request req, Response res) throws Exception{
         response_code="";
-        //res.type("application/json");
-        CustomJsonReader jsonReader = new CustomJsonReader(req /*req.body()*/);
+        res.type("application/json");
+        CustomJsonReader jsonReader = new CustomJsonReader(req.body());
         boolean verbose=false;
         String disabledGracePeriod = null;
 
@@ -56,6 +60,8 @@ public class LoginNameValidatorRoute /*implements Route*/{
                 String uid= UIDPersons.iterator().next();
                 String warningJson="{\n  \"Response code\" : 300, \n"+
                         "  \"message\" : \"" + uid + " already exists while not following the typical DS Account generation procedure\"\n}";
+                //res.status(300);
+                res.body(new Gson().toJson(warningJson));
                 return warningJson;
             }
         }
@@ -71,6 +77,7 @@ public class LoginNameValidatorRoute /*implements Route*/{
         try{
             conflicts= loginChecker.checkForValidityConflicts(reqPerson,disabledGracePeriod);
             responseJson+=getConflicts(conflicts,reqPerson);
+            res.body(new Gson().toJson(responseJson));
             return responseJson;
         }catch(Exception e){
             e.printStackTrace(System.err);

@@ -4,7 +4,7 @@
     <groupId>gr.gunet</groupId>
     <artifactId>loginNameValidityChecker</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
