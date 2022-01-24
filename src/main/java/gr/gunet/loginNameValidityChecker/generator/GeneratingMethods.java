@@ -38,6 +38,16 @@ public class GeneratingMethods {
             this.lastName = names[1];
         }
     }
+    
+    public GeneratingMethods(String FN, String LN, String[] Separators, String FNplacement, String LNplacement){
+        this.academicPerson=null;
+        this.dsPerson=null;
+        this.Separators=Separators;
+        this.FNplacement=FNplacement;
+        this.LNplacement=LNplacement;
+        this.firstName=FN;
+        this.lastName=LN;
+    }
 
     public  Vector<String> FullNames(){
         Vector<String> vec = new Vector<String>();

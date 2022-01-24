@@ -22,6 +22,8 @@ public class LoginNameSuggestorRoute implements Route {
     LdapConnectionPool ldapDS;
     String SSN;
     String SSNCountry;
+    String FN;
+    String LN;
     String institution;
     String response_code;
     String message;
@@ -47,6 +49,8 @@ public class LoginNameSuggestorRoute implements Route {
 
         SSN = reader.readPropertyAsString("ssn");
         SSNCountry = reader.readPropertyAsString("ssnCountry");
+        FN= reader.readPropertyAsString("firstName");
+        LN= reader.readPropertyAsString("lastName");
         institution = reader.readPropertyAsString("institution");
 
         Views= new DBConnectionPool(institution);
@@ -107,7 +111,7 @@ public class LoginNameSuggestorRoute implements Route {
                 foundNames += "\n  ]";
                 message= "\n  \"message\": \"" + SSN + "-" + SSNCountry + " is already paired with at least 1 loginName";
                 responseJson+=foundNames;
-                int exit_code= generateNames(SSN, SSNCountry);
+                int exit_code= generateNames();
 
             }else{
                 response_code+="20";
@@ -130,7 +134,7 @@ public class LoginNameSuggestorRoute implements Route {
         }
     }
 
-    public int generateNames(String SSN, String SSNCountry){
+    public int generateNames(){
         Collection<AcademicPerson> existingOwners = new Vector<AcademicPerson>();
         Collection<LdapEntry> existingDSOwners = new Vector<LdapEntry>();
         int exit_code=0;
@@ -138,56 +142,48 @@ public class LoginNameSuggestorRoute implements Route {
         HRMSDBView hrms=null;
         HRMSDBView hrms2=null;
         LdapManager ldap=null;
+        String suggestedNames="";
+        Vector<String> proposedNames =new Vector<String>();
+        UserNameGen loginGen = null;
+        boolean firstElem = true;
         try {
             sis = Views.getSISConn();
             hrms = Views.getHRMSConn();
             hrms2 = Views.getHRMS2Conn();
             ldap = ldapDS.getConn();
 
-            existingOwners.addAll(sis.fetchAll(SSN, SSNCountry));
-            if (hrms != null) existingOwners.addAll(hrms.fetchAll(SSN, SSNCountry));
-            if (hrms2 != null) existingOwners.addAll(hrms2.fetchAll(SSN, SSNCountry));
-            if (SSNCountry.equals("GR"))
-                existingDSOwners.addAll(ldap.search(ldap.createSearchFilter("schGrAcPersonSSN=" + SSN)));
-
-            String suggestedNames="";
-            Vector<String> proposedNames =new Vector<String>();
-            if (!existingOwners.isEmpty() || !existingDSOwners.isEmpty()){
-                UserNameGen loginGen = null;
-                if (!existingOwners.isEmpty()) loginGen= new UserNameGen(existingOwners.iterator().next());
-                else loginGen= new UserNameGen(existingDSOwners.iterator().next());
-                boolean firstElem = true;
-
-                proposedNames= loginGen.proposeNames();
-                if (proposedNames!=null && !proposedNames.isEmpty()){
-                    response_code+="0";
-                    message+= ", Generator managed to create suggested names\",";
-                    suggestedNames = ",\n  \"suggestions\":  [";
-                    for(String login : proposedNames){
-                        if (loginGen.checkIfUserNameExists(login, Views, ldapDS)) continue;
-                        if(firstElem){
-                            firstElem = false;
-                        }else{
-                            suggestedNames += ",";
-                        }
-                        suggestedNames +="\n    ";
-                        suggestedNames += "\""+login+"\"";
-                    }
-                    suggestedNames+="\n  ]";
-                    responseJson+=suggestedNames;
-                }
-                else{
-                    response_code+="2";
-                    message+= ", Generator could not suggest names, firstNameEn and lastNameEn probably not available";
-                    exit_code=2;
-                    if (!responseJson.equals("")) message+="\",";
+            if (FN==null || LN==null){
+                existingOwners.addAll(sis.fetchAll(SSN, SSNCountry));
+                if (hrms != null) existingOwners.addAll(hrms.fetchAll(SSN, SSNCountry));
+                if (hrms2 != null) existingOwners.addAll(hrms2.fetchAll(SSN, SSNCountry));
+                if (SSNCountry.equals("GR"))
+                    existingDSOwners.addAll(ldap.search(ldap.createSearchFilter("schGrAcPersonSSN=" + SSN)));
+                if (!existingOwners.isEmpty() || !existingDSOwners.isEmpty()){
+                    if (!existingOwners.isEmpty()) loginGen= new UserNameGen(existingOwners.iterator().next());
+                    else loginGen= new UserNameGen(existingDSOwners.iterator().next());
                 }
             }
-            else {
-                response_code+="1";
-                message+= ", " + SSN + "-" + SSNCountry + " combination not found in any Database";
-                if (!responseJson.equals("")) message+="\"";
-                exit_code=1;
+            else{
+                loginGen=new UserNameGen(FN, LN);
+            }
+
+            proposedNames= loginGen.proposeNames();
+            if (proposedNames!=null && !proposedNames.isEmpty()){
+                response_code+="0";
+                message+= ", Generator managed to create suggested names\",";
+                suggestedNames = ",\n  \"suggestions\":  [";
+                for(String login : proposedNames){
+                    if (loginGen.checkIfUserNameExists(login, Views, ldapDS)) continue;
+                    if(firstElem){
+                        firstElem = false;
+                    }else{
+                        suggestedNames += ",";
+                    }
+                    suggestedNames +="\n    ";
+                    suggestedNames += "\""+login+"\"";
+                }
+                suggestedNames+="\n  ]";
+                responseJson+=suggestedNames;
             }
         }catch (Exception e){
             e.printStackTrace(System.err);

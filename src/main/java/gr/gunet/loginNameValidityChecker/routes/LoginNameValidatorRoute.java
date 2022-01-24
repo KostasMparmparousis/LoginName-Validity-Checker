@@ -20,7 +20,7 @@ import spark.Response;
 import spark.Route;
 
 
-public class LoginNameValidatorRoute implements Route {
+public class LoginNameValidatorRoute implements Route{
     DBConnectionPool Views;
     LdapConnectionPool ldapDS;
     boolean verbose= false;
@@ -114,9 +114,8 @@ public class LoginNameValidatorRoute implements Route {
             }
         }
         else response_code+="1";
-        int exit_code= getExistingLoginNames(reqPerson);
-        if (conflicts.isEmpty() || exit_code!=2) response_code+="0";
-        else generateNames(reqPerson);
+        getExistingLoginNames(reqPerson);
+        response_code+="0";
 
         conflictsJson+="\n  \"Response code\" : " + response_code;
         conflictsJson+=message;
@@ -126,11 +125,10 @@ public class LoginNameValidatorRoute implements Route {
         return conflictsJson;
     }
 
-    public int getExistingLoginNames(RequestPerson reqPerson){
-        int exit_code=0;
+    public void getExistingLoginNames(RequestPerson reqPerson){
         if (!reqPerson.findExisting()) {
             response_code+="2";
-            return 2;
+            return ;
         }
         Collection<AcademicPerson> existingOwners = new Vector<AcademicPerson>();
         Collection<LdapEntry> existingDSOwners = new Vector<LdapEntry>();
@@ -184,84 +182,17 @@ public class LoginNameValidatorRoute implements Route {
                 }
                 foundNames += "\n  ]";
                 responseJson+=foundNames;
-                exit_code=0;
             }else{
                 response_code+="1";
-                exit_code=1;
                 message+= ", " + reqPerson.getSSN() + "-" + reqPerson.getSSNCountry() + " combination not found in any Database";
                 if (!responseJson.equals("")) message+="\"";
             }
         }catch (Exception e){
             e.printStackTrace(System.err);
             closeViews();
-            exit_code=-1;
         }
-        return exit_code;
     }
-    public void generateNames(RequestPerson reqPerson){
-        Collection<AcademicPerson> existingOwners = new Vector<AcademicPerson>();
-        Collection<LdapEntry> existingDSOwners = new Vector<LdapEntry>();
 
-        SISDBView sis=null;
-        HRMSDBView hrms=null;
-        HRMSDBView hrms2=null;
-        LdapManager ldap=null;
-        try {
-            sis = Views.getSISConn();
-            hrms = Views.getHRMSConn();
-            hrms2 = Views.getHRMS2Conn();
-            ldap = ldapDS.getConn();
-
-            existingOwners.addAll(sis.fetchAll(reqPerson, null));
-            if (hrms != null) existingOwners.addAll(hrms.fetchAll(reqPerson, null));
-            if (hrms2 != null) existingOwners.addAll(hrms2.fetchAll(reqPerson, null));
-            if (reqPerson.getSSNCountry().equals("GR"))
-                existingDSOwners.addAll(ldap.search(ldap.createSearchFilter("schGrAcPersonSSN=" + reqPerson.getSSN())));
-
-            String suggestedNames="";
-            Vector<String> proposedNames =new Vector<String>();
-            if (!existingOwners.isEmpty() || !existingDSOwners.isEmpty()){
-                UserNameGen loginGen = null;
-                if (!existingOwners.isEmpty()) loginGen= new UserNameGen(existingOwners.iterator().next());
-                else loginGen= new UserNameGen(existingDSOwners.iterator().next());
-                boolean firstElem = true;
-
-                proposedNames= loginGen.proposeNames();
-                if (proposedNames!=null && !proposedNames.isEmpty()){
-                    response_code+="0";
-                    message+= ", Generator managed to create suggested names\"";
-                    suggestedNames = ",\n  \"suggestions\":  [";
-                    for(String login : proposedNames){
-                        if (loginGen.checkIfUserNameExists(login, Views, ldapDS)) continue;
-                        if(firstElem){
-                            firstElem = false;
-                        }else{
-                            suggestedNames += ",";
-                        }
-                        suggestedNames +="\n    ";
-                        suggestedNames += "\""+login+"\"";
-                    }
-                    suggestedNames+="\n  ]";
-                    responseJson+=suggestedNames;
-                }
-                else{
-                    response_code+="2";
-                    message+= ", Generator could not suggest names, firstNameEn and lastNameEn probably not available";
-                    if (!responseJson.equals("")) message+="\"";
-                }
-            }
-            else {
-                response_code+="1";
-                message+= ", " + reqPerson.getSSN() + "-" + reqPerson.getSSNCountry() + " combination not found in any Database";
-                if (!responseJson.equals("")) message+="\"";
-            }
-        }catch (Exception e){
-            e.printStackTrace(System.err);
-            closeViews();
-         }
-
-
-    }
     public void closeViews(){
         Views.clean();
         ldapDS.clean();

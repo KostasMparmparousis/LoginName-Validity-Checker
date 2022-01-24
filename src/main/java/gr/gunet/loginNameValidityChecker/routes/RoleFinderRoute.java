@@ -64,35 +64,46 @@ public class RoleFinderRoute implements Route {
                 message= "\n  \"message\": \"" + loginName + " not found in any Database\"";
             }
             else {
+                boolean firstElem = true;
                 message= "\n  \"message\": \"" + loginName + " found\",";
-                roles= "\n  \"Roles\" : {";
-                roles += "\n    \"Student\" : ";
+                roles= "\n  \"Roles\" : [";
                 if (!existingSISOwners.isEmpty()) {
-                    roles += "\"Yes\",";
+                    if(firstElem){
+                        firstElem = false;
+                    }else{
+                        roles += ",";
+                    }
+                    roles += "\n    ";
+                    roles += "\"Student\"";
                     response_code += "1";
-                } else {
-                    roles += "\"No\",";
-                    response_code += "0";
                 }
+                else response_code += "0";
 
-                roles += "\n    \"Member Of The Teaching Staff\" : ";
                 if (existingHRMSOwners != null && !existingHRMSOwners.isEmpty()) {
-                    roles += "\"Yes\",";
+                    if(firstElem){
+                        firstElem = false;
+                    }else{
+                        roles += ",";
+                    }
+                    roles += "\n    ";
+                    roles += "\"Member of the Teaching Staff\"";
                     response_code += "1";
-                } else {
-                    roles += "\"No\",";
-                    response_code += "0";
                 }
+                else response_code += "0";
 
-                roles += "\n    \"Associate\" : ";
                 if (existingHRMS2Owners != null && !existingHRMS2Owners.isEmpty()) {
-                    roles += "\"Yes\"";
+                    if(firstElem){
+                        firstElem = false;
+                    }else{
+                        roles += ",";
+                    }
+                    roles += "\n    ";
+                    roles += "\"Associate\"";
                     response_code += "1";
-                } else {
-                    roles += "\"No\"";
-                    response_code += "0";
                 }
-                roles+="\n  }";
+                else response_code += "0";
+
+                roles+="\n  ]";
             }
             roleJson+= "\n  \"Response code\" : " + response_code + ",";
             roleJson+=message;

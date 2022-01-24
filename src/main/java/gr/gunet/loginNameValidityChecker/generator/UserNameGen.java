@@ -23,7 +23,9 @@ public class UserNameGen {
     private String FNtakePercentFrom="";
 
     private String FNplacement="";
-
+    private String FN="";
+    private String LN="";
+    
     private int LNchars=5;
     private String LNtakeCharsFrom="start";
 
@@ -61,6 +63,22 @@ public class UserNameGen {
         separators= new String[]{"_"};
 
         gen= new GeneratingMethods(dsPerson, separators, "", "");
+
+        prioritizeBy=new String[]{"fullNames", "partOfNames", "percentOfNames"};
+        lowerLimit=6;
+        upperLimit=16;
+        upperAmountOfNamesSuggested=6;
+        orderBy="alphabetically";
+    }
+    
+    public UserNameGen(String FN, String LN){
+        this.academicPerson=null;
+        this.dsPerson=null;
+        separators= new String[]{"_"};
+        this.FN=FN;
+        this.LN=LN;
+
+        gen= new GeneratingMethods(FN, LN, separators, "", "");
 
         prioritizeBy=new String[]{"fullNames", "partOfNames", "percentOfNames"};
         lowerLimit=6;
