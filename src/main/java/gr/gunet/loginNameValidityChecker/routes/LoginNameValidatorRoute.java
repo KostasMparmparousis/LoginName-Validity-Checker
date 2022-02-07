@@ -154,10 +154,11 @@ public class LoginNameValidatorRoute implements Route{
             if (!existingOwners.isEmpty() || !existingDSOwners.isEmpty()) {
                 response_code+="0";
                 message+= ", " + reqPerson.getSSN() + "-" + reqPerson.getSSNCountry() + " is already paired with at least 1 loginName\"";
-                foundNames= ",\n  \"personPairedWith\": [";
 
+                foundNames= ",\n  \"personPairedWith\": [";
                 boolean firstElem = true;
                 if (!existingOwners.isEmpty()) {
+
                     for (AcademicPerson person : existingOwners) {
                         if (!existingUserNames.contains(person.getLoginName())) {
                             if (firstElem) firstElem = false;
@@ -169,6 +170,7 @@ public class LoginNameValidatorRoute implements Route{
                     }
                 }
                 else if (!existingDSOwners.isEmpty()) {
+                    foundNames= ",\n  \"personPairedWith\": [";
                     for (LdapEntry person : existingDSOwners) {
                         String uid = person.getAttribute("uid").getStringValue();
                         if (!existingUserNames.contains(uid)) {
@@ -180,11 +182,16 @@ public class LoginNameValidatorRoute implements Route{
                         }
                     }
                 }
+                if (existingUserNames.contains(reqPerson.getLoginName()) && existingUserNames.size()==1) {
+                    message+= ", " + reqPerson.getSSN() + "-" + reqPerson.getSSNCountry() + " is already paired with \"" + reqPerson.getLoginName();
+                    return;
+                }
+                message+= ", " + reqPerson.getSSN() + "-" + reqPerson.getSSNCountry() + " is already paired with at least 1 loginName\"";
                 foundNames += "\n  ]";
                 responseJson+=foundNames;
             }else{
                 response_code+="1";
-                message+= ", " + reqPerson.getSSN() + "-" + reqPerson.getSSNCountry() + " combination not found in any Database";
+                message+= ", " + reqPerson.getSSN() + "-" + reqPerson.getSSNCountry() + " combination not found in any Database\"";
                 if (!responseJson.equals("")) message+="\"";
             }
         }catch (Exception e){
