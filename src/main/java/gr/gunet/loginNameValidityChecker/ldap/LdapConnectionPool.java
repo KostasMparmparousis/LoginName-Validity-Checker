@@ -1,5 +1,8 @@
 package gr.gunet.loginNameValidityChecker.ldap;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import org.ldaptive.LdapException;
@@ -9,6 +12,7 @@ public class LdapConnectionPool {
   private final static HashMap<String,LdapManager> connections = new HashMap();
   private final static HashMap<String,Long> connections_last_usage = new HashMap();
   private String View;
+  private String CONN_FILE_DIR = "/etc/v_vd/conn/";
 
   public LdapConnectionPool(String View){
     this.View=View;
@@ -25,6 +29,10 @@ public class LdapConnectionPool {
       return connections.get(View);
     }
     else {
+      Path path= Paths.get(CONN_FILE_DIR+ View + "_ds.properties");
+      if (!Files.exists(path)) {
+        return null;
+      }
       LdapManager connection = new LdapManager(View+"_ds.properties");
       connection.openConnection();
       connections.put(View, connection);

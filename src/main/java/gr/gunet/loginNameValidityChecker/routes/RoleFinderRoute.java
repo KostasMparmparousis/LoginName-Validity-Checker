@@ -41,6 +41,22 @@ public class RoleFinderRoute implements Route {
 
         loginName = reader.readPropertyAsString("loginName");
         institution = reader.readPropertyAsString("institution");
+        
+        if (loginName==null || institution==null){
+          response_code="400";
+          message= "\n  \"message\": \"";
+          if (loginName==null) {
+            message += "loginName";
+            if (institution==null) message+=",";
+          }
+          if (institution==null) message += "institution";
+          message+=" not given\"";
+          
+          roleJson+= "\n  \"Response code\" : " + response_code + ",";
+          roleJson+=message;
+          roleJson+="\n}\n";
+          return roleJson;
+        }
 
         Views = new DBConnectionPool(institution);
         ldapDS = new LdapConnectionPool(institution);
@@ -111,13 +127,24 @@ public class RoleFinderRoute implements Route {
             roleJson+="\n}\n";
             //res.status(200);
             res.body(new Gson().toJson(roleJson));
-
             return roleJson;
         }catch (Exception e){
             e.printStackTrace(System.err);
-            closeViews();
-            return "{\n  \"Response code\" : 09,\n" +
-                    "  \"message\" : \""+e.getMessage()+"\"\n}\n";
+            try{
+              closeViews();
+            }
+            catch(Exception e1){
+              e1.printStackTrace(System.err);
+              String errorJson="{\n  \"Response code\" : 501,\n" +"  \"message\" : \"Could not connect to \'"+ institution+"\' DB View, incorrect connection details\"\n}\n";
+              res.status(501);
+              res.body(new Gson().toJson(errorJson));
+              return errorJson;
+            }
+            
+            String errorJson="{\n  \"Response code\" : 500,\n" +"  \"message\" : \"Could not connect to \'"+ institution+"\' DB View\"\n}\n";
+            res.status(500);
+            res.body(new Gson().toJson(errorJson));
+            return errorJson;
         }
     }
     public void closeViews(){

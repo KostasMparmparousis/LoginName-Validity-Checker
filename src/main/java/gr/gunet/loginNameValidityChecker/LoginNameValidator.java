@@ -14,7 +14,6 @@ import org.ldaptive.LdapException;
 public class LoginNameValidator {
     private DBConnectionPool Views;
     private LdapConnectionPool ldapDS;
-    private static  String CONN_FILE_DIR = "/etc/v_vd/conn";
 
     public LoginNameValidator(DBConnectionPool Views, LdapConnectionPool ldapDS) {
         this.Views=Views;
@@ -41,36 +40,33 @@ public class LoginNameValidator {
         HRMSDBView hrms2=null;
         LdapManager ldap=null;
 
-        try{
-            sis=Views.getSISConn();
-            hrms=Views.getHRMSConn();
-            hrms2=Views.getHRMS2Conn();
-            ldap=ldapDS.getConn();
+        sis=Views.getSISConn();
+        hrms=Views.getHRMSConn();
+        hrms2=Views.getHRMS2Conn();
+        ldap=ldapDS.getConn();
 
-            Collection<AcademicPerson> existingOwners= sis.fetchAll("loginName",loginName,disabledGracePeriod);
-            for(AcademicPerson existingOwner : existingOwners){
-                conflicts.addAll(samePersonChecks(loginNameOwner,existingOwner,"SIS DB View"));
-            }
-            if (hrms!=null){
-                existingOwners= hrms.fetchAll("loginName",loginName,disabledGracePeriod);
-                for(AcademicPerson existingOwner : existingOwners){
-                    conflicts.addAll(samePersonChecks(loginNameOwner,existingOwner,"HRMS DB View"));
-                }
-            }
-            if (hrms2!=null){
-                existingOwners= hrms2.fetchAll("loginName",loginName,disabledGracePeriod);
-                for(AcademicPerson existingOwner : existingOwners){
-                    conflicts.addAll(samePersonChecks(loginNameOwner,existingOwner,"Associates DB View"));
-                }
-            }
-
-            Collection<LdapEntry> existingDSOwners = ldap.search(ldap.createSearchFilter("(schGrAcPersonID=*)","uid="+loginName));
-            for(LdapEntry existingDSOwner : existingDSOwners){
-                conflicts.addAll(samePersonChecks(loginNameOwner,new SchGrAcPerson(existingDSOwner, loginName),"DS"));
-            }
-        }catch(Exception e){
-            e.printStackTrace();
+        Collection<AcademicPerson> existingOwners= sis.fetchAll("loginName",loginName,disabledGracePeriod);
+        for(AcademicPerson existingOwner : existingOwners){
+            conflicts.addAll(samePersonChecks(loginNameOwner,existingOwner,"SIS DB View"));
         }
+        if (hrms!=null){
+            existingOwners= hrms.fetchAll("loginName",loginName,disabledGracePeriod);
+            for(AcademicPerson existingOwner : existingOwners){
+                conflicts.addAll(samePersonChecks(loginNameOwner,existingOwner,"HRMS DB View"));
+            }
+        }
+        if (hrms2!=null){
+            existingOwners= hrms2.fetchAll("loginName",loginName,disabledGracePeriod);
+            for(AcademicPerson existingOwner : existingOwners){
+                conflicts.addAll(samePersonChecks(loginNameOwner,existingOwner,"Associates DB View"));
+            }
+        }
+
+        Collection<LdapEntry> existingDSOwners = ldap.search(ldap.createSearchFilter("(schGrAcPersonID=*)","uid="+loginName));
+        for(LdapEntry existingDSOwner : existingDSOwners){
+            conflicts.addAll(samePersonChecks(loginNameOwner,new SchGrAcPerson(existingDSOwner, loginName),"DS"));
+        }
+
         return conflicts;
     }
 
@@ -81,19 +77,14 @@ public class LoginNameValidator {
     private Collection<String> getUIDPersons(AcademicPerson loginNameOwner,String loginName,String disabledGracePeriod) throws LdapException,Exception{
         Collection<String> UIDPersons = new HashSet();
         LdapManager ds=null;
-        try{
-            ds= ldapDS.getConn();
-            Collection<LdapEntry> existingDSOwners= ds.search(ds.createSearchFilter("(!(schGrAcPersonID=*))","uid="+loginName));
-            if (!existingDSOwners.isEmpty()){
-                for (LdapEntry uidPerson: existingDSOwners){
-                    if (uidPerson.getAttribute("uid")!=null && (uidPerson.getAttribute("uid").getStringValue()).equals(loginName)){
-                        UIDPersons.add(loginName);
-                    }
-                }
-            }
-        }
-        catch(Exception e){
-            e.printStackTrace();
+        ds= ldapDS.getConn();
+        Collection<LdapEntry> existingDSOwners= ds.search(ds.createSearchFilter("(!(schGrAcPersonID=*))","uid="+loginName));
+        if (!existingDSOwners.isEmpty()){
+          for (LdapEntry uidPerson: existingDSOwners){
+              if (uidPerson.getAttribute("uid")!=null && (uidPerson.getAttribute("uid").getStringValue()).equals(loginName)){
+                UIDPersons.add(loginName);
+              }
+          }
         }
         return UIDPersons;
     }

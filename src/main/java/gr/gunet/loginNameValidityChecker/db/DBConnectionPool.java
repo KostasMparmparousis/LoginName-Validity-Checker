@@ -14,7 +14,7 @@ public class DBConnectionPool {
   private final static HashMap<String,HRMSDBView> HRMS2connections = new HashMap();
   private final static HashMap<String,Long> hrms2_last_usage = new HashMap();
   private String View;
-  private String CONN_FILE_DIR = "/etc/v_vd/conn";
+  private String CONN_FILE_DIR = "/etc/v_vd/conn/";
   
 
   public DBConnectionPool(String View){
@@ -22,6 +22,10 @@ public class DBConnectionPool {
   }
 
   public SISDBView getSISConn() throws Exception{
+    Path path= Paths.get(CONN_FILE_DIR+ View + ".properties");
+    if (!Files.exists(path)) {
+      return null;
+    }
     if (SISconnections.containsKey(View)){
       long currentTime = System.currentTimeMillis();
       sis_last_usage.put(View, currentTime);
@@ -41,7 +45,7 @@ public class DBConnectionPool {
   public HRMSDBView getHRMSConn() throws Exception{
     Path path= Paths.get(CONN_FILE_DIR+ View + "_hrms.properties");
     if (!Files.exists(path)) {
-     return null;
+      return null;
     }
     if (HRMSconnections.containsKey(View)){
       long currentTime = System.currentTimeMillis();

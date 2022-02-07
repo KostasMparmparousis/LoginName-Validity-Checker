@@ -19,7 +19,6 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
-
 public class LoginNameValidatorRoute implements Route{
     DBConnectionPool Views;
     LdapConnectionPool ldapDS;
@@ -45,8 +44,11 @@ public class LoginNameValidatorRoute implements Route{
         }catch(Exception e){
             e.printStackTrace(System.err);
             closeViews();
-            return "{\n  \"Response code\" : 09,\n" +
+            String errorJson="{\n  \"Response code\" : 400,\n" +
                     "  \"message\" : \""+e.getMessage()+"\"\n}\n";
+            res.status(400);
+            res.body(new Gson().toJson(errorJson));
+            return errorJson;
         }
 
         Views= new DBConnectionPool(reqPerson.getInstitution());
@@ -60,7 +62,7 @@ public class LoginNameValidatorRoute implements Route{
                 String uid= UIDPersons.iterator().next();
                 String warningJson="{\n  \"Response code\" : 300, \n"+
                         "  \"message\" : \"" + uid + " already exists while not following the typical DS Account generation procedure\"\n}";
-                //res.status(300);
+                res.status(300);
                 res.body(new Gson().toJson(warningJson));
                 return warningJson;
             }
@@ -68,10 +70,12 @@ public class LoginNameValidatorRoute implements Route{
         catch(Exception e){
             e.printStackTrace(System.err);
             closeViews();
-            return "{\n  \"Response code\" : 09,\n" +
-                    "  \"message\" : \""+e.getMessage()+"\"\n}\n";
+            String errorJson="{\n  \"Response code\" : 502,\n" +"  \"message\" : \"Could not connect to \'"+ reqPerson.getInstitution()+"\' DS\"\n}\n";
+            res.status(502);
+            res.body(new Gson().toJson(errorJson));
+            return errorJson;
         }
-
+        
         Collection<Conflict> conflicts;
         responseJson = "";
         try{
@@ -81,10 +85,22 @@ public class LoginNameValidatorRoute implements Route{
             return responseJson;
         }catch(Exception e){
             e.printStackTrace(System.err);
-            closeViews();
-            return "{\n  \"Response code\" : 09,\n" +
-                    "  \"message\" : \""+e.getMessage()+"\"\n}\n";
+            try{
+              closeViews();
+            }
+            catch(Exception e1){
+              e1.printStackTrace(System.err);
+              String errorJson="{\n  \"Response code\" : 501,\n" +"  \"message\" : \"Could not connect to \'"+ reqPerson.getInstitution()+"\' DB View, incorrect connection details\"\n}\n";
+              res.status(501);
+              res.body(new Gson().toJson(errorJson));
+              return errorJson;
+            }
+            String errorJson="{\n  \"Response code\" : 500,\n" +"  \"message\" : \"Could not connect to \'"+ reqPerson.getInstitution()+"\' DB View\"\n}\n";
+            res.status(500);
+            res.body(new Gson().toJson(errorJson));
+            return errorJson;
         }
+        
     }
 
     public String getConflicts(Collection<Conflict> conflicts, RequestPerson reqPerson){
@@ -153,7 +169,6 @@ public class LoginNameValidatorRoute implements Route{
             String foundNames="";
             if (!existingOwners.isEmpty() || !existingDSOwners.isEmpty()) {
                 response_code+="0";
-                message+= ", " + reqPerson.getSSN() + "-" + reqPerson.getSSNCountry() + " is already paired with at least 1 loginName\"";
 
                 foundNames= ",\n  \"personPairedWith\": [";
                 boolean firstElem = true;
@@ -183,7 +198,8 @@ public class LoginNameValidatorRoute implements Route{
                     }
                 }
                 if (existingUserNames.contains(reqPerson.getLoginName()) && existingUserNames.size()==1) {
-                    message+= ", " + reqPerson.getSSN() + "-" + reqPerson.getSSNCountry() + " is already paired with \"" + reqPerson.getLoginName();
+                    message+= ", " + reqPerson.getSSN() + "-" + reqPerson.getSSNCountry() + " is already paired with \'" + reqPerson.getLoginName() + "\'";
+                    responseJson="";
                     return;
                 }
                 message+= ", " + reqPerson.getSSN() + "-" + reqPerson.getSSNCountry() + " is already paired with at least 1 loginName\"";
@@ -191,11 +207,12 @@ public class LoginNameValidatorRoute implements Route{
                 responseJson+=foundNames;
             }else{
                 response_code+="1";
-                message+= ", " + reqPerson.getSSN() + "-" + reqPerson.getSSNCountry() + " combination not found in any Database\"";
+                message+= ", " + reqPerson.getSSN() + "-" + reqPerson.getSSNCountry() + " combination not found in any Database";
                 if (!responseJson.equals("")) message+="\"";
             }
         }catch (Exception e){
             e.printStackTrace(System.err);
+            
             closeViews();
         }
     }
