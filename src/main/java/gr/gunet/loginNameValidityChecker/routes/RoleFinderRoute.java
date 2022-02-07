@@ -14,7 +14,7 @@ import spark.Route;
 
 import java.util.Collection;
 
-public class RoleFinderRoute implements Route {
+public class RoleFinderRoute /*implements Route*/ {
     DBConnectionPool Views;
     LdapConnectionPool ldapDS;
     String loginName;
@@ -22,11 +22,12 @@ public class RoleFinderRoute implements Route {
     public RoleFinderRoute() {
     }
 
-    @Override
-    public Object handle(Request req, Response res) throws Exception {
-        res.type("application/json");
+//    @Override
+    public Object handle(String req /*Request req, Response res*/) throws Exception {
+        //res.type("application/json");
         String CONN_FILE_DIR = "/etc/v_vd/conn";
-        String reqBody = req.body();
+        String reqBody = req;
+        //String reqBody = req.body();
         CustomJsonReader reader;
         try {
             reader = new CustomJsonReader(reqBody);
@@ -126,7 +127,7 @@ public class RoleFinderRoute implements Route {
             roleJson+=roles;
             roleJson+="\n}\n";
             //res.status(200);
-            res.body(new Gson().toJson(roleJson));
+            //res.body(new Gson().toJson(roleJson));
             return roleJson;
         }catch (Exception e){
             e.printStackTrace(System.err);
@@ -136,14 +137,14 @@ public class RoleFinderRoute implements Route {
             catch(Exception e1){
               e1.printStackTrace(System.err);
               String errorJson="{\n  \"Response code\" : 501,\n" +"  \"message\" : \"Could not connect to \'"+ institution+"\' DB View, incorrect connection details\"\n}\n";
-              res.status(501);
-              res.body(new Gson().toJson(errorJson));
+              //res.status(501);
+              //res.body(new Gson().toJson(errorJson));
               return errorJson;
             }
             
             String errorJson="{\n  \"Response code\" : 500,\n" +"  \"message\" : \"Could not connect to \'"+ institution+"\' DB View\"\n}\n";
-            res.status(500);
-            res.body(new Gson().toJson(errorJson));
+            //res.status(500);
+            //res.body(new Gson().toJson(errorJson));
             return errorJson;
         }
     }
