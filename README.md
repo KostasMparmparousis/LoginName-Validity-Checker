@@ -6,10 +6,10 @@ LoginName Validity Checker is an all-around mechanism that is utilized during th
 * ***loginNameSuggestor/***    
 * ***roleFinder/*** 
 
-The endpoints expect to receive a **JSON** formatted request and responds likewise. Documentation for every endpoint can be found below:
+The endpoints expect to receive a **JSON** formatted request and respond likewise. Documentation for every endpoint can be found below:
 
 ## loginNameValidator/
-Examines if a given loginName can be safely attributed to a new account. 
+Examines if a given loginName can be safely attributed to a new Account. 
 
 ### Requests
 - [Request Attributes.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Validator-Request-Attributes)
@@ -35,9 +35,9 @@ Examines if a given loginName can be safely attributed to a new account.
 * **502**: Wrong/Invalid connection details for the given institution's Data Servers
 
 ### Responses
-- [Response Schema Validator.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Validator-response-schema)
+- [Response Schema.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Validator-response-schema)
 
 ### Response Examples
-Two Catalogs containing Incomplete and successfull cals of the endpoint can be found below:
+Two Catalogs containing incomplete and successfull cals of the endpoint can be found below:
 - [Incomplete Calls.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Validator-unsuccessful-calls)
 - [Successfull Calls.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Validator-successfull-calls)
