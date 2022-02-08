@@ -1,23 +1,23 @@
 # LoginName-Validity-Checker.
-LoginName Validity Checker is a API responsible for cross-checking the validity of a given loginName within the confines of an Institution.
+LoginName Validity Checker is an all-around mechanism that is utilized during the University Account creation procedure.
 
-## Requests.
-The API expects to receive a **JSON** formatted request following the Schema described below.
+## Endpoints
+* ***loginNameValidator/***    
+* ***loginNameSuggestor/***    
+* ***roleFinder/*** 
 
-- [Request Schema Attributes.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Request-properties)
-- [Request Schema Validator.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Request-schema)
+The endpoints expect to receive a **JSON** formatted request and responds likewise. Documentation for every endpoint can be found below:
 
-## Responses
-The API will return a **JSON** formatted response as shown below:
+## loginNameValidator/
+Examines if a given loginName can be safely attributed to a new account. 
 
-- [Response Schema Validator.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Response-schema)
+### Requests
+- [Request Attributes.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Validator-Request-Attributes)
+- [Request Schema.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Validator-Request-schema)
 
-## Response Examples
-Two Catalogs containing Incomplete and successfull cals of the API can be found below:
-- [Incomplete Calls.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Incomplete-calls)
-- [Successfull Calls.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Successfull-calls)
+### Response Codes
 
-## Response Codes 
+***Response Code Table***
 | Response Code | No conflicts | Conflicts Found | improperly created in DS | findExisting flag *false* | previous loginNames *found* | previous loginNames *not found* |
 | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
 | 100 | :heavy_check_mark: |  |  |  | :heavy_check_mark: |  |
@@ -27,3 +27,17 @@ Two Catalogs containing Incomplete and successfull cals of the API can be found 
 | 210 |  | :heavy_check_mark: |  |  |  | :heavy_check_mark: |
 | 220 |  | :heavy_check_mark: |  | :heavy_check_mark: |  |  |
 | 300 |  |  | :heavy_check_mark: | | | |
+
+***Error Codes***
+* **400**: Missing attribute in JSON Request
+* **500**: Missing connection details for the institution given
+* **501**: Wrong/Invalid connection details for the given institution's Views
+* **502**: Wrong/Invalid connection details for the given institution's Data Servers
+
+### Responses
+- [Response Schema Validator.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Validator-response-schema)
+
+### Response Examples
+Two Catalogs containing Incomplete and successfull cals of the endpoint can be found below:
+- [Incomplete Calls.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Validator-unsuccessful-calls)
+- [Successfull Calls.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Validator-successfull-calls)
