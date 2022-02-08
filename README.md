@@ -36,8 +36,5 @@ Examines if a given loginName can be safely attributed to a new Account.
 
 ### Responses
 - [Response Schema.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Validator-response-schema)
-
-### Response Examples
-Two Catalogs containing incomplete and successfull cals of the endpoint can be found below:
 - [Incomplete Calls.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Validator-unsuccessful-calls)
 - [Successfull Calls.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Validator-successfull-calls)
