@@ -29,10 +29,10 @@ Examines if a given loginName can be safely attributed to a new Account.
 | 300 |  |  | :heavy_check_mark: | | | |
 
 ***Error Codes***
-* **400**: Missing attribute in JSON Request
-* **500**: Missing connection details for the institution given
-* **501**: Wrong/Invalid connection details for the given institution's Views
-* **502**: Wrong/Invalid connection details for the given institution's Data Servers
+* **400**: Missing attribute in JSON Request.
+* **500**: Missing connection details for the institution given.
+* **501**: Wrong/Invalid connection details for the given institution's Views.
+* **502**: Wrong/Invalid connection details for the given institution's Data Servers.
 
 ### Responses
 - [Response Schema.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Validator-response-schema)
@@ -41,8 +41,8 @@ Examines if a given loginName can be safely attributed to a new Account.
 
 ## loginNameSuggestor/
 Responsible for suggesting possible loginNames for a new Account, by:
-* Locating previous userNames based on *SSN* & *SSNCountry*
-* Generating new userNames based on *firstName* & *lastName*
+* Locating previous userNames based on *SSN* & *SSNCountry*.
+* Generating new userNames based on *firstName* & *lastName*.
 
 ### Requests
 - [Request Attributes.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Suggestor-Request-Attributes)
@@ -62,11 +62,41 @@ Responsible for suggesting possible loginNames for a new Account, by:
 
 
 ***Error Codes***
-* **40**: Missing attribute in JSON Request
-* **50**: Missing connection details for the institution given
-* **51**: Wrong/Invalid connection details for the given institution's Views
+* **40**: Missing attribute in JSON Request.
+* **50**: Missing connection details for the institution given.
+* **51**: Wrong/Invalid connection details for the given institution's Views.
 
 ### Responses
 - [Response Schema.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Suggestor-response-schema)
 - [Incomplete Calls.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Suggestor-unsuccessful-calls)
 - [Successful Calls.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Suggestor-successful-calls)
+
+## roleFinder/
+Search for a person's active Roles in a institution based on a given userName.
+### Requests
+- [Request Attributes.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/roleFinder-Request-Attributes)
+- [Request Schema.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/roleFinder-Request-schema)
+
+### Response Codes
+
+***Response Code Table***
+| Response Code | Student | Teaching Staff | Associate | 
+| :----: | :----: | :----: | :----: |
+| 000 |  |  |  |
+| 001 |  |  | :heavy_check_mark: |
+| 010 |  | :heavy_check_mark: |  |
+| 011 |  | :heavy_check_mark: | :heavy_check_mark: |
+| 100 | :heavy_check_mark: |  |  |
+| 101 | :heavy_check_mark: |  | :heavy_check_mark: |
+| 110 | :heavy_check_mark: | :heavy_check_mark: |  |
+| 111 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+
+***Error Codes***
+* **400**: Missing attribute in JSON Request.
+* **500**: Missing connection details for the institution given.
+* **501**: Wrong/Invalid connection details for the given institution's Views.
+
+### Responses
+- [Response Schema.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/roleFinder-response-schema)
+- [Incomplete Calls.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/roleFinder-unsuccessful-calls)
+- [Successful Calls.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/roleFinder-successful-calls)
