@@ -81,4 +81,4 @@ Search for a person's active Roles in a institution based on a given userName.
 * **500**: Missing connection details for the institution given.
 * **501**: Wrong/Invalid connection details for the given institution's Views and Data Server.
 
-More information about the error codes and some examples are available [here](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Error-Codes-and-Examples)
+More information about the error codes and some examples are available [here](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Error-Codes-and-Examples).
