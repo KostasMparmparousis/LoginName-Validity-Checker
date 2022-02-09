@@ -9,6 +9,9 @@ import gr.gunet.loginNameValidityChecker.db.SISDBView;
 import gr.gunet.loginNameValidityChecker.db.DBConnectionPool;
 import gr.gunet.loginNameValidityChecker.ldap.LdapManager;
 import gr.gunet.loginNameValidityChecker.ldap.LdapConnectionPool;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import org.ldaptive.LdapEntry;
 
 import java.util.Collection;
@@ -30,6 +33,7 @@ public class LoginNameSuggestorRoute implements Route {
     String responseJson;
     String personPairedWith;
     String suggestedNames;
+    private String CONN_FILE_DIR = "/etc/v_vd/conn/";
     public LoginNameSuggestorRoute() {
     }
 
@@ -41,7 +45,6 @@ public class LoginNameSuggestorRoute implements Route {
         responseJson="";
         personPairedWith="";
         suggestedNames="";
-        String CONN_FILE_DIR = "/etc/v_vd/conn";
         String reqBody= req.body();
         CustomJsonReader reader;
         try {
@@ -57,7 +60,17 @@ public class LoginNameSuggestorRoute implements Route {
         institution = reader.readPropertyAsString("institution");
         
         if (institution==null){
-          String errorJson="{\n  \"Response code\" : 40,\n" +"  \"message\" : \"No institution provided\"\n}\n";
+          closeViews();
+          String errorJson="{\n  \"Response code\" : 400,\n" +"  \"message\" : \"No institution provided\"\n}\n";
+          res.status(400);
+          res.body(new Gson().toJson(errorJson));
+          return errorJson;
+        }
+        else if (!institutionExists(institution)){
+          closeViews();
+          String errorJson="{\n  \"Response code\" : 500,\n" +"  \"message\" : \"Could not connect to \'"+ institution+"\'\"\n}\n";
+          res.status(500);
+          res.body(new Gson().toJson(errorJson));
           return errorJson;
         }
 
@@ -69,103 +82,123 @@ public class LoginNameSuggestorRoute implements Route {
 
         String foundJson= "{";
         message="";
+        String errorJson="";
 
         SISDBView sis=null;
         HRMSDBView hrms=null;
         HRMSDBView hrms2=null;
         LdapManager ldap=null;
-        try {
-            if (SSN==null || SSNCountry==null){
-              response_code+="3";
-              message= "\n  \"message\":\"";
-              if (SSN==null) message+= "SSN not given, ";
-              if (SSNCountry==null) message+="SSNCountry not given, ";
-              int exit_code= generateNames();
-              String returnJson="{";
-              returnJson+= "\n  \"Response code\" : " + response_code+ ",";
-              returnJson+=message;
-              responseJson+=suggestedNames;
-              returnJson+=responseJson;
-              returnJson+="\n}";
-              res.body(new Gson().toJson(returnJson));
-              return returnJson;
-            }
 
-            sis = Views.getSISConn();
-            hrms = Views.getHRMSConn();
-            hrms2 = Views.getHRMS2Conn();
-            ldap = ldapDS.getConn();
-
-            existingOwners.addAll(sis.fetchAll(SSN, SSNCountry));
-            if (hrms != null) existingOwners.addAll(hrms.fetchAll(SSN, SSNCountry));
-            if (hrms2 != null) existingOwners.addAll(hrms2.fetchAll(SSN, SSNCountry));
-            if (SSNCountry.equals("GR")) existingDSOwners.addAll(ldap.search(ldap.createSearchFilter("schGrAcPersonSSN=" + SSN)));
-
-            Vector<String> existingUserNames= new Vector<String>();
-            if (!existingOwners.isEmpty() || !existingDSOwners.isEmpty()) {
-                response_code+="1";
-
-                personPairedWith= "\n  \"personPairedWith\": [";
-
-                boolean firstElem = true;
-                if (!existingOwners.isEmpty()) {
-                    for (AcademicPerson person : existingOwners) {
-                        if (!existingUserNames.contains(person.getLoginName())) {
-                            if (firstElem) firstElem = false;
-                            else personPairedWith += ",";
-                            personPairedWith += "\n    ";
-                            personPairedWith += "\"" + person.getLoginName() + "\"";
-                            existingUserNames.add(person.getLoginName());
-                        }
-                    }
-                }
-                else if (!existingDSOwners.isEmpty()) {
-                    for (LdapEntry person : existingDSOwners) {
-                        String uid = person.getAttribute("uid").getStringValue();
-                        if (!existingUserNames.contains(uid)) {
-                            if (firstElem) firstElem = false;
-                            else personPairedWith += ",";
-                            personPairedWith += "\n    ";
-                            personPairedWith += "\"" + uid + "\"";
-                            existingUserNames.add(uid);
-                        }
-                    }
-                }
-                personPairedWith += "\n  ]";
-                message= "\n  \"message\": \"" + SSN + "-" + SSNCountry + " is already paired with at least 1 loginName, ";
-            }else{
-                response_code+="2";
-                message= "\n  \"message\": \"" + SSN + "-" + SSNCountry + " combination not found in any Database, ";
-            }
-            int exit_code= generateNames();
-            responseJson+=personPairedWith;
-            responseJson+=suggestedNames;
-            String returnJson="{";
-            returnJson+= "\n  \"Response code\" : " + response_code+ ",";
-            returnJson+=message;
-            returnJson+=responseJson;
-            returnJson+="\n}";
-            res.body(new Gson().toJson(returnJson));
-            return returnJson;
-            //res.status(200);
-
-        }catch (Exception e){
-            e.printStackTrace(System.err);
-            try{
-              closeViews();
-            }
-            catch(Exception e1){
-              e1.printStackTrace(System.err);
-              String errorJson="{\n  \"Response code\" : 51,\n" +"  \"message\" : \"Could not connect to \'"+ institution+"\' DB View, incorrect connection details\"\n}\n";
-              res.status(51);
-              res.body(new Gson().toJson(errorJson));
-              return errorJson;
-            }
-            String errorJson="{\n  \"Response code\" : 50,\n" +"  \"message\" : \"Could not connect to \'"+ institution+"\' DB View\"\n}\n";
-            res.status(50);
-            res.body(new Gson().toJson(errorJson));
-            return errorJson;
+        if (SSN==null || SSNCountry==null){
+          response_code+="3";
+          message= "\n  \"message\":\"";
+          if (SSN==null) message+= "SSN not given, ";
+          if (SSNCountry==null) message+="SSNCountry not given, ";
+          int exit_code= generateNames();
+          String returnJson="{";
+          response_code+="0";
+          returnJson+= "\n  \"Response code\" : " + response_code+ ",";
+          returnJson+=message;
+          responseJson+=suggestedNames;
+          returnJson+=responseJson;
+          returnJson+="\n}";
+          res.body(new Gson().toJson(returnJson));
+          return returnJson;
         }
+
+        try{
+          sis = Views.getSISConn();
+          existingOwners.addAll(sis.fetchAll(SSN, SSNCountry));
+        }
+        catch (Exception e){
+          errorJson="{\n  \"Response code\" : 501,\n" +"  \"message\" : \"Could not connect to the SIS\"\n}\n";
+        }
+
+        try{
+          hrms = Views.getHRMSConn();
+          if (hrms != null) existingOwners.addAll(hrms.fetchAll(SSN, SSNCountry));
+        }
+        catch (Exception e){
+          errorJson="{\n  \"Response code\" : 501,\n" +"  \"message\" : \"Could not connect to the HRMS\"\n}\n";
+        }
+
+        try{
+          hrms2 = Views.getHRMS2Conn();
+          if (hrms2 != null) existingOwners.addAll(hrms2.fetchAll(SSN, SSNCountry));
+        }
+        catch (Exception e){
+          errorJson="{\n  \"Response code\" : 501,\n" +"  \"message\" : \"Could not connect to the HRMS2\"\n}\n";
+        }
+
+        try{
+          ldap = ldapDS.getConn();
+          if (SSNCountry.equals("GR")) existingDSOwners.addAll(ldap.search(ldap.createSearchFilter("schGrAcPersonSSN=" + SSN)));
+        }
+        catch (Exception e){
+          errorJson="{\n  \"Response code\" : 501,\n" +"  \"message\" : \"Could not connect to the DS\"\n}\n";
+        }
+
+        if (!errorJson.equals("")){
+          res.status(501);
+          res.body(new Gson().toJson(errorJson));
+          return errorJson;
+        }
+
+        Vector<String> existingUserNames= new Vector<String>();
+        if (!existingOwners.isEmpty() || !existingDSOwners.isEmpty()) {
+            response_code+="1";
+
+            personPairedWith= "\n  \"personPairedWith\": [";
+
+            boolean firstElem = true;
+            if (!existingOwners.isEmpty()) {
+                for (AcademicPerson person : existingOwners) {
+                    if (!existingUserNames.contains(person.getLoginName())) {
+                        if (firstElem) firstElem = false;
+                        else personPairedWith += ",";
+                        personPairedWith += "\n    ";
+                        personPairedWith += "\"" + person.getLoginName() + "\"";
+                        existingUserNames.add(person.getLoginName());
+                    }
+                }
+            }
+            else if (!existingDSOwners.isEmpty()) {
+                for (LdapEntry person : existingDSOwners) {
+                    String uid = person.getAttribute("uid").getStringValue();
+                    if (!existingUserNames.contains(uid)) {
+                        if (firstElem) firstElem = false;
+                        else personPairedWith += ",";
+                        personPairedWith += "\n    ";
+                        personPairedWith += "\"" + uid + "\"";
+                        existingUserNames.add(uid);
+                    }
+                }
+            }
+            personPairedWith += "\n  ]";
+            message= "\n  \"message\": \"" + SSN + "-" + SSNCountry + " is already paired with at least 1 loginName, ";
+        }else{
+            response_code+="2";
+            message= "\n  \"message\": \"" + SSN + "-" + SSNCountry + " combination not found in any Database, ";
+        }
+        int exit_code= generateNames();
+        responseJson+=personPairedWith;
+        responseJson+=suggestedNames;
+        String returnJson="{";
+        response_code+="0";
+        returnJson+= "\n  \"Response code\" : " + response_code+ ",";
+        returnJson+=message;
+        returnJson+=responseJson;
+        returnJson+="\n}";
+        res.body(new Gson().toJson(returnJson));
+        return returnJson;
+    }
+
+    public boolean institutionExists(String institution){
+      Path path= Paths.get(CONN_FILE_DIR+ institution + ".properties");
+      if (!Files.exists(path)) {
+        return false;
+      }
+      return true;
     }
 
     public int generateNames(){

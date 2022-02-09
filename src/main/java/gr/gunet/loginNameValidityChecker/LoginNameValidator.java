@@ -34,37 +34,60 @@ public class LoginNameValidator {
 
     private  Collection<Conflict> checkForUniquenessConflicts(AcademicPerson loginNameOwner,String loginName,String disabledGracePeriod) throws LdapException, Exception{
         Collection<Conflict> conflicts = new HashSet();
+        Collection<LdapEntry> existingDSOwners;
+        Collection<AcademicPerson> existingOwners;
 
         SISDBView sis=null;
         HRMSDBView hrms=null;
         HRMSDBView hrms2=null;
         LdapManager ldap=null;
 
-        sis=Views.getSISConn();
-        hrms=Views.getHRMSConn();
-        hrms2=Views.getHRMS2Conn();
-        ldap=ldapDS.getConn();
-
-        Collection<AcademicPerson> existingOwners= sis.fetchAll("loginName",loginName,disabledGracePeriod);
-        for(AcademicPerson existingOwner : existingOwners){
+        try{
+          sis=Views.getSISConn();
+          existingOwners= sis.fetchAll("loginName",loginName,disabledGracePeriod);
+          for(AcademicPerson existingOwner : existingOwners){
             conflicts.addAll(samePersonChecks(loginNameOwner,existingOwner,"SIS DB View"));
+          }
         }
-        if (hrms!=null){
+        catch(Exception e){
+          throw new Exception("SIS");
+        }
+
+        try{
+          hrms=Views.getHRMSConn();
+          if (hrms!=null){
             existingOwners= hrms.fetchAll("loginName",loginName,disabledGracePeriod);
             for(AcademicPerson existingOwner : existingOwners){
-                conflicts.addAll(samePersonChecks(loginNameOwner,existingOwner,"HRMS DB View"));
+              conflicts.addAll(samePersonChecks(loginNameOwner,existingOwner,"HRMS DB View"));
             }
+          }
         }
-        if (hrms2!=null){
+        catch(Exception e){
+          throw new Exception("HRMS");
+        }
+
+        try{
+          hrms2=Views.getHRMS2Conn();
+          if (hrms2!=null){
             existingOwners= hrms2.fetchAll("loginName",loginName,disabledGracePeriod);
             for(AcademicPerson existingOwner : existingOwners){
                 conflicts.addAll(samePersonChecks(loginNameOwner,existingOwner,"Associates DB View"));
             }
+          }
+        }
+        catch(Exception e){
+          throw new Exception("HRMS2");
         }
 
-        Collection<LdapEntry> existingDSOwners = ldap.search(ldap.createSearchFilter("(schGrAcPersonID=*)","uid="+loginName));
-        for(LdapEntry existingDSOwner : existingDSOwners){
+        try{
+          ldap=ldapDS.getConn();
+          existingDSOwners = ldap.search(ldap.createSearchFilter("(schGrAcPersonID=*)","uid="+loginName));
+          for(LdapEntry existingDSOwner : existingDSOwners){
             conflicts.addAll(samePersonChecks(loginNameOwner,new SchGrAcPerson(existingDSOwner, loginName),"DS"));
+          }
+        }
+        catch(Exception e){
+          throw new Exception("DS");
         }
 
         return conflicts;

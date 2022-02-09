@@ -11,6 +11,9 @@ import gr.gunet.loginNameValidityChecker.tools.CustomJsonReader;
 import gr.gunet.loginNameValidityChecker.RequestPerson;
 import gr.gunet.loginNameValidityChecker.db.DBConnectionPool;
 import gr.gunet.loginNameValidityChecker.ldap.LdapConnectionPool;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import java.util.*;
 
@@ -27,6 +30,7 @@ public class LoginNameValidatorRoute implements Route{
     String response_code;
     String message;
     String responseJson;
+    private String CONN_FILE_DIR = "/etc/v_vd/conn/";
 
     public LoginNameValidatorRoute() {
     }
@@ -51,6 +55,14 @@ public class LoginNameValidatorRoute implements Route{
             return errorJson;
         }
 
+        if (!institutionExists(reqPerson.getInstitution())){
+          closeViews();
+          String errorJson="{\n  \"Response code\" : 500,\n" +"  \"message\" : \"Could not connect to \'"+ reqPerson.getInstitution()+"\'\"\n}\n";
+          res.status(500);
+          res.body(new Gson().toJson(errorJson));
+          return errorJson;
+        }
+
         Views= new DBConnectionPool(reqPerson.getInstitution());
         ldapDS= new LdapConnectionPool(reqPerson.getInstitution());
         LoginNameValidator loginChecker = new LoginNameValidator(Views, ldapDS);
@@ -70,8 +82,8 @@ public class LoginNameValidatorRoute implements Route{
         catch(Exception e){
             e.printStackTrace(System.err);
             closeViews();
-            String errorJson="{\n  \"Response code\" : 502,\n" +"  \"message\" : \"Could not connect to \'"+ reqPerson.getInstitution()+"\' DS\"\n}\n";
-            res.status(502);
+            String errorJson="{\n  \"Response code\" : 501,\n" +"  \"message\" : \"Could not connect to the DS\"\n}\n";
+            res.status(501);
             res.body(new Gson().toJson(errorJson));
             return errorJson;
         }
@@ -85,24 +97,23 @@ public class LoginNameValidatorRoute implements Route{
             return responseJson;
         }catch(Exception e){
             e.printStackTrace(System.err);
-            try{
-              closeViews();
-            }
-            catch(Exception e1){
-              e1.printStackTrace(System.err);
-              String errorJson="{\n  \"Response code\" : 501,\n" +"  \"message\" : \"Could not connect to \'"+ reqPerson.getInstitution()+"\' DB View, incorrect connection details\"\n}\n";
-              res.status(501);
-              res.body(new Gson().toJson(errorJson));
-              return errorJson;
-            }
-            String errorJson="{\n  \"Response code\" : 500,\n" +"  \"message\" : \"Could not connect to \'"+ reqPerson.getInstitution()+"\' DB View\"\n}\n";
-            res.status(500);
+            String errorSource= e.getMessage();
+            String errorJson="{\n  \"Response code\" : 501,\n" +"  \"message\" : \"Could not connect to the " + errorSource + "\"\n}\n";
+            res.status(501);
             res.body(new Gson().toJson(errorJson));
             return errorJson;
         }
         
     }
 
+    public boolean institutionExists(String institution){
+      Path path= Paths.get(CONN_FILE_DIR+ institution + ".properties");
+      if (!Files.exists(path)) {
+        return false;
+      }
+      return true;
+    }
+    
     public String getConflicts(Collection<Conflict> conflicts, RequestPerson reqPerson){
         message=",\n  \"message\" : \"";
         if (conflicts.isEmpty()) {
@@ -198,7 +209,6 @@ public class LoginNameValidatorRoute implements Route{
                     }
                 }
                 if (existingUserNames.contains(reqPerson.getLoginName()) && existingUserNames.size()==1) {
-                    message+= ", " + reqPerson.getSSN() + "-" + reqPerson.getSSNCountry() + " is already paired with \'" + reqPerson.getLoginName() + "\'";
                     responseJson="";
                     return;
                 }

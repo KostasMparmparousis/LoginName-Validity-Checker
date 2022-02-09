@@ -87,6 +87,51 @@ public class HRMSDBView extends DBManager{
         }
         return retVals;
     }
+    
+    public Collection<AcademicPerson> fetchAll(String attributeName, String attributeValue, boolean onlyActive) throws Exception{
+        String attributeType = ATTRIBUTE_DATA_TYPES.get(attributeName.toLowerCase());
+        if(attributeType == null || attributeType.equals("")){
+            throw new Exception("Field with name '"+attributeName+"' does not have a type registered");
+        }
+        if(attributeType.equals("number") && !attributeValue.matches("\\d+")){
+            return new HashSet();
+        }
+
+        List<AcademicPerson> retVals = new LinkedList();
+
+        String sql = "SELECT hp FROM HRMSPersonEntity_v"+entityVersion+" hp WHERE hp."+attributeName;
+        if(attributeType.equals("varchar")){
+            sql += "='"+attributeValue+"'";
+        }else if(attributeType.equals("number")){
+            sql += "="+attributeValue;
+        }else{
+            throw new Exception("Unknown data type '"+attributeType+"' encountered on attribute '"+attributeName+"' on CrossChecker:fetch");
+        }
+        if(onlyActive == true){
+            sql += " AND hp.employeeStatus IN ('active','interim')";
+        }
+
+        if(entityVersion.equals("1")){
+            List<HRMSPersonEntity_v1> results = select(sql,HRMSPersonEntity_v1.class);
+            retVals.addAll(results);
+        }
+        else if(entityVersion.equals("2")){
+            List<HRMSPersonEntity_v2> results = select(sql,HRMSPersonEntity_v2.class);
+            retVals.addAll(results);
+        }
+        else if(entityVersion.equals("3")){
+            List<HRMSPersonEntity_v3> results = select(sql,HRMSPersonEntity_v3.class);
+            retVals.addAll(results);
+        }
+        else if(entityVersion.equals("4")){
+            List<HRMSPersonEntity_v4> results = select(sql,HRMSPersonEntity_v4.class);
+            retVals.addAll(results);
+        }
+        else{
+            throw new Exception("Unsupported entity version '"+entityVersion+"' on HRMS DB View.");
+        }
+        return retVals;
+    }
 
     public Collection<AcademicPerson> fetchAll(AcademicPerson person, String disabledGracePeriod) throws Exception{
         String sql = "SELECT hp FROM HRMSPersonEntity_v"+entityVersion+" hp WHERE hp.SSN='" + person.getSSN();

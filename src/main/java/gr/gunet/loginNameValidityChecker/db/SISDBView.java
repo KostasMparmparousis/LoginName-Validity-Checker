@@ -86,6 +86,46 @@ public class SISDBView extends DBManager{
         return retVals;
     }
 
+    public Collection<AcademicPerson> fetchAll(String attributeName, String attributeValue, boolean onlyActive) throws Exception{
+        String attributeType = ATTRIBUTE_DATA_TYPES.get(attributeName.toLowerCase());
+        if(attributeType == null || attributeType.equals("")){
+            throw new Exception("Field with name '"+attributeName+"' does not have a type registered");
+        }
+        if(attributeType.equals("number") && !attributeValue.matches("\\d+")){
+            return new HashSet();
+        }
+        
+        String sql = "SELECT sp FROM SISPersonEntity_v"+entityVersion+" sp WHERE sp."+attributeName;
+        if(attributeType.equals("varchar")){
+            sql += "='"+attributeValue+"'";
+        }else if(attributeType.equals("number")){
+            sql += "="+attributeValue;
+        }else{
+            throw new Exception("Unknown data type '"+attributeType+"' encountered on attribute '"+attributeName+"' on CrossChecker:fetch");
+        }
+        if(onlyActive == true){
+            sql += " AND sp.enrollmentStatus IN ('active','interim')";
+        }
+
+        List<AcademicPerson> retVals = new LinkedList();
+        if(entityVersion.equals("1")){
+            List<SISPersonEntity_v1> results = select(sql,SISPersonEntity_v1.class);
+            retVals.addAll(results);
+        }else if(entityVersion.equals("2")){
+            List<SISPersonEntity_v2> results = select(sql,SISPersonEntity_v2.class);
+            retVals.addAll(results);
+        }else if(entityVersion.equals("3")){
+            List<SISPersonEntity_v3> results = select(sql,SISPersonEntity_v3.class);
+            retVals.addAll(results);
+        }else if(entityVersion.equals("4")){
+            List<SISPersonEntity_v4> results = select(sql,SISPersonEntity_v4.class);
+            retVals.addAll(results);
+        }else{
+            throw new Exception("Unsupported entity version '"+entityVersion+"' on HRMS DB View.");
+        }
+        return retVals;
+    }
+
     public Collection<AcademicPerson> fetchAll(String ssn, String ssnCountry) throws Exception{
         String sql = "SELECT sp FROM SISPersonEntity_v"+entityVersion+" sp WHERE sp.SSN='" + ssn;
         sql += "' AND sp.ssnCountry = '"+ssnCountry+"'";
