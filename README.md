@@ -57,6 +57,6 @@ A complete guide is available [here](https://github.com/KostasMparmparousis/Logi
 X is a reference to the endpoint called:
 * 1: loginNameValidator
 * 2: loginNameSuggestor
-* 3: RoleFinder
+* 3: roleFinder
 
 More information about the error codes and some examples are available [here](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Error-Codes-and-Examples).
