@@ -62,14 +62,12 @@ public class LoginNameSuggestorRoute implements Route {
         if (institution==null){
           closeViews();
           String errorJson="{\n  \"Response code\" : 2400,\n" +"  \"message\" : \"No institution provided\"\n}\n";
-          res.status(2400);
           res.body(new Gson().toJson(errorJson));
           return errorJson;
         }
         else if (!institutionExists(institution)){
           closeViews();
           String errorJson="{\n  \"Response code\" : 2401,\n" +"  \"message\" : \"Could not connect to \'"+ institution+"\'\"\n}\n";
-          res.status(2401);
           res.body(new Gson().toJson(errorJson));
           return errorJson;
         }
@@ -139,7 +137,6 @@ public class LoginNameSuggestorRoute implements Route {
         }
 
         if (!errorJson.equals("")){
-          res.status(2500);
           res.body(new Gson().toJson(errorJson));
           return errorJson;
         }

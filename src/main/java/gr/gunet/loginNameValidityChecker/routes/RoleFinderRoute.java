@@ -62,14 +62,12 @@ public class RoleFinderRoute implements Route {
           roleJson+= "\n  \"Response code\" : " + response_code + ",";
           roleJson+=message;
           roleJson+="\n}\n";
-          res.status(3400);
           res.body(new Gson().toJson(roleJson));
           return roleJson;
         }
         else if (institution!= null && !institutionExists(institution)){
           closeViews();
           String errorJson="{\n  \"Response code\" : 3401,\n" +"  \"message\" : \"Could not connect to \'"+ institution+"\'\"\n}\n";
-          res.status(3401);
           res.body(new Gson().toJson(errorJson));
           return errorJson;
         }
@@ -109,7 +107,6 @@ public class RoleFinderRoute implements Route {
         }
 
         if (!errorJson.equals("")){
-          res.status(3500);
           res.body(new Gson().toJson(errorJson));
           return errorJson;
         }
@@ -165,7 +162,6 @@ public class RoleFinderRoute implements Route {
         roleJson+=message;
         roleJson+=roles;
         roleJson+="\n}\n";
-        res.status(200);
         res.body(new Gson().toJson(roleJson));
         return roleJson;
     }
