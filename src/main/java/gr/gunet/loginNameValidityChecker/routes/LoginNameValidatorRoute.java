@@ -48,17 +48,17 @@ public class LoginNameValidatorRoute implements Route{
         }catch(Exception e){
             e.printStackTrace(System.err);
             closeViews();
-            String errorJson="{\n  \"Response code\" : 400,\n" +
+            String errorJson="{\n  \"Response code\" : 1400,\n" +
                     "  \"message\" : \""+e.getMessage()+"\"\n}\n";
-            res.status(400);
+            res.status(1400);
             res.body(new Gson().toJson(errorJson));
             return errorJson;
         }
 
         if (!institutionExists(reqPerson.getInstitution())){
           closeViews();
-          String errorJson="{\n  \"Response code\" : 500,\n" +"  \"message\" : \"Could not connect to \'"+ reqPerson.getInstitution()+"\'\"\n}\n";
-          res.status(500);
+          String errorJson="{\n  \"Response code\" : 1401,\n" +"  \"message\" : \"Could not connect to \'"+ reqPerson.getInstitution()+"\'\"\n}\n";
+          res.status(1401);
           res.body(new Gson().toJson(errorJson));
           return errorJson;
         }
@@ -72,9 +72,9 @@ public class LoginNameValidatorRoute implements Route{
             UIDPersons=loginChecker.getUIDPersons(reqPerson, disabledGracePeriod);
             if (!UIDPersons.isEmpty()){
                 String uid= UIDPersons.iterator().next();
-                String warningJson="{\n  \"Response code\" : 300, \n"+
+                String warningJson="{\n  \"Response code\" : 1300, \n"+
                         "  \"message\" : \"" + uid + " already exists while not following the typical DS Account generation procedure\"\n}";
-                res.status(300);
+                res.status(1300);
                 res.body(new Gson().toJson(warningJson));
                 return warningJson;
             }
@@ -82,8 +82,8 @@ public class LoginNameValidatorRoute implements Route{
         catch(Exception e){
             e.printStackTrace(System.err);
             closeViews();
-            String errorJson="{\n  \"Response code\" : 501,\n" +"  \"message\" : \"Could not connect to the DS\"\n}\n";
-            res.status(501);
+            String errorJson="{\n  \"Response code\" : 1500,\n" +"  \"message\" : \"Could not connect to the DS\"\n}\n";
+            res.status(1500);
             res.body(new Gson().toJson(errorJson));
             return errorJson;
         }
@@ -91,6 +91,7 @@ public class LoginNameValidatorRoute implements Route{
         Collection<Conflict> conflicts;
         responseJson = "";
         try{
+            response_code="1";
             conflicts= loginChecker.checkForValidityConflicts(reqPerson,disabledGracePeriod);
             responseJson+=getConflicts(conflicts,reqPerson);
             res.body(new Gson().toJson(responseJson));
@@ -98,8 +99,8 @@ public class LoginNameValidatorRoute implements Route{
         }catch(Exception e){
             e.printStackTrace(System.err);
             String errorSource= e.getMessage();
-            String errorJson="{\n  \"Response code\" : 501,\n" +"  \"message\" : \"Could not connect to the " + errorSource + "\"\n}\n";
-            res.status(501);
+            String errorJson="{\n  \"Response code\" : 1500,\n" +"  \"message\" : \"Could not connect to the " + errorSource + "\"\n}\n";
+            res.status(1500);
             res.body(new Gson().toJson(errorJson));
             return errorJson;
         }

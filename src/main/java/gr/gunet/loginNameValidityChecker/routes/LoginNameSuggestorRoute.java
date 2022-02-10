@@ -40,7 +40,7 @@ public class LoginNameSuggestorRoute implements Route {
     @Override
     public Object handle(Request req, Response res) throws Exception {
         res.type("application/json");
-        response_code="";
+        response_code="2";
         message="";
         responseJson="";
         personPairedWith="";
@@ -61,15 +61,15 @@ public class LoginNameSuggestorRoute implements Route {
         
         if (institution==null){
           closeViews();
-          String errorJson="{\n  \"Response code\" : 400,\n" +"  \"message\" : \"No institution provided\"\n}\n";
-          res.status(400);
+          String errorJson="{\n  \"Response code\" : 2400,\n" +"  \"message\" : \"No institution provided\"\n}\n";
+          res.status(2400);
           res.body(new Gson().toJson(errorJson));
           return errorJson;
         }
         else if (!institutionExists(institution)){
           closeViews();
-          String errorJson="{\n  \"Response code\" : 500,\n" +"  \"message\" : \"Could not connect to \'"+ institution+"\'\"\n}\n";
-          res.status(500);
+          String errorJson="{\n  \"Response code\" : 2401,\n" +"  \"message\" : \"Could not connect to \'"+ institution+"\'\"\n}\n";
+          res.status(2401);
           res.body(new Gson().toJson(errorJson));
           return errorJson;
         }
@@ -111,7 +111,7 @@ public class LoginNameSuggestorRoute implements Route {
           existingOwners.addAll(sis.fetchAll(SSN, SSNCountry));
         }
         catch (Exception e){
-          errorJson="{\n  \"Response code\" : 501,\n" +"  \"message\" : \"Could not connect to the SIS\"\n}\n";
+          errorJson="{\n  \"Response code\" : 2500,\n" +"  \"message\" : \"Could not connect to the SIS\"\n}\n";
         }
 
         try{
@@ -119,7 +119,7 @@ public class LoginNameSuggestorRoute implements Route {
           if (hrms != null) existingOwners.addAll(hrms.fetchAll(SSN, SSNCountry));
         }
         catch (Exception e){
-          errorJson="{\n  \"Response code\" : 501,\n" +"  \"message\" : \"Could not connect to the HRMS\"\n}\n";
+          errorJson="{\n  \"Response code\" : 2500,\n" +"  \"message\" : \"Could not connect to the HRMS\"\n}\n";
         }
 
         try{
@@ -127,7 +127,7 @@ public class LoginNameSuggestorRoute implements Route {
           if (hrms2 != null) existingOwners.addAll(hrms2.fetchAll(SSN, SSNCountry));
         }
         catch (Exception e){
-          errorJson="{\n  \"Response code\" : 501,\n" +"  \"message\" : \"Could not connect to the HRMS2\"\n}\n";
+          errorJson="{\n  \"Response code\" : 2500,\n" +"  \"message\" : \"Could not connect to the HRMS2\"\n}\n";
         }
 
         try{
@@ -135,11 +135,11 @@ public class LoginNameSuggestorRoute implements Route {
           if (SSNCountry.equals("GR")) existingDSOwners.addAll(ldap.search(ldap.createSearchFilter("schGrAcPersonSSN=" + SSN)));
         }
         catch (Exception e){
-          errorJson="{\n  \"Response code\" : 501,\n" +"  \"message\" : \"Could not connect to the DS\"\n}\n";
+          errorJson="{\n  \"Response code\" : 2500,\n" +"  \"message\" : \"Could not connect to the DS\"\n}\n";
         }
 
         if (!errorJson.equals("")){
-          res.status(501);
+          res.status(2500);
           res.body(new Gson().toJson(errorJson));
           return errorJson;
         }

@@ -53,7 +53,7 @@ public class RoleFinderRoute implements Route {
         
         if (loginName==null || institution==null){
           closeViews();
-          response_code="400";
+          response_code="3400";
           String missingAttribute;
           if (loginName==null) missingAttribute="loginName";
           else missingAttribute="institution";
@@ -62,14 +62,14 @@ public class RoleFinderRoute implements Route {
           roleJson+= "\n  \"Response code\" : " + response_code + ",";
           roleJson+=message;
           roleJson+="\n}\n";
-          res.status(400);
+          res.status(3400);
           res.body(new Gson().toJson(roleJson));
           return roleJson;
         }
         else if (institution!= null && !institutionExists(institution)){
           closeViews();
-          String errorJson="{\n  \"Response code\" : 500,\n" +"  \"message\" : \"Could not connect to \'"+ institution+"\'\"\n}\n";
-          res.status(500);
+          String errorJson="{\n  \"Response code\" : 3401,\n" +"  \"message\" : \"Could not connect to \'"+ institution+"\'\"\n}\n";
+          res.status(3401);
           res.body(new Gson().toJson(errorJson));
           return errorJson;
         }
@@ -89,7 +89,7 @@ public class RoleFinderRoute implements Route {
           existingSISOwners= sis.fetchAll("loginName", loginName, onlyActive);
         }
         catch (Exception e){
-          errorJson="{\n  \"Response code\" : 501,\n" +"  \"message\" : \"Could not connect to the SIS\"\n}\n";
+          errorJson="{\n  \"Response code\" : 3500,\n" +"  \"message\" : \"Could not connect to the SIS\"\n}\n";
         }
 
         try{
@@ -97,7 +97,7 @@ public class RoleFinderRoute implements Route {
           if (hrms!=null) existingHRMSOwners= hrms.fetchAll("loginName", loginName, onlyActive);
         }
         catch (Exception e){
-          errorJson="{\n  \"Response code\" : 501,\n" +"  \"message\" : \"Could not connect to the HRMS\"\n}\n";
+          errorJson="{\n  \"Response code\" : 3500,\n" +"  \"message\" : \"Could not connect to the HRMS\"\n}\n";
         }
 
         try{
@@ -105,20 +105,21 @@ public class RoleFinderRoute implements Route {
           if (hrms2!=null) existingHRMS2Owners= hrms2.fetchAll("loginName", loginName, onlyActive);
         }
         catch (Exception e){
-          errorJson="{\n  \"Response code\" : 501,\n" +"  \"message\" : \"Could not connect to the HRMS2\"\n}\n";
+          errorJson="{\n  \"Response code\" : 3500,\n" +"  \"message\" : \"Could not connect to the HRMS2\"\n}\n";
         }
 
         if (!errorJson.equals("")){
-          res.status(501);
+          res.status(3500);
           res.body(new Gson().toJson(errorJson));
           return errorJson;
         }
 
         if (existingSISOwners.isEmpty() && existingHRMSOwners.isEmpty() && existingHRMS2Owners.isEmpty()){
-            response_code="000";
+            response_code="3000";
             message= "\n  \"message\": \"" + loginName + " not found in any Database\"";
         }
         else {
+            response_code="3";
             boolean firstElem = true;
             message= "\n  \"message\": \"" + loginName + " found\",";
             roles= "\n  \"Roles\" : [";
