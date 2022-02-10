@@ -19,13 +19,13 @@ Examines if a given loginName can be safely attributed to a new Account.
 
 | Response Code | No conflicts | Conflicts Found | improperly created in DS | findExisting flag *false* | previous loginNames *found* | previous loginNames *not found* |
 | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
-| 100 | :heavy_check_mark: |  |  |  | :heavy_check_mark: |  |
-| 110 | :heavy_check_mark: |  |  |  |  | :heavy_check_mark: |
-| 120 | :heavy_check_mark: |  |  | :heavy_check_mark: |  |  |
-| 200 |  | :heavy_check_mark: |  |  | :heavy_check_mark: |  |
-| 210 |  | :heavy_check_mark: |  |  |  | :heavy_check_mark: |
-| 220 |  | :heavy_check_mark: |  | :heavy_check_mark: |  |  |
-| 300 |  |  | :heavy_check_mark: | | | |
+| 1100 | :heavy_check_mark: |  |  |  | :heavy_check_mark: |  |
+| 1110 | :heavy_check_mark: |  |  |  |  | :heavy_check_mark: |
+| 1120 | :heavy_check_mark: |  |  | :heavy_check_mark: |  |  |
+| 1200 |  | :heavy_check_mark: |  |  | :heavy_check_mark: |  |
+| 1210 |  | :heavy_check_mark: |  |  |  | :heavy_check_mark: |
+| 1220 |  | :heavy_check_mark: |  | :heavy_check_mark: |  |  |
+| 1300 |  |  | :heavy_check_mark: | | | |
 
 ### Responses
 - [Response Schema.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Validator-response-schema)
@@ -43,12 +43,12 @@ Responsible for suggesting possible loginNames for a new Account, by:
 ### Response Code Table
 | Response Code | SSN Not given | SSN Not Found | SSN Found | userNameGeneration successful | userNameGeneration failed | 
 | :----: | :----: | :----: | :----: | :----: | :----: | 
-| 100 |  |  | :heavy_check_mark: | :heavy_check_mark: |  |
-| 110 |  |  | :heavy_check_mark: |  | :heavy_check_mark: |
-| 200 |  | :heavy_check_mark: |  | :heavy_check_mark: |  |
-| 210 |  | :heavy_check_mark: | |  | :heavy_check_mark: |
-| 300 | :heavy_check_mark: |  | | :heavy_check_mark: |  |
-| 310 | :heavy_check_mark:  |  | |  | :heavy_check_mark: |
+| 2100 |  |  | :heavy_check_mark: | :heavy_check_mark: |  |
+| 2110 |  |  | :heavy_check_mark: |  | :heavy_check_mark: |
+| 2200 |  | :heavy_check_mark: |  | :heavy_check_mark: |  |
+| 2210 |  | :heavy_check_mark: | |  | :heavy_check_mark: |
+| 2300 | :heavy_check_mark: |  | | :heavy_check_mark: |  |
+| 2310 | :heavy_check_mark:  |  | |  | :heavy_check_mark: |
 
 ### Responses
 - [Response Schema.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Suggestor-response-schema)
@@ -63,22 +63,27 @@ Search for a person's active Roles in a institution based on a given userName.
 ### Response Code Table
 | Response Code | Student | Teaching Staff | Associate | 
 | :----: | :----: | :----: | :----: |
-| 000 |  |  |  |
-| 001 |  |  | :heavy_check_mark: |
-| 010 |  | :heavy_check_mark: |  |
-| 011 |  | :heavy_check_mark: | :heavy_check_mark: |
-| 100 | :heavy_check_mark: |  |  |
-| 101 | :heavy_check_mark: |  | :heavy_check_mark: |
-| 110 | :heavy_check_mark: | :heavy_check_mark: |  |
-| 111 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| 3000 |  |  |  |
+| 3001 |  |  | :heavy_check_mark: |
+| 3010 |  | :heavy_check_mark: |  |
+| 3011 |  | :heavy_check_mark: | :heavy_check_mark: |
+| 3100 | :heavy_check_mark: |  |  |
+| 3101 | :heavy_check_mark: |  | :heavy_check_mark: |
+| 3110 | :heavy_check_mark: | :heavy_check_mark: |  |
+| 3111 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 
 ### Responses
 - [Response Schema.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/roleFinder-response-schema)
 - [Successful Calls.](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/roleFinder-successful-calls)
 
 ## Error Codes
-* **400**: Missing attribute in JSON Request.
-* **500**: Missing connection details for the institution given.
-* **501**: Wrong/Invalid connection details for the given institution's Views and Data Server.
+* **X400**: Missing attribute in JSON Request.
+* **X401**: Missing connection details for the institution given.
+* **X500**: Wrong/Invalid connection details for the given institution's Views and Data Server.
+
+X is a reference to the endpoint called:
+* 1: loginNameValidator
+* 2: loginNameSuggestor
+* 3: RoleFinder
 
 More information about the error codes and some examples are available [here](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Error-Codes-and-Examples).
