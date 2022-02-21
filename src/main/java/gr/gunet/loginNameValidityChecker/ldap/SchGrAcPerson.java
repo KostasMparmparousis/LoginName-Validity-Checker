@@ -129,6 +129,7 @@ public class SchGrAcPerson implements AcademicPerson{
         if (lastNameEnAttribute!=null) this.lastNameEn = lastNameEnAttribute.getStringValue();
         if (dateOfBirthAttribute!=null) this.birthDate = dateOfBirthAttribute.getStringValue();
         if (yearOfBirthAttribute!=null) this.birthYear = yearOfBirthAttribute.getStringValue();
+        else if (dateOfBirthAttribute!=null) this.birthYear = this.birthDate.substring(0, 4);
         this.gender = genderAttribute.getStringValue();
         this.citizenship = citizenshipAttribute.getStringValue();
         
@@ -207,7 +208,7 @@ public class SchGrAcPerson implements AcademicPerson{
 
     @Override
     public String getBirthYear() {
-        return this.birthDate.substring(0, 4);
+      return this.birthYear;
     }
 
     @Override
