@@ -36,7 +36,7 @@ public class LoginNameValidatorRoute implements Route{
     }
     @Override
     public Object handle(Request req, Response res) throws Exception{
-        response_code="1";
+        response_code="";
         res.type("application/json");
         CustomJsonReader jsonReader = new CustomJsonReader(req.body());
         boolean verbose=false;
@@ -48,7 +48,7 @@ public class LoginNameValidatorRoute implements Route{
         }catch(Exception e){
             e.printStackTrace(System.err);
             closeViews();
-            String errorJson="{\n  \"Response code\" : 1400,\n" +
+            String errorJson="{\n  \"Response code\" : 400,\n" +
                     "  \"message\" : \""+e.getMessage()+"\"\n}\n";
             res.body(new Gson().toJson(errorJson));
             return errorJson;
@@ -56,7 +56,7 @@ public class LoginNameValidatorRoute implements Route{
 
         if (!institutionExists(reqPerson.getInstitution())){
           closeViews();
-          String errorJson="{\n  \"Response code\" : 1401,\n" +"  \"message\" : \"Could not connect to \'"+ reqPerson.getInstitution()+"\'\"\n}\n";
+          String errorJson="{\n  \"Response code\" : 401,\n" +"  \"message\" : \"Could not connect to \'"+ reqPerson.getInstitution()+"\'\"\n}\n";
           res.body(new Gson().toJson(errorJson));
           return errorJson;
         }
@@ -70,7 +70,7 @@ public class LoginNameValidatorRoute implements Route{
             UIDPersons=loginChecker.getUIDPersons(reqPerson, disabledGracePeriod);
             if (!UIDPersons.isEmpty()){
                 String uid= UIDPersons.iterator().next();
-                String warningJson="{\n  \"Response code\" : 1300, \n"+
+                String warningJson="{\n  \"Response code\" : 300, \n"+
                         "  \"message\" : \"" + uid + " already exists while not following the typical DS Account generation procedure\"\n}";
                 res.body(new Gson().toJson(warningJson));
                 return warningJson;
@@ -79,7 +79,42 @@ public class LoginNameValidatorRoute implements Route{
         catch(Exception e){
             e.printStackTrace(System.err);
             closeViews();
-            String errorJson="{\n  \"Response code\" : 1500,\n" +"  \"message\" : \"Could not connect to the DS\"\n}\n";
+            String errorJson="{\n  \"Response code\" : 500,\n" +"  \"message\" : \"Could not connect to the DS\"\n}\n";
+            res.body(new Gson().toJson(errorJson));
+            return errorJson;
+        }
+
+        Collection<String> nullAttributes;
+        try{
+            nullAttributes=loginChecker.getNullAttributes(reqPerson, disabledGracePeriod);
+            if (!nullAttributes.isEmpty()){
+                String uid= reqPerson.getLoginName();
+                String warningJson="{\n  \"Response code\" : 310, \n"+
+                        "  \"message\" : \"Some key attributes were found to be NULL across every View for '" + uid + "'\", \n";
+                String nullAttrs= "  \"nullAttrs\": ";
+                boolean firstElem=true;
+                for (String nullAttr: nullAttributes){
+                    if (firstElem==true){
+                        firstElem=false;
+                        nullAttrs+="[\n";
+                    }
+                    else{
+                        nullAttrs+=",\n";
+                    }
+                    nullAttrs+="    " + nullAttr;
+                }
+                nullAttrs += "\n  ]\n";
+                warningJson+=nullAttrs;
+                warningJson+="}";
+
+                res.body(new Gson().toJson(warningJson));
+                return warningJson;
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace(System.err);
+            closeViews();
+            String errorJson="{\n  \"Response code\" : 500,\n" +"  \"message\" : \"Could not connect to the DS\"\n}\n";
             res.body(new Gson().toJson(errorJson));
             return errorJson;
         }
@@ -94,7 +129,7 @@ public class LoginNameValidatorRoute implements Route{
         }catch(Exception e){
             e.printStackTrace(System.err);
             String errorSource= e.getMessage();
-            String errorJson="{\n  \"Response code\" : 1500,\n" +"  \"message\" : \"Could not connect to the " + errorSource + "\"\n}\n";
+            String errorJson="{\n  \"Response code\" : 500,\n" +"  \"message\" : \"Could not connect to the " + errorSource + "\"\n}\n";
             res.body(new Gson().toJson(errorJson));
             return errorJson;
         }
@@ -148,10 +183,6 @@ public class LoginNameValidatorRoute implements Route{
     }
 
     public void getExistingLoginNames(RequestPerson reqPerson){
-        if (!reqPerson.findExisting()) {
-            response_code+="2";
-            return ;
-        }
         Collection<AcademicPerson> existingOwners = new Vector<AcademicPerson>();
         Collection<LdapEntry> existingDSOwners = new Vector<LdapEntry>();
 
@@ -174,12 +205,9 @@ public class LoginNameValidatorRoute implements Route{
             Vector<String> existingUserNames= new Vector<String>();
             String foundNames="";
             if (!existingOwners.isEmpty() || !existingDSOwners.isEmpty()) {
-                response_code+="0";
-
                 foundNames= ",\n  \"personPairedWith\": [";
                 boolean firstElem = true;
                 if (!existingOwners.isEmpty()) {
-
                     for (AcademicPerson person : existingOwners) {
                         if (!existingUserNames.contains(person.getLoginName())) {
                             if (firstElem) firstElem = false;
@@ -190,8 +218,7 @@ public class LoginNameValidatorRoute implements Route{
                         }
                     }
                 }
-                else if (!existingDSOwners.isEmpty()) {
-                    foundNames= ",\n  \"personPairedWith\": [";
+                if (!existingDSOwners.isEmpty()) {
                     for (LdapEntry person : existingDSOwners) {
                         String uid = person.getAttribute("uid").getStringValue();
                         if (!existingUserNames.contains(uid)) {
@@ -203,15 +230,19 @@ public class LoginNameValidatorRoute implements Route{
                         }
                     }
                 }
-                if (existingUserNames.contains(reqPerson.getLoginName()) && existingUserNames.size()==1) {
-                    responseJson="";
+                if (existingUserNames.contains(reqPerson.getLoginName())) {
+                    response_code+="0";
+                    responseJson+="";
                     return;
                 }
-                message+= ", " + reqPerson.getSSN() + "-" + reqPerson.getSSNCountry() + " is already paired with at least 1 loginName\"";
-                foundNames += "\n  ]";
-                responseJson+=foundNames;
+                else {
+                    response_code += "1";
+                    message += ", " + reqPerson.getSSN() + "-" + reqPerson.getSSNCountry() + " is already paired with at least 1 loginName\"";
+                    foundNames += "\n  ]";
+                    responseJson += foundNames;
+                }
             }else{
-                response_code+="1";
+                response_code+="2";
                 message+= ", " + reqPerson.getSSN() + "-" + reqPerson.getSSNCountry() + " combination not found in any Database";
                 if (!responseJson.equals("")) message+="\"";
             }

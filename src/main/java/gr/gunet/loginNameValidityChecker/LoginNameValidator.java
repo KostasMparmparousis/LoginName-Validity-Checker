@@ -112,6 +112,87 @@ public class LoginNameValidator {
         return UIDPersons;
     }
 
+    public Collection<String> getNullAttributes(AcademicPerson loginNameOwner,String disabledGracePeriod) throws Exception{
+        return getNullAttributes(loginNameOwner,loginNameOwner.getLoginName(), disabledGracePeriod);
+    }
+
+    private Collection<String> getNullAttributes(AcademicPerson loginNameOwner,String loginName,String disabledGracePeriod) throws LdapException,Exception{
+        Collection<String> nullAttributes = new HashSet();
+        Collection<LdapEntry> DSOwners;
+        Collection<AcademicPerson> existingOwners= null;
+        SISDBView sis=null;
+        HRMSDBView hrms=null;
+        HRMSDBView hrms2=null;
+        LdapManager ldap=null;
+
+        try{
+            sis=Views.getSISConn();
+            existingOwners= sis.fetchAll("loginName", loginName, disabledGracePeriod);
+        }
+        catch(Exception e){
+            throw new Exception("SIS");
+        }
+
+        try{
+            hrms=Views.getHRMSConn();
+            if (hrms!=null){
+                existingOwners.addAll(hrms.fetchAll("loginName",loginName,disabledGracePeriod));
+            }
+        }
+        catch(Exception e){
+            throw new Exception("HRMS");
+        }
+
+        try{
+            hrms2=Views.getHRMS2Conn();
+            if (hrms2!=null){
+                existingOwners.addAll(hrms2.fetchAll("loginName",loginName,disabledGracePeriod));
+            }
+        }
+        catch(Exception e){
+            throw new Exception("HRMS2");
+        }
+
+        try{
+            ldap=ldapDS.getConn();
+            DSOwners = ldap.search(ldap.createSearchFilter("(schGrAcPersonID=*)","uid="+loginName));
+            for (LdapEntry DSOwner: DSOwners){
+                existingOwners.add(new SchGrAcPerson(DSOwner, loginName));
+            }
+        }
+        catch(Exception e){
+            throw new Exception("DS");
+        }
+
+        if (!existingOwners.isEmpty()) {
+            nullAttributes = findNullAttributes(existingOwners, disabledGracePeriod);
+        }
+
+        return nullAttributes;
+    }
+
+    private Collection<String> findNullAttributes(Collection<AcademicPerson> existingOwners, String disabledGracePeriod){
+        Collection<String> nullAttributes = new HashSet();
+        String ssn=null;
+        String ssnCountry=null;
+        String birthDate=null;
+        String birthYear=null;
+
+        for (AcademicPerson existingOwner: existingOwners){
+            if (existingOwner.getSSN()!=null) ssn=existingOwner.getSSN();
+            if (existingOwner.getSSNCountry()!=null) ssnCountry=existingOwner.getSSNCountry();
+            if (existingOwner.getBirthDate()!=null) birthDate=existingOwner.getBirthDate();
+            if (existingOwner.getBirthYear()!=null) birthYear=existingOwner.getBirthYear();
+        }
+
+        if (ssn==null) nullAttributes.add("\"ssn\"");
+        if (ssnCountry==null) nullAttributes.add("\"ssnCountry\"");
+        if (birthDate==null) nullAttributes.add("\"birthDate\"");
+        if (birthYear==null) nullAttributes.add("\"birthYear\"");
+
+        return  nullAttributes;
+    }
+
     private Collection<Conflict> samePersonChecks(AcademicPerson loginNameOwner, AcademicPerson existingOwner, String existingOwnerSource){
         Collection<Conflict> conflicts = new HashSet();
 
@@ -149,38 +230,28 @@ public class LoginNameValidator {
           }
         }
 
-        if(existingOwner.getSsnCountry().isEmpty() || existingOwner.getSsn().isEmpty()){
-            String nullConflType= "null-value";
-            String nullConflDesc = "A record exists in '"+existingOwnerSource+"' with the same loginName, but NULL";
-            if (existingOwner.getSsnCountry().isEmpty())
-                for (String loginNameOwnerSsnCountry: loginNameOwner.getSsnCountry()) conflicts.add(new Conflict(nullConflType, nullConflDesc+" SSN Country", "SSN Country", existingOwnerKeys,conflSource,loginNameOwnerSsnCountry,"null"));
-            if (existingOwner.getSsn().isEmpty())
-                for (String loginNameOwnerSsn: loginNameOwner.getSsn()) conflicts.add(new Conflict(nullConflType, nullConflDesc+" SSN", "SSN", existingOwnerKeys,conflSource,loginNameOwnerSsn,"null"));
+        if(!loginNameOwner.getSsn().isEmpty() && !existingOwner.getSsn().isEmpty()){
+          Collection<String> requestSsns= loginNameOwner.getSsn();
+          Collection<String> existingSsns= existingOwner.getSsn();
+          for (String requestSsn: requestSsns){
+            if (!existingSsns.contains(requestSsn)){
+              for(String existingSsn: existingSsns){
+                conflicts.add(new Conflict(conflType, conflDesc+" SSN", "SSN", existingOwnerKeys,conflSource,requestSsn,existingSsn));
+              }
+            }
+          }
         }
-        else{
-            if(!loginNameOwner.getSsn().isEmpty() && !existingOwner.getSsn().isEmpty()){
-              Collection<String> requestSsns= loginNameOwner.getSsn();
-              Collection<String> existingSsns= existingOwner.getSsn();
-              for (String requestSsn: requestSsns){
-                if (!existingSsns.contains(requestSsn)){
-                  for(String existingSsn: existingSsns){
-                    conflicts.add(new Conflict(conflType, conflDesc+" SSN", "SSN", existingOwnerKeys,conflSource,requestSsn,existingSsn));
-                  }
-                }
+
+        if(!loginNameOwner.getSsnCountry().isEmpty() && !existingOwner.getSsnCountry().isEmpty()){
+          Collection<String> requestSsnCountries= loginNameOwner.getSsnCountry();
+          Collection<String> existingSsnCountries= existingOwner.getSsnCountry();
+          for (String requestSsnCountry: requestSsnCountries){
+            if (!existingSsnCountries.contains(requestSsnCountry)){
+              for(String existingSsnCountry: existingSsnCountries){
+                conflicts.add(new Conflict(conflType, conflDesc+" SSN Country", "SSN Country", existingOwnerKeys,conflSource,requestSsnCountry,existingSsnCountry));
               }
             }
-            
-            if(!loginNameOwner.getSsnCountry().isEmpty() && !existingOwner.getSsnCountry().isEmpty()){
-              Collection<String> requestSsnCountries= loginNameOwner.getSsnCountry();
-              Collection<String> existingSsnCountries= existingOwner.getSsnCountry();
-              for (String requestSsnCountry: requestSsnCountries){
-                if (!existingSsnCountries.contains(requestSsnCountry)){
-                  for(String existingSsnCountry: existingSsnCountries){
-                    conflicts.add(new Conflict(conflType, conflDesc+" SSN Country", "SSN Country", existingOwnerKeys,conflSource,requestSsnCountry,existingSsnCountry));
-                  }
-                }
-              }
-            }
+          }
         }
 
         String loginNameOwnerBirthDate=loginNameOwner.getBirthDate();

@@ -11,6 +11,7 @@ public class SchGrAcPerson implements AcademicPerson{
     private String academicID;
     private Collection<String> ssn;
     private String SSN;
+    private String SSNCountry;
     private Collection<String> ssnCountry;
     private Collection<String> tin;
     private Collection<String> tinCountry;
@@ -65,6 +66,7 @@ public class SchGrAcPerson implements AcademicPerson{
                 if(type.toUpperCase().equals("SSN")){
                     ssn.add(uniqueIDSplit[7]);
                     ssnCountry.add(uniqueIDSplit[5].toUpperCase());
+                    SSNCountry=uniqueIDSplit[5].toUpperCase();
                 }else if(type.toUpperCase().equals("TIN")){
                     tin.add(uniqueIDSplit[7]);
                     tinCountry.add(uniqueIDSplit[5].toUpperCase());
@@ -225,7 +227,7 @@ public class SchGrAcPerson implements AcademicPerson{
     
     @Override
     public String getSSNCountry() {
-        return null;
+        return SSNCountry;
     }
 
     @Override

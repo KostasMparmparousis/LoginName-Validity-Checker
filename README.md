@@ -3,43 +3,43 @@ LoginName Validity Checker is an all-around mechanism that is utilized during th
 
 ## Endpoints
 * ***loginNameValidator/***    
-* ***loginNameSuggestor/***    
+* ***loginNameSuggester/***    
 * ***roleFinder/*** 
 
 The endpoints expect to receive a **JSON** formatted request and respond likewise.
 
 ## Quick Start
 ### loginNameValidator
-Examines if a given loginName can be safely attributed to a new Account.  
+Most universities usually operate by having as much as 4 primary sources in their possession:
+* The Student Information System (SIS)
+* The Human Resource Management Software (HRMS)
+* A Second Human Resource Management Software concerning only the Associates (HRMS2/Associates)
+* The Data Server (DS)
 
-The endpoint will locate any conflicts or inconsistencies if this *loginName* were to be used.  
+Evidently, during the procedure of creating a new University Account, one must examine whether a proposed loginName for that Account would generate any *conflicts* with the already present data across all 4 databases.  
+
+A *conflict* occurs when the requested *loginName* is already attributed to a different university entity than the one requesting that specific *loginName*.   
+
+The endpoint **loginNameValidator** is a mechanism that will locate any conflicts or inconsistencies if this *loginName* were to be used.  
 
 A complete guide is available [here](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/loginNameValidator).
 
-### loginNameSuggestor
-Responsible for suggesting possible loginNames for a new Account, by:
-* Locating previous userNames based on *SSN* & *SSNCountry*.
-* Generating new userNames based on *firstName* & *lastName*.  
+### loginNameSuggester
+Selecting a loginName for a new University Account is often not a straightforward procedure.
+Some universities use standardized patterns for creating new *loginNames*, a strategy that pretty much ensures their uniqueness, while others expect from the applicants to come up with their own *unique loginName*.  
+
+The endpoint **loginNameSuggester** addresses the latter scenario, suggesting possible loginNames for a new Account, by:
+* Locating previous loginNames based on given *SSN* & *SSNCountry*.
+* Generating new loginNames based on given *firstName* & *lastName* in the request.  
 
 The endpoint shall propose loginNames that can be safely attributed to a new Account.  
 
-A complete guide is available [here](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/loginNameSuggestor).
+A complete guide is available [here](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/loginNameSuggester).
 
 ### roleFinder
+A difficult task for a university with thousands of active members can be to determine a person's Role in their institution. 
 Search for a person's active Roles in a institution based on a given userName.
 
-The endpoint shall decide if a person is a Student, a Member of the Teaching Staff, an Associate, or a combination of the above.
+The endpoint **roleFinder** conducts a search based on a given loginName and decides whether a person is a *Student*, a *Member of the Teaching Staff*, an *Associate*, or a combination of the above.
 
 A complete guide is available [here](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/roleFinder).
-
-## Error Codes
-* **X400**: Missing attribute in JSON Request.
-* **X401**: Missing connection details for the institution given.
-* **X500**: Wrong/Invalid connection details for the given institution's Views and Data Server.
-
-X is a reference to the endpoint called:
-* 1: loginNameValidator
-* 2: loginNameSuggestor
-* 3: roleFinder
-
-More information about the error codes and some examples are available [here](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Error-Codes-and-Examples).
