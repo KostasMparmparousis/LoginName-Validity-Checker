@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit this template
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="css/style.css">
+    </head>
+    <body>
+        <header>
+            <h1 style="color: #ed7b42;">Error Codes & Examples</h1>
+        </header>
+        <hr class="new1">
+        <div class="sidenav">
+            <a href="index.html">Main Hub</a>
+            <a href="validator.html">Validator</a>
+            <a href="suggester.html">Suggester</a>
+            <a href="roleFinder.html">Finder</a>
+        </div>
+        <div class="main">
+            <h2>Error Codes</h2>
+            <ul>
+                <li><b>400:</b>Missing attribute in JSON Request.</li>
+                <li><b>401:</b>Missing connection details for the institution given.</li>
+                <li><b>500:</b>Wrong/Invalid connection details for the given institution's Views and Data Server.</li>
+            </ul>
+            <h2>Error Examples</h2>
+            <h3>Example 1.</h3>
+            <p><i>(The attribute "institution" was not provided in the JSON request)</i></p>
+               <pre class="Calls">
+                <code>
+{
+  "Response code" : 400,
+  "message": "No institution provided"
+}
+                </code>
+            </pre>
+            <h3>Example 2.</h3>
+            <p><i>(Connection Details for uoa were not found)</i></p>
+               <pre class="Calls">
+                <code>
+{
+  "Response code" : 401,
+  "message" : "Could not connect to 'uoa'"
+}
+                </code>
+            </pre>
+            <h3>Example 3.</h3>
+            <p><i>(Connection Details for the SIS were incorrect)</i></p>
+               <pre class="Calls">
+                <code>
+{
+  "Response code" : 500,
+  "message" : "Could not connect to the SIS"
+}
+                </code>
+            </pre>
+        </div>
+    </body>
+</html>

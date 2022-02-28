@@ -177,8 +177,7 @@ public class UserNameGen {
         return ProposedNames;
     }
 
-    public boolean checkIfUserNameExists(String loginName, DBConnectionPool Views, LdapConnectionPool ldapDS){
-        String disabledGracePeriod=null;
+    public boolean checkIfUserNameExists(String loginName, DBConnectionPool Views, LdapConnectionPool ldapDS, String disabledGracePeriod){
         SISDBView sis=null;
         HRMSDBView hrms=null;
         HRMSDBView hrms2=null;

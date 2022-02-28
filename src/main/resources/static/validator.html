@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit this template
+-->
+<html>
+    <head>
+        <title>loginNameValidator</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="css/tooltip.css">
+    </head>
+    <body>
+        <header>
+            <h1 style="color: #ed7b42;">Validator</h1>
+        </header>
+        <hr class="new1">
+        <div class="sidenav">
+            <a href="index.html">Main Hub</a>
+            <a href="validator/About.html">About</a>
+            <a href="validator/TestCalls.html">Examples</a>
+            <a href="validator/ResponseSchema.html">Response Schema</a>
+            <a href="errorCodes.html">Error Codes</a>
+        </div>
+        <div class="main">
+            <form action="loginNameValidator/" method="POST">
+                <fieldset>
+                    <p>
+                        <label for="SSN" >SSN:</label>
+                        <input type="text" name="ssn"/>
+                        <div class="tooltip">&#9432;
+                            <span class="tooltiptext">Τιμή του Αριθμού Μητρώου Κοινωνικής Ασφάλισης (Α.Μ.Κ.Α.) του αιτούμενου.</span>
+                        </div> 
+                        <br>
+                    </p>
+                    <p>
+                        <label for="SSNCountry" >SSNCountry:</label>
+                        <input type="text" name="ssnCountry" /> 
+                        <div class="tooltip">&#9432;
+                            <span class="tooltiptext">Χώρα έκδοσης του Α.Μ.Κ.Α. Σημειώνεται με την 2-γράμματη κωδικοποίηση του ISO 3166.</span>
+                        </div> 
+                        <br>
+                    </p>
+                    <p>
+                        <label for="TIN" >TIN:</label>
+                        <input type="text" name="tin" /> 
+                        <div class="tooltip">&#9432;
+                            <span class="tooltiptext">Τιμή του Αριθμού Φορολογικού Μητρώου (Α.Φ.Μ.) του αιτούμενου.</span>
+                        </div> 
+                        <br>
+                    </p>
+                    <p>
+                        <label for="TINCountry" >TINCountry:</label>
+                        <input type="text" name="tinCountry" /> 
+                        <div class="tooltip">&#9432;
+                            <span class="tooltiptext">Χώρα έκδοσης του Α.Φ.Μ. Σημειώνεται με την 2-γράμματη κωδικοποίηση του ISO 3166.</span>
+                        </div> 
+                        <br>
+                    </p>
+                    <p>
+                        <label for="dateOfBirth" >Date of birth:</label>
+                        <input type="text" name="birthDate" /> 
+                        <div class="tooltip">&#9432;
+                            <span class="tooltiptext">Η ημερομηνία γέννησης του αιτούμενου, σύμφωνα με το πρότυπο ISO 8601:2004. Η ημερομηνία περιλαμβάνει το έτος, το μήνα και την ημέρα με τη μορφή YYYYMMDD.</span>
+                        </div> 
+                        <br>
+                    </p>
+                    <p>
+                        <label for="Disabled Grace Period" >Disabled Grace Period:</label>
+                        <input type="text" name="disabledGracePeriod" /> 
+                        <div class="tooltip">&#9432;
+                            <span class="tooltiptext">
+                                Ημερομηνία απο την οποία και ύστερα ένα μέλος του ιδρύματος θεωρείται ενεργό, εαν στην βάση με τα τωρινά δεδομένα είναι ανενεργό, σύμφωνα με το πρότυπο ISO 8601:2004. Η ημερομηνία περιλαμβάνει το έτος, το μήνα και την ημέρα με τη μορφή YYYYMMDD.
+                            </span>
+                        </div> 
+                        <br>
+                    </p>
+                    <p>
+                        <label for="LoginName" >LoginName:</label>
+                        <input type="text" name="loginName" /> 
+                        <div class="tooltip">&#9432;
+                            <span class="tooltiptext">Το επιθυμητό userName του αιτούμενου με απόδοση σε λατινικούς χαρακτήρες.</span>
+                        </div> 
+                        <br>
+                    </p>
+                    <p>
+                        <label for="Verbose:" >Verbose:</label>
+                        <label for="yes" style="width:20px;" >Yes</label> <input type="checkbox" name="verbose" value="Yes" />
+                        <label for="no" style="width:20px;" >No</label> <input type="checkbox" name="verbose" value="No" />
+                        <div class="tooltip">&#9432;
+                            <span class="tooltiptext">Αν δωθεί η τιμή No, τότε εάν εντοπιστούν conflicts ύστερα απο αναζήτηση βάσει του δωσμένου loginName θα εμφανιστεί μόνο μήνυμα ύπαρξης τους στην απάντηση. Εάν δωθεί η τιμή Yes, τότε το response θα περιέχει μια αναλυτική περιγραφή των πεδίων στα οποία συναντήθηκαν conlicts.</span>
+                        </div> 
+                        <br>
+                    </p>
+                    <input type="submit" value="Submit" />
+                </fieldset>
+            </form>
+        </div>
+    </body>
+</html>

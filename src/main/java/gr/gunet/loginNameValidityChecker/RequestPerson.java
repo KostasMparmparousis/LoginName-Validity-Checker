@@ -3,6 +3,7 @@ package gr.gunet.loginNameValidityChecker;
 import gr.gunet.loginNameValidityChecker.tools.CustomJsonReader;
 import java.util.Collection;
 import java.util.HashSet;
+import spark.Request;
 
 public class RequestPerson implements AcademicPerson{
     private Collection<String> ssn;
@@ -61,6 +62,9 @@ public class RequestPerson implements AcademicPerson{
       if(this.birthDate == null || this.birthDate.trim().equals("")){
         throw new Exception("No birthDate provided");
       }
+      else{
+        this.birthYear= this.birthDate.substring(0, 4);
+      }
 
       this.loginName = jsonReader.readPropertyAsString("loginName");
       if(this.loginName == null || this.loginName.trim().equals("")){
@@ -73,6 +77,55 @@ public class RequestPerson implements AcademicPerson{
       }
 
       verbose=jsonReader.readPropertyAsBoolean("verbose");
+    }
+
+    public RequestPerson(Request req) throws Exception{
+      this.ssn=new HashSet();
+      this.ssnCountry=new HashSet();
+      this.tin=new HashSet();
+      this.tinCountry=new HashSet();
+      
+      SSN= req.queryParams("ssn");
+      if(SSN == null || SSN.trim().equals("")){
+        throw new Exception("No ssn provided");
+      }
+      else{
+        ssn.add(SSN);
+      }
+
+      SSNCountry= req.queryParams("ssnCountry");
+      if(SSNCountry == null || SSNCountry.trim().equals("")){
+        throw new Exception("No ssnCountry provided");
+      }
+      else{
+        ssnCountry.add(SSNCountry.toUpperCase());
+      }
+
+      TIN= req.queryParams("tin");
+      if (TIN!=null && !TIN.trim().equals("")) tin.add(TIN);
+      
+      TINCountry= req.queryParams("tinCountry");
+      if (TINCountry!=null && !TINCountry.trim().equals("")) tinCountry.add(TINCountry);
+
+      this.birthDate = req.queryParams("birthDate");
+      if(this.birthDate == null || this.birthDate.trim().equals("")){
+        throw new Exception("No birthDate provided");
+      }
+      else{
+        this.birthYear= this.birthDate.substring(0, 4);
+      }
+
+      this.loginName = req.queryParams("loginName");
+      if(this.loginName == null || this.loginName.trim().equals("")){
+        throw new Exception("No loginName provided");
+      }
+      
+      String Verbose=req.queryParams("verbose");
+      if(Verbose == null || Verbose.trim().equals("")|| Verbose.equals("No")){
+        verbose=false;
+      }
+      else verbose=true;
+
     }
 
     @Override

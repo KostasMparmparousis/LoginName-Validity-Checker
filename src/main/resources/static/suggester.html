@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit this template
+-->
+<html>
+    <head>
+        <title>loginNameSuggester</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="css/tooltip.css">
+    </head>
+    <body>
+        <header>
+            <h1 style="color: #ed7b42;">Suggester</h1>
+        </header>
+        <hr class="new1">
+        <div class="sidenav">
+            <a href="index.html">Main Hub</a>
+            <a href="suggester/About.html">About</a>
+            <a href="suggester/TestCalls.html">Examples</a>
+            <a href="suggester/ResponseSchema.html">Response Schema</a>
+            <a href="errorCodes.html">Error Codes</a>
+        </div>
+        <div class="main">
+            <form action="loginNameSuggester/" method="POST">
+                <fieldset>
+                    <p>
+                        <label for="SSN" >SSN:</label>
+                        <input type="text" name="ssn"/>
+                        <div class="tooltip">&#9432;
+                            <span class="tooltiptext">Τιμή του Αριθμού Μητρώου Κοινωνικής Ασφάλισης (Α.Μ.Κ.Α.) του αιτούμενου.</span>
+                        </div> 
+                        <br>
+                    </p>
+                    <p>
+                        <label for="SSNCountry" >SSNCountry:</label>
+                        <input type="text" name="ssnCountry" /> 
+                        <div class="tooltip">&#9432;
+                            <span class="tooltiptext">Χώρα έκδοσης του Α.Μ.Κ.Α. Σημειώνεται με την 2-γράμματη κωδικοποίηση του ISO 3166.</span>
+                        </div> 
+                        <br>
+                    </p>
+                    <p>
+                        <label for="FN" >First Name:</label>
+                        <input type="text" name="firstName" /> 
+                        <div class="tooltip">&#9432;
+                            <span class="tooltiptext">Το όνομα του αιτούμενου με απόδοση σε λατινικούς χαρακτήρες.</span>
+                        </div> 
+                        <br>
+                    </p>
+                    <p>
+                        <label for="LN" >Last Name:</label>
+                        <input type="text" name="lastName" /> 
+                        <div class="tooltip">&#9432;
+                            <span class="tooltiptext">Το επώνυμο του αιτούμενου με απόδοση σε λατινικούς χαρακτήρες.</span>
+                        </div> 
+                        <br>
+                    </p>
+                    <input type="submit" value="Submit" />
+                </fieldset>
+            </form>
+        </div>
+    </body>
+</html>

@@ -21,58 +21,58 @@ public class Conflict {
     }
     
     public String toJson(){
-        String json = "    {";
+        String json = "&emsp;&emsp;{";
 
-        json += "\n      \"type\":";
+        json += "<br>&emsp;&emsp;&emsp;\"type\":";
         if(type == null || type.trim().equals("")){
             json += "null";
         }else{
             json += "\""+type+"\"";
         }
 
-        json += ",\n      \"description\":";
+        json += ",<br>&emsp;&emsp;&emsp;\"description\":";
         if(description == null || description.trim().equals("")){
             json += "null";
         }else{
             json += "\""+description+"\"";
         }
 
-        json += ",\n      \"conflictingData\":";
+        json += ",<br>&emsp;&emsp;&emsp;\"conflictingData\":";
         if(conflictingField == null || conflictingField.trim().equals("")){
             json += "null";
         }else{
             json += "\""+conflictingField+"\"";
         }
 
-        json += ",\n      \"conflictingRecordKey\":";
+        json += ",<br>&emsp;&emsp;&emsp;\"conflictingRecordKey\":";
         if(conflictingRecordKey == null || conflictingRecordKey.trim().equals("")){
             json += "null";
         }else{
             json += "\""+conflictingRecordKey+"\"";
         }
 
-        json += ",\n      \"conflictSource\":";
+        json += ",<br>&emsp;&emsp;&emsp;\"conflictSource\":";
         if(conflictSource == null || conflictSource.trim().equals("")){
             json += "null";
         }else{
             json += "\""+conflictSource+"\"";
         }
         
-        json += ",\n      \"requestValue\":";
+        json += ",<br>&emsp;&emsp;&emsp;\"requestValue\":";
         if(requestValue == null || requestValue.trim().equals("")){
             json += "null";
         }else{
             json += "\""+requestValue+"\"";
         }
         
-        json += ",\n      \"conflictingValue\":";
+        json += ",<br>&emsp;&emsp;&emsp;\"conflictingValue\":";
         if(conflictingValue == null || conflictingValue.trim().equals("")){
             json += "null";
         }else{
             json += "\""+conflictingValue+"\"";
         }
 
-        return json+"\n    }";
+        return json+"<br>&emsp;&emsp;}";
     }
 
     public String getConflictSource(){

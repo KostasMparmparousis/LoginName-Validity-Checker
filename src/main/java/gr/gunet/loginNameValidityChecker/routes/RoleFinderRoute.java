@@ -8,6 +8,7 @@ import gr.gunet.loginNameValidityChecker.db.SISDBView;
 import gr.gunet.loginNameValidityChecker.ldap.LdapConnectionPool;
 import gr.gunet.loginNameValidityChecker.ldap.LdapManager;
 import gr.gunet.loginNameValidityChecker.tools.CustomJsonReader;
+import gr.gunet.loginNameValidityChecker.tools.PropertyReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,48 +30,40 @@ public class RoleFinderRoute implements Route {
 
     @Override
     public Object handle(Request req, Response res) throws Exception {
-        res.type("application/json");
-        String reqBody = req.body();
-        CustomJsonReader reader;
-        try {
-            reader = new CustomJsonReader(reqBody);
-        } catch (Exception e) {
-            return e.getMessage();
-        }
-
         String roleJson= "{";
         String message="";
         String roles="";
         String response_code="";
 
-        loginName = reader.readPropertyAsString("loginName");
-        institution = reader.readPropertyAsString("institution");
-        String Active=reader.readPropertyAsString("onlyActive");
-        if (Active== null || Active.trim().equals("") || Active.equals("false")){
-          onlyActive=false;
-        }
-        else onlyActive=true;
+        PropertyReader propReader= new PropertyReader(CONN_FILE_DIR+"/institution.properties");
+        institution= propReader.getProperty("institution");
+        String htmlResponse= "<html><head><meta charset=\"ISO-8859-1\"><title>Servlet Read Form Data</title><link rel=\"stylesheet\" href=\"../css/style.css\"></head><body>";
+        htmlResponse+="<header><h1 style=\"color: #ed7b42;\">Response</h1></header><hr class=\"new1\"><div class=\"sidenav\"><a href=\"#\">Main Hub</a><a href=\"../validator.html\">Validator</a><a href=\"../suggester.html\">Suggester</a><a href=\"../roleFinder.html\">Finder</a></div><div class=\"main\">";
+
+        loginName = req.queryParams("loginName");
+//        String Active=reader.readPropertyAsString("onlyActive");
+//        if (Active== null || Active.trim().equals("") || Active.equals("false")){
+//          onlyActive=false;
+//        }
+//        else onlyActive=true;
         
-        if (loginName==null || institution==null){
+        if (loginName.trim().equals("")){
           closeViews();
           response_code="400";
-          String missingAttribute;
-          if (loginName==null) missingAttribute="loginName";
-          else missingAttribute="institution";
-          message= "\n  \"message\": \"No " + missingAttribute + " provided\"";
-          
-          roleJson+= "\n  \"Response code\" : " + response_code + ",";
+          message= "<br>&emsp;\"message\": \"No loginName provided\"";
+          roleJson+= "<br>&emsp;\"Response code\" : " + response_code + ",";
           roleJson+=message;
-          roleJson+="\n}\n";
-          res.body(new Gson().toJson(roleJson));
-          return roleJson;
+          htmlResponse+=roleJson;
+          htmlResponse+="</div></body></html>";
+          return htmlResponse;
         }
-        else if (institution!= null && !institutionExists(institution)){
-          closeViews();
-          String errorJson="{\n  \"Response code\" : 401,\n" +"  \"message\" : \"Could not connect to \'"+ institution+"\'\"\n}\n";
-          res.body(new Gson().toJson(errorJson));
-          return errorJson;
-        }
+//        else if (institution!= null && !institutionExists(institution)){ //switch to unauthorized
+//          closeViews();
+//          String errorJson="{<br>&emsp;\"Response code\" : 401,<br>" +"  \"message\" : \"Could not connect to \'"+ institution+"\'\"<br>}<br>";
+//          htmlResponse+=errorJson;
+//          htmlResponse+="</div></body></html>";
+//          return htmlResponse;
+//        }
 
         Views = new DBConnectionPool(institution);
         ldapDS = new LdapConnectionPool(institution);
@@ -87,7 +80,7 @@ public class RoleFinderRoute implements Route {
           existingSISOwners= sis.fetchAll("loginName", loginName, onlyActive);
         }
         catch (Exception e){
-          errorJson="{\n  \"Response code\" : 500,\n" +"  \"message\" : \"Could not connect to the SIS\"\n}\n";
+          errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"  \"message\" : \"Could not connect to the SIS\"<br>}<br>";
         }
 
         try{
@@ -95,7 +88,7 @@ public class RoleFinderRoute implements Route {
           if (hrms!=null) existingHRMSOwners= hrms.fetchAll("loginName", loginName, onlyActive);
         }
         catch (Exception e){
-          errorJson="{\n  \"Response code\" : 500,\n" +"  \"message\" : \"Could not connect to the HRMS\"\n}\n";
+          errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"  \"message\" : \"Could not connect to the HRMS\"<br>}<br>";
         }
 
         try{
@@ -103,30 +96,31 @@ public class RoleFinderRoute implements Route {
           if (hrms2!=null) existingHRMS2Owners= hrms2.fetchAll("loginName", loginName, onlyActive);
         }
         catch (Exception e){
-          errorJson="{\n  \"Response code\" : 500,\n" +"  \"message\" : \"Could not connect to the HRMS2\"\n}\n";
+          errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"  \"message\" : \"Could not connect to the HRMS2\"<br>}<br>";
         }
 
         if (!errorJson.equals("")){
-          res.body(new Gson().toJson(errorJson));
-          return errorJson;
+          htmlResponse+=errorJson;
+          htmlResponse+="</div></body></html>";
+          return htmlResponse;
         }
 
         if (existingSISOwners.isEmpty() && existingHRMSOwners.isEmpty() && existingHRMS2Owners.isEmpty()){
             response_code="000";
-            message= "\n  \"message\": \"" + loginName + " not found in any Database\"";
+            message= "<br>&emsp;\"message\": \"" + loginName + " not found in any Database\"";
         }
         else {
             response_code="";
             boolean firstElem = true;
-            message= "\n  \"message\": \"" + loginName + " found\",";
-            roles= "\n  \"Roles\" : [";
+            message= "<br>&emsp;\"message\": \"" + loginName + " found\",";
+            roles= "<br>&emsp;\"Roles\" : [";
             if (!existingSISOwners.isEmpty()) {
                 if(firstElem){
                     firstElem = false;
                 }else{
                     roles += ",";
                 }
-                roles += "\n    ";
+                roles += "<br>&emsp;&emsp;";
                 roles += "\"Student\"";
                 response_code += "1";
             }
@@ -138,7 +132,7 @@ public class RoleFinderRoute implements Route {
                 }else{
                     roles += ",";
                 }
-                roles += "\n    ";
+                roles += "<br>&emsp;&emsp;";
                 roles += "\"Member of the Teaching Staff\"";
                 response_code += "1";
             }
@@ -150,20 +144,21 @@ public class RoleFinderRoute implements Route {
                 }else{
                     roles += ",";
                 }
-                roles += "\n    ";
+                roles += "<br>&emsp;&emsp;";
                 roles += "\"Associate\"";
                 response_code += "1";
             }
             else response_code += "0";
 
-            roles+="\n  ]";
+            roles+="<br>&emsp;]";
         }
-        roleJson+= "\n  \"Response code\" : " + response_code + ",";
+        roleJson+= "<br>&emsp;\"Response code\" : " + response_code + ",";
         roleJson+=message;
         roleJson+=roles;
-        roleJson+="\n}\n";
-        res.body(new Gson().toJson(roleJson));
-        return roleJson;
+        roleJson+="<br>}<br>";
+        htmlResponse+=roleJson;
+        htmlResponse+="</div></body></html>";
+        return htmlResponse;
     }
     public boolean institutionExists(String institution){
       Path path= Paths.get(CONN_FILE_DIR+ institution + ".properties");

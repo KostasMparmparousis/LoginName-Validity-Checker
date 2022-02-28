@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="ISO-8859-1">
+        <title>Servlet Read Form Data</title>
+        <link rel="stylesheet" href="css/style.css">
+    </head>
+    <body>
+        
+        <header>
+            <h1 style="color: #ed7b42;">Registration Assistant</h1>
+        </header>
+        <hr class="new1">
+        <div class="sidenav">
+            <a href="#">Main Hub</a>
+            <a href="validator.html">Validator</a>
+            <a href="suggester.html">Suggester</a>
+            <a href="roleFinder.html">Finder</a>
+        </div>
+        <div class="main">
+            <p>
+                <i>Registration Assistant</i> is an all-around mechanism designed to assist the University Account creation procedure.
+            </p>
+            <p>
+                During the procedure of creating a new University Account, a loginName for the new account must be decided.
+                Many university services use this loginName as a personal identifier
+                and therefore it must be unique per person across multiple registries.
+            </p>
+            <p>
+                These registries are:
+                <ul>
+                    <li>The Student Information System (SIS).</li>
+                    <li>The Human Resource Management Software (HRMS).</li>
+                    <li>A Second Human Resource Management Software concerning only the Associates (HRMS2/Associates).</li>
+                    <li>The Data Server (DS).</li>
+                </ul>
+            </p>
+            <p>
+                The <i>Registration Assistant</i> assists the user in picking a suitable loginName during the account creation process by offering the following services/endpoints:
+                <ul>
+                    <li> <b>loginNameValidator/</b> -checks if the provided loginName can be assigned to the specified person.</li>
+                    <li> <b>loginNameSuggester/</b> -recommends a valid loginName for the specified person.</li>
+                    <li> <b>roleFinder/</b> -provides information regarding the specified person's roles in the University (Student, Member of the Teaching Staff, Associate etc), if they already have such a role.</li>
+                </ul>
+            </p>
+            <p>
+                The endpoints expect to receive a <b>JSON</b> formatted request and respond likewise. 
+            </p>
+
+            <h2 style="color: #ed7b42;">Quick Start</h2>
+            <hr class="new2">
+            <h3>loginNameValidator</h3>
+            <p>
+                During the procedure of creating a new University Account, one must examine whether a proposed loginName for that Account would generate any conflicts with the already present data across all 4 databases.
+            </p>
+            <p>
+                A <i>conflict</i> occurs when the requested <i>loginName</i> is already attributed to a different university entity than the one requesting that specific <i>loginName</i>.
+            </p>
+            <p>
+                The endpoint <a href="validator.html">loginNameValidator</a> s a mechanism that will locate any conflicts or inconsistencies if this loginName were to be used.
+
+            </p>
+
+            <h3>loginNameSuggester</h3>
+            <p>
+                Selecting a loginName for a new University Account is often not a straightforward procedure. Some universities use standardized patterns for creating new loginNames, a strategy that pretty much ensures their uniqueness, while others expect from the applicants to come up with their own unique loginName.
+            </p>
+            <p>
+                This endpoint addresses the latter scenario, suggesting possible loginNames for a new Account, by:
+                <ul>
+                    <li>Locating previous loginNames based on given SSN & SSNCountry.</li>
+                    <li>Generating new loginNames based on given firstName & lastName in the request.</li>
+                </ul>
+            </p>
+            <p>
+                The endpoint <a href="suggester.html">LoginNameSuggester</a> shall propose loginNames that can be safely attributed to a new Account.
+            </p>
+            <h3>roleFinder</h3>
+            <p>
+                A difficult task for a university with thousands of active members can be to determine a person's Role in their institution. Search for a person's active Roles in a institution based on a given userName.
+            </p>
+            <p>
+                The endpoint <a href="roleFinder.html">roleFinder</a> conducts a search based on a given loginName and decides whether a person is a Student, a Member of the Teaching Staff, an Associate, or a combination of the above.
+            </p>
+             <br/>
+        </div>
+    </body>
+</html>

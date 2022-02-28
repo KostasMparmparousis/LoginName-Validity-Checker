@@ -153,42 +153,39 @@ public class LoginNameValidator {
             throw new Exception("HRMS2");
         }
 
-        try{
-            ldap=ldapDS.getConn();
-            DSOwners = ldap.search(ldap.createSearchFilter("(schGrAcPersonID=*)","uid="+loginName));
-            for (LdapEntry DSOwner: DSOwners){
-                existingOwners.add(new SchGrAcPerson(DSOwner, loginName));
-            }
-        }
-        catch(Exception e){
-            throw new Exception("DS");
-        }
-
         if (!existingOwners.isEmpty()) {
-            nullAttributes = findNullAttributes(existingOwners, disabledGracePeriod);
+            nullAttributes = findNullAttributes(existingOwners, disabledGracePeriod, loginNameOwner);
         }
 
         return nullAttributes;
     }
 
-    private Collection<String> findNullAttributes(Collection<AcademicPerson> existingOwners, String disabledGracePeriod){
+    private Collection<String> findNullAttributes(Collection<AcademicPerson> existingOwners, String disabledGracePeriod, AcademicPerson loginNameOwner){
         Collection<String> nullAttributes = new HashSet();
         String ssn=null;
         String ssnCountry=null;
+        String tin=null;
+        String tinCountry=null;
         String birthDate=null;
         String birthYear=null;
 
         for (AcademicPerson existingOwner: existingOwners){
             if (existingOwner.getSSN()!=null) ssn=existingOwner.getSSN();
             if (existingOwner.getSSNCountry()!=null) ssnCountry=existingOwner.getSSNCountry();
+            if (loginNameOwner.getTIN() !=null && loginNameOwner.getTINCountry()!=null){
+                if (existingOwner.getTIN()!=null) tin=existingOwner.getTIN();
+                if (existingOwner.getTINCountry()!=null) tinCountry=existingOwner.getTINCountry();
+            }
             if (existingOwner.getBirthDate()!=null) birthDate=existingOwner.getBirthDate();
             if (existingOwner.getBirthYear()!=null) birthYear=existingOwner.getBirthYear();
         }
 
-        if (ssn==null) nullAttributes.add("\"ssn\"");
-        if (ssnCountry==null) nullAttributes.add("\"ssnCountry\"");
-        if (birthDate==null) nullAttributes.add("\"birthDate\"");
-        if (birthYear==null) nullAttributes.add("\"birthYear\"");
+        if (ssn==null) nullAttributes.add("ssn");
+        if (ssnCountry==null) nullAttributes.add("ssnCountry");
+        if (loginNameOwner.getTIN()!=null && tin==null) nullAttributes.add("tin");
+        if (loginNameOwner.getTINCountry()!=null && tinCountry==null) nullAttributes.add("tinCountry");
+        if (birthDate==null) nullAttributes.add("birthDate");
+        if (birthYear==null) nullAttributes.add("birthYear");
 
         return  nullAttributes;
     }

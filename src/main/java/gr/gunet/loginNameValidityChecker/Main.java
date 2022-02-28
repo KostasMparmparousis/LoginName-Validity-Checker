@@ -1,5 +1,7 @@
 package gr.gunet.loginNameValidityChecker;
 import gr.gunet.loginNameValidityChecker.routes.*;
+import spark.Request;
+import spark.Response;
 import spark.Spark;
 import spark.servlet.SparkApplication;
 
@@ -21,8 +23,15 @@ public class Main implements SparkApplication {
     public void destroy(){}
 
     public static void main(String[] args){
+        Spark.staticFiles.location("/static");
         new Main().init();
+        Spark.get("/index/", (req,res) -> returnStatic(req,res));
         CleanupThread cleanThread= new CleanupThread();
         cleanThread.run();
+    }
+    
+    public static String returnStatic(Request request,Response response){
+        response.redirect("index.html");
+        return null;
     }
 }

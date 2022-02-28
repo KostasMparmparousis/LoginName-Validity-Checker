@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit this template
+-->
+<html>
+    <head>
+        <title>Examples</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script type="module" src="https://md-block.verou.me/md-block.js"></script>
+        <link rel="stylesheet" href="../css/style.css">
+    </head>
+    <body>
+        <header>
+            <h1 style="color: #ed7b42;">Examples</h1>
+        </header>
+        <hr class="new1">
+        <div class="sidenav">
+            <a href="../index.html">Main Hub</a>
+            <a href="../roleFinder.html">Finder</a>
+            <a href="About.html">About</a>
+            <a href="ResponseSchema.html">Response Schema</a>
+            <a href="../errorCodes.html">Error Codes</a>
+        </div>
+        <div class="main">
+            <p>Τα παρακάτω responses προκύπτουν ύστερα από επιτυχείς/ολοκληρωμένες κλήσεις του <b>roleFinder</b>:</p>
+            <h3>Example 1.</h3>
+            <p><i>Ο χρήστης gunetdemo δεν βρέθηκε στις βάσεις δεδομένων.</i></p>
+             <pre class="Calls">
+                <code>
+{
+  "loginName": "gunetdemo",
+  "institution": "uoa"
+}
+                </code>
+            </pre>
+            <p><b>To response που θα επιστραφεί:</b></p>
+            <pre class="Calls">
+                <code>
+{
+  "Response code" : 000,
+  "message": "gunetdemo not found in any Database"
+}
+                </code>
+            </pre>
+           <h3>Example 2.</h3>
+            <p><i>Ο χρήστης gunetdemo είναι μόνο φοιτητής.</i></p>
+             <pre class="Calls">
+                <code>
+{
+  "loginName": "gunetdemo",
+  "institution": "uoa"
+}
+                </code>
+            </pre>
+            <p><b>To response που θα επιστραφεί:</b></p>
+            <pre class="Calls">
+                <code>
+{
+  "Response code" : 100,
+  "message": "gunetdemo found",
+  "Roles" : [
+    "Student"
+  ]
+}
+                </code>
+            </pre>
+            <h3>Example 3.</h3>
+            <p><i>Ο χρήστης gunetdemo έχει και τις 3 πανεπιστημιακές ιδιότητες.</i></p>
+             <pre class="Calls">
+                <code>
+{
+  "loginName": "gunetdemo",
+  "institution": "uoa"
+}
+                </code>
+            </pre>
+            <p><b>To response που θα επιστραφεί:</b></p>
+            <pre class="Calls">
+                <code>
+{
+  "Response code" : 111,
+  "message": "gunetdemo found",
+  "Roles" : [
+    "Student",
+    "Member of the Teaching Staff",
+    "Associate"
+  ]
+}
+                </code>
+            </pre>
+        </div>
+    </body>
+</html>

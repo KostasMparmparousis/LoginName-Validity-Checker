@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit this template
+-->
+<html>
+    <head>
+        <title>Examples</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script type="module" src="https://md-block.verou.me/md-block.js"></script>
+        <link rel="stylesheet" href="../css/style.css">
+    </head>
+    <body>
+        <header>
+            <h1 style="color: #ed7b42;">Examples</h1>
+        </header>
+        <hr class="new1">
+        <div class="sidenav">
+            <a href="../index.html">Main Hub</a>
+            <a href="../validator.html">Validator</a>
+            <a href="About.html">About</a>
+            <a href="ResponseSchema.html">Response Schema</a>
+            <a href="../errorCodes.html">Error Codes</a>
+        </div>
+        <div class="main">
+            <p>Τα παρακάτω responses προκύπτουν ύστερα από επιτυχείς/ολοκληρωμένες κλήσεις του <b>loginNameValidator</b>:</p>
+
+            <h3>Example 1.</h3>
+            <p><i>Αίτηση δημιουργίας λογαριασμού η οποία δεν επιστρέφει <b>κανένα conflict</b> βάσει αναζήτησης με το loginName. Επιπλέον ισχύει το 1 απο τα 2 ενδεχόμενα για τον αιτούμενο με αυτό το <b>Α.Μ.Κ.Α.</b>:</i></p>
+            <ul>
+                <li> Είναι ο πρώτος λογαριασμός που δημιουργεί.</li>
+            </ul>
+             <pre class="Calls">
+                <code>
+{
+  "ssn": "12312312313",
+  "ssnCountry": "GR",
+  "birthDate": "19770823",
+  "loginName": "gunetdemo",
+  "institution": "uoa"
+}
+                </code>
+            </pre>
+            <p><b>To response που θα επιστραφεί:</b></p>
+            <pre class="Calls">
+                <code>
+{
+  "Response code" : 120,
+  "message" : "No Conflicts Found, 12312312313-GR combination not found in any Database"
+}
+                </code>
+            </pre>
+            <ul>
+                <li> Θέλει να ξαναχρησιμοποιήσει το συγκεκριμένο loginName που του έχει ήδη αποδωθεί.</li>
+            </ul>
+
+             <pre class="Calls">
+                <code>
+{
+  "ssn": "12312312312",
+  "ssnCountry": "GR",
+  "birthDate": "19770823",
+  "loginName": "gunetdemo",
+  "institution": "uoa"
+}
+
+                </code>
+            </pre>
+            <p><b>To response που θα επιστραφεί:</b></p>
+            <pre class="Calls">
+                <code>
+{
+  "Response code" : 100,
+  "message" : "No Conflicts Found"
+}
+                </code>
+            </pre>            
+
+            <h3>Example 2.</h3>
+            <p><i>Αίτηση δημιουργίας λογαριασμού η οποία δεν επιστρέφει <b>κανένα conflict</b> βάσει αναζήτησης με το loginName. <b>Όμως</b> για τον αιτούμενο με αυτά τα προσωπικά στοιχεία έχει καταχωρηθεί <b>ήδη διαφορετικό</b> userName.</i></p>
+             <pre class="Calls">
+                <code>
+{
+  "ssn": "12312312312",
+  "ssnCountry": "GR",
+  "birthDate": "19770823",
+  "loginName": "test",
+  "institution": "uoa"
+}
+                </code>
+            </pre>
+            <p><b>To response που θα επιστραφεί:</b></p>
+            <pre class="Calls">
+                <code>
+{
+  "Response code" : 110,
+  "message" : "No Conflicts Found, 12312312312-GR is already paired with at least 1 loginName",
+  "personPairedWith": [
+    "gunetdemo"
+   ]
+}
+                </code>
+            </pre>
+
+            <h3>Example 3.</h3>
+            <p><i>Αίτηση δημιουργίας λογαριασμού η οποία <b>επιστρέφει conflict</b> βάσει αναζήτησης με το loginName. Επιπλέον η παράμετρος <b>verbose</b> είναι <b>false</b>.</i></p>
+             <pre class="Calls">
+                <code>
+{
+  "ssn": "12312312312",
+  "ssnCountry": "GR",
+  "birthDate": "19730825",
+  "loginName": "gunetdemo",
+  "institution": "uoa"
+}
+                </code>
+            </pre>
+            <p><b>To response που θα επιστραφεί:</b></p>
+            <pre class="Calls">
+                <code>
+{
+  "Response code" : 200,
+  "message" : "Conflicts Found, 12312312312-GR is already paired with at least 1 loginName"
+}
+                </code>
+            </pre>                        
+
+            <h3>Example 4.</h3>
+            <p><i>Αίτηση δημιουργίας λογαριασμού η οποία <b>επιστρέφει conflict</b> βάσει αναζήτησης με το loginName. Επιπλέον η παράμετρος <b>verbose</b> είναι <b>true</b>.</i></p>
+             <pre class="Calls">
+                <code>
+{
+  "ssn": "12312312312",
+  "ssnCountry": "GR",
+  "birthDate": "19730825",
+  "loginName": "gunetdemo",
+  "institution": "uoa"
+}
+                </code>
+            </pre>
+            <p><b>To response που θα επιστραφεί:</b></p>
+            <pre class="Calls">
+                <code>
+{
+  "Response code" : 200,
+  "message" : "Conflicts Found, 12312312312-GR is already paired with at least 1 loginName",
+  "conflicts": [
+    {
+      "type":"existing-login",
+      "description":"A record exists in 'DS' with the same loginName, but a different date of birth",
+      "conflictingData":"birthDate",
+      "conflictingRecordKey":"academicID=E2Q4KXGLNSPLB25T8TLLT5",
+      "conflictSource":"ds",
+      "requestValue":"19730825",
+      "conflictingValue":"19770825"
+    },
+    {
+      "type":"existing-login",
+      "description":"A record exists in 'SIS DB View' with the same loginName, but a different date of birth",
+      "conflictingData":"birthDate",
+      "conflictingRecordKey":"registrationID=0001-05-003000,systemID=003000",
+      "conflictSource":"sis",
+      "requestValue":"19730825",
+      "conflictingValue":"19770825"
+    },
+    {
+      "type":"existing-login",
+      "description":"A record exists in 'Associates DB View' with the same loginName, but a different date of birth",
+      "conflictingData":"birthDate",
+      "conflictingRecordKey":"registrationID=1,systemID=1",
+      "conflictSource":"associates",
+      "requestValue":"19730825",
+      "conflictingValue":"19770825"
+    },
+    {
+      "type":"existing-login",
+      "description":"A record exists in 'HRMS DB View' with the same loginName, but a different date of birth",
+      "conflictingData":"birthDate",
+      "conflictingRecordKey":"registrationID=ΔΠ-9128,systemID=1802",
+      "conflictSource":"hrms",
+      "requestValue":"19730825",
+      "conflictingValue":"19770825"
+    }
+  ]
+}
+                </code>
+            </pre>                                    
+
+            <h3>Example 5.</h3>
+            <p><i>Αίτηση δημιουργίας λογαριασμού με ολοκληρωμένα στοιχεία, του οποίου όμως το <b>loginName</b> εντοπίστηκε ότι έχει ήδη καταχωρηθεί στον Data Server χωρίς να έχει ακολουθηθεί η τυπική διαδικασία δημιουργίας λογαριασμού.</i></p>
+             <pre class="Calls">
+                <code>
+{
+  "ssn": "12312312312",
+  "ssnCountry": "GR",
+  "birthDate": "19770825",
+  "loginName": "gunetdemo",
+  "institution": "uoa"
+}
+                </code>
+            </pre>
+            <p><b>To response που θα επιστραφεί:</b></p>
+            <pre class="Calls">
+                <code>
+{
+  "Response code" : 300, 
+  "message" : "gunetdemo already exists while not following the typical DS Account generation procedure"
+}
+                </code>
+            </pre>                                    
+            
+            <h3>Example 6.</h3>
+            <p><i>Αίτηση δημιουργίας λογαριασμού με ολοκληρωμένα στοιχεία, του οποίου όμως για το <b>loginName</b> ενω υπάρχει τουλάχιστον μία εγγραφή σε κάποιο source, δεν βρέθηκαν επαρκή στοιχεία ώστε να μπορούμε να πούμε με σιγουριά ότι πρόκειται για το ίδιο άτομο (1 ή περισσότερα απο τα πεδία <b>SSN</b>, <b>SSNCountry</b> είναι <b>NULL παντού</b>).</i></p>
+             <pre class="Calls">
+                <code>
+{
+  "ssn": "12312312312",
+  "ssnCountry": "GR",
+  "birthDate": "19770825",
+  "loginName": "gunetdemo",
+  "institution": "uoa"
+}
+                </code>
+            </pre>
+            <p><b>To response που θα επιστραφεί:</b></p>
+            <pre class="Calls">
+                <code>
+{
+  "Response code" : 310, 
+  "message" : "A primary identifier given in the Request (ssn or ssnCountry) was never matched by any Record that is paired with 'gunetdemo'. We can not safely assume they are the same person."
+}
+                </code>
+            </pre>                                                
+        </div>
+    </body>
+</html>
