@@ -1,22 +1,25 @@
-# LoginName-Validity-Checker.
-LoginName Validity Checker is an all-around mechanism that is utilized during the University Account creation procedure.
+# University-Registration-Companion.
+*University Registration Companion* is an all-around mechanism designed to assist the University Account creation procedure.
 
-## Endpoints
-* ***loginNameValidator/***    
-* ***loginNameSuggester/***    
-* ***roleFinder/*** 
+During the procedure of creating a new University Account, a loginName for the new account must be decided. Many university services use this loginName as a personal identifier and therefore it must be unique per person across multiple registries.
+
+These registries are:
+* The Student Information System (SIS).
+* The Human Resource Management Software (HRMS).
+* A Second Human Resource Management Software concerning only the
+Associates (HRMS2/Associates).
+* The Data Server (DS).
+
+The *University Registration Companion* assists the user in picking a suitable loginName during the account creation process by offering the following services/endpoints:
+* ***loginNameValidator/*** - checks if the provided loginName can be assigned to the specified person.
+* ***loginNameSuggester/*** - recommends a valid loginName for the specified person.
+* ***roleFinder/*** - provides information regarding the specified person's roles in the University (Student, Member of the Teaching Staff, Associate etc), if they already have such a role.
 
 The endpoints expect to receive a **JSON** formatted request and respond likewise.
 
 ## Quick Start
 ### loginNameValidator
-Most universities usually operate by having as much as 4 primary sources in their possession:
-* The Student Information System (SIS)
-* The Human Resource Management Software (HRMS)
-* A Second Human Resource Management Software concerning only the Associates (HRMS2/Associates)
-* The Data Server (DS)
-
-Evidently, during the procedure of creating a new University Account, one must examine whether a proposed loginName for that Account would generate any *conflicts* with the already present data across all 4 databases.  
+During the procedure of creating a new University Account, one must examine whether a proposed loginName for that Account would generate any *conflicts* with the already present data across all 4 databases.  
 
 A *conflict* occurs when the requested *loginName* is already attributed to a different university entity than the one requesting that specific *loginName*.   
 
