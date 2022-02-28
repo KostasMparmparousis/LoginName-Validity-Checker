@@ -17,9 +17,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import java.util.*;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.ldaptive.LdapEntry;
 import spark.Request;
@@ -45,8 +42,7 @@ public class LoginNameValidatorRoute implements Route{
         response_code="";
         String loginName= req.queryParams("loginName");
         String htmlResponse= "<html><head><meta charset=\"ISO-8859-1\"><title>Servlet Read Form Data</title><link rel=\"stylesheet\" href=\"../css/style.css\"></head><body>";
-        htmlResponse+="<header><h1 style=\"color: #ed7b42;\">Response</h1></header><hr class=\"new1\"><div class=\"sidenav\"><a href=\"#\">Main Hub</a><a href=\"../validator.html\">Validator</a><a href=\"../suggester.html\">Suggester</a><a href=\"../roleFinder.html\">Finder</a></div><div class=\"main\">";
-        //res.type("application/json");
+        htmlResponse+="<header><h1 style=\"color: #ed7b42;\">Response</h1></header><hr class=\"new1\"><div class=\"sidenav\"><a href=\"../index.html\">Main Hub</a><a href=\"../validator.html\">Validator</a><a href=\"../suggester.html\">Suggester</a><a href=\"../roleFinder.html\">Finder</a></div><div class=\"main\">";
         boolean verbose=false;
         disabledGracePeriod= req.queryParams("disabledGracePeriod");
         if(disabledGracePeriod == null || disabledGracePeriod.trim().equals("")){
