@@ -35,8 +35,9 @@ public class RoleFinderRoute implements Route {
         String roles="";
         String response_code="";
 
-        PropertyReader propReader= new PropertyReader(CONN_FILE_DIR+"/institution.properties");
-        institution= propReader.getProperty("institution");
+//        PropertyReader propReader= new PropertyReader(CONN_FILE_DIR+"/institution.properties");
+//        institution= propReader.getProperty("institution");
+        institution= req.session().attribute("institution");
         String htmlResponse= "<html><head><meta charset=\"ISO-8859-1\"><title>Servlet Read Form Data</title><link rel=\"stylesheet\" href=\"../css/style.css\"></head><body>";
         htmlResponse+="<header><h1 style=\"color: #ed7b42;\">Response</h1></header><hr class=\"new1\"><div class=\"sidenav\"><a href=\"../index.html\">Main Hub</a><a href=\"../validator.html\">Validator</a><a href=\"../suggester.html\">Suggester</a><a href=\"../roleFinder.html\">Finder</a></div><div class=\"main\">";
 
@@ -57,13 +58,6 @@ public class RoleFinderRoute implements Route {
           htmlResponse+="</div></body></html>";
           return htmlResponse;
         }
-//        else if (institution!= null && !institutionExists(institution)){ //switch to unauthorized
-//          closeViews();
-//          String errorJson="{<br>&emsp;\"Response code\" : 401,<br>" +"  \"message\" : \"Could not connect to \'"+ institution+"\'\"<br>}<br>";
-//          htmlResponse+=errorJson;
-//          htmlResponse+="</div></body></html>";
-//          return htmlResponse;
-//        }
 
         Views = new DBConnectionPool(institution);
         ldapDS = new LdapConnectionPool(institution);

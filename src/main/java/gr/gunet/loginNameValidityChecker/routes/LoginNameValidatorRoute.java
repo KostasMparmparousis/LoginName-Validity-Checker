@@ -48,9 +48,7 @@ public class LoginNameValidatorRoute implements Route{
         if(disabledGracePeriod == null || disabledGracePeriod.trim().equals("")){
           disabledGracePeriod = null;
         }
-        
-        PropertyReader propReader= new PropertyReader(CONN_FILE_DIR+"/institution.properties");
-        institution= propReader.getProperty("institution");
+        institution= req.session().attribute("institution");
 
         RequestPerson reqPerson;
         try{
@@ -63,14 +61,6 @@ public class LoginNameValidatorRoute implements Route{
             htmlResponse+=errorJson;
             htmlResponse+="</div></body></html>";
             return htmlResponse;
-        }
-
-        if (!institutionExists(institution)){
-          closeViews();
-          String errorJson="{<br>&emsp;\"Response code\" : 401,<br>" +"&emsp;\"message\" : \"Could not connect to '"+ reqPerson.getInstitution()+"'\"<br>}<br>";
-          htmlResponse+=errorJson;
-          htmlResponse+="</div></body></html>";
-          return htmlResponse;
         }
 
         Views= new DBConnectionPool(institution);

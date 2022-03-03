@@ -14,11 +14,9 @@ public class BasicAuthFilter implements Filter{
         if(request.session().isNew()){
             unauthorizedHandle(request, response);
         }
-
         if(request.session().attribute("authorized") == null){
             unauthorizedHandle(request, response);
         }
-
         if(!request.session().attribute("authorized").equals("true")){
             unauthorizedHandle(request, response);
         }
@@ -26,9 +24,6 @@ public class BasicAuthFilter implements Filter{
     
     private void unauthorizedHandle(Request request,Response response){
         request.session().attribute("originalDestination", request.uri());
-        String test1= request.uri();
-        String test2= request.url();
-        
         response.redirect("/loginPage.html");
     }
 }

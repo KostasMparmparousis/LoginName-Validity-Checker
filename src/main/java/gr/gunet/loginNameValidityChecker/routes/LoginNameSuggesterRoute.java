@@ -49,28 +49,11 @@ public class LoginNameSuggesterRoute implements Route {
         String htmlResponse= "<html><head><meta charset=\"ISO-8859-1\"><title>Servlet Read Form Data</title><link rel=\"stylesheet\" href=\"../css/style.css\"></head><body>";
         htmlResponse+="<header><h1 style=\"color: #ed7b42;\">Response</h1></header><hr class=\"new1\"><div class=\"sidenav\"><a href=\"../index.html\">Main Hub</a><a href=\"../validator.html\">Validator</a><a href=\"../suggester.html\">Suggester</a><a href=\"../roleFinder.html\">Finder</a></div><div class=\"main\">";
         
-        PropertyReader propReader= new PropertyReader(CONN_FILE_DIR+"/institution.properties");
-        institution= propReader.getProperty("institution");
-
+        institution= req.session().attribute("institution");
         SSN = req.queryParams("ssn");
         SSNCountry = req.queryParams("ssnCountry");
         FN= req.queryParams("firstName");
         LN= req.queryParams("lastName");
-
-        if (institution==null){
-          closeViews();
-          String errorJson="{<br>&emsp;\"Response code\" : 400,<br>" +"&emsp;\"message\" : \"No institution provided\"<br>}<br>";
-          htmlResponse+=errorJson;
-          htmlResponse+="</div></body></html>";
-          return htmlResponse;
-        }
-        else if (!institutionExists(institution)){
-          closeViews();
-          String errorJson="{<br>&emsp;\"Response code\" : 401,<br>" +"&emsp;\"message\" : \"Could not connect to \'"+ institution+"\'\"<br>}<br>";
-          htmlResponse+=errorJson;
-          htmlResponse+="</div></body></html>";
-          return htmlResponse;
-        }
 
         Views= new DBConnectionPool(institution);
         ldapDS= new LdapConnectionPool(institution);
