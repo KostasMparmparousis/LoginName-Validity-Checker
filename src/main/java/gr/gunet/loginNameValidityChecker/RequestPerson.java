@@ -84,7 +84,7 @@ public class RequestPerson implements AcademicPerson{
       this.ssnCountry=new HashSet();
       this.tin=new HashSet();
       this.tinCountry=new HashSet();
-      
+
       SSN= req.queryParams("ssn");
       if(SSN == null || SSN.trim().equals("")){
         throw new Exception("No ssn provided");
@@ -102,10 +102,20 @@ public class RequestPerson implements AcademicPerson{
       }
 
       TIN= req.queryParams("tin");
-      if (TIN!=null && !TIN.trim().equals("")) tin.add(TIN);
-      
+      if(TIN == null || TIN.trim().equals("")){
+        TIN=null;
+      }
+      else{
+        tin.add(TIN);
+      }
+
       TINCountry= req.queryParams("tinCountry");
-      if (TINCountry!=null && !TINCountry.trim().equals("")) tinCountry.add(TINCountry);
+      if(TINCountry == null || TINCountry.trim().equals("")){
+        TINCountry=null;
+      }
+      else{
+        tinCountry.add(TINCountry);
+      }
 
       this.birthDate = req.queryParams("birthDate");
       if(this.birthDate == null || this.birthDate.trim().equals("")){

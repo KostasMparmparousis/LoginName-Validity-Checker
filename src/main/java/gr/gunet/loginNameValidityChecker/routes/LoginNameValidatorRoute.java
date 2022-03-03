@@ -67,7 +67,7 @@ public class LoginNameValidatorRoute implements Route{
 
         if (!institutionExists(institution)){
           closeViews();
-          String errorJson="{<br>&emsp;\"Response code\" : 401,<br>" +"&emsp;\"message\" : \"Could not connect to \'"+ reqPerson.getInstitution()+"\'\"<br>}<br>";
+          String errorJson="{<br>&emsp;\"Response code\" : 401,<br>" +"&emsp;\"message\" : \"Could not connect to '"+ reqPerson.getInstitution()+"'\"<br>}<br>";
           htmlResponse+=errorJson;
           htmlResponse+="</div></body></html>";
           return htmlResponse;
@@ -125,7 +125,7 @@ public class LoginNameValidatorRoute implements Route{
     }
     
     public String getConflicts(Collection<Conflict> conflicts, RequestPerson reqPerson, LoginNameValidator loginChecker) throws Exception{
-        message=",<br>&emsp;'message' : '";
+        message=",<br>&emsp;\"message\" : \"";
         if (conflicts.isEmpty()) {
             message += "No ";
         }
@@ -136,7 +136,7 @@ public class LoginNameValidatorRoute implements Route{
         if (!conflicts.isEmpty()) {
             response_code+="2";
             if (verbose){
-                responseJson += ",<br>  'conflicts': " ;
+                responseJson += ",<br>&emsp;\"conflicts\": " ;
                 boolean firstElem = true;
                 for(Conflict conflict : conflicts){
                     if(firstElem){
@@ -158,13 +158,13 @@ public class LoginNameValidatorRoute implements Route{
             nullAttributes=loginChecker.getNullAttributes(reqPerson, disabledGracePeriod);
             if (nullAttributes!=null && !nullAttributes.isEmpty()){
                 if (nullAttributes.contains("ssn") || nullAttributes.contains("ssnCountry")){
-                    String warningJson="{<br>  'Response code' : 310,<br>" + "  'message' : 'A primary identifier given in the Request (ssn or ssnCountry) was never matched by any Record that is paired with " + reqPerson.getLoginName()  +". We can not safely assume they are the same person.' <br>}";
+                    String warningJson="{<br>&emsp;\"Response code\" : 310,<br>" + "&emsp;\"message\" : \"A primary identifier given in the Request (ssn or ssnCountry) was never matched by any Record that is paired with " + reqPerson.getLoginName()  +". We can not safely assume they are the same person.\" <br>}";
                     return warningJson;
                 }
                 else{
                     response_code+="1";
                     message+=", some Request attributes were not matched to their Database counterparts by any Record that is paired with " + reqPerson.getLoginName();
-                    String nullAttrs= ",<br>  'unmatchedAttrs': ";
+                    String nullAttrs= ",<br>&emsp;\"unmatchedAttrs\": ";
                     boolean firstElem=true;
                     for (String nullAttr: nullAttributes){
                         if (firstElem==true){
@@ -188,7 +188,7 @@ public class LoginNameValidatorRoute implements Route{
             response_code+="0";
         }
 
-        conflictsJson+="<br>&emsp;'Response code' : " + response_code;
+        conflictsJson+="<br>&emsp;\"Response code\" : " + response_code;
         conflictsJson+=message;
         conflictsJson+=responseJson;
         if (responseJson.equals("")) conflictsJson+="\"";

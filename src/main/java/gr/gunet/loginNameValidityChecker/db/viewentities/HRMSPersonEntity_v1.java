@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 @Entity
-@Table(name="v_vd_hrms_ihu")
+@Table(name="v_vd_hrms")
 public class HRMSPersonEntity_v1 implements Serializable,AcademicPerson{
     public HRMSPersonEntity_v1(){
         

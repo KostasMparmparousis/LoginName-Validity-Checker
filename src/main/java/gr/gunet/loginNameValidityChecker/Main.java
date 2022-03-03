@@ -9,6 +9,7 @@ public class Main implements SparkApplication {
     public Main(){}
     @Override
     public void init(){
+        Spark.ipAddress("127.0.0.1");
         Spark.post("/loginNameValidator/", new LoginNameValidatorRoute());
         Spark.post("/loginNameValidator", new LoginNameValidatorRoute());
         Spark.post("/loginNameSuggester/", new LoginNameSuggesterRoute());
