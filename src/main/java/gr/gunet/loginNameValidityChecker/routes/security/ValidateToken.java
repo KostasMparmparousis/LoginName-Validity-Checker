@@ -14,7 +14,7 @@ import spark.Response;
 import spark.Route;
 
 public class ValidateToken implements Route{
-    private static final String DEFAULT_AUTH_TOKEN_FILE = "authorizationTokens";
+    private static final String DEFAULT_AUTH_TOKEN_FILE = "/etc/v_vd/tokens/authorizationTokens";
     
     private final HashMap<String,String> keysToInstitutions;
     
