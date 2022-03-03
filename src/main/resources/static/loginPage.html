@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit this template
+-->
+<html>
+    <head>
+        <title>login</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="css/tooltip.css">
+    </head>
+    <body>
+        <header>
+            <h1 style="color: #ed7b42;">Login Page</h1>
+        </header>
+        <hr class="new1">
+        <div class="sidenav">
+            <a href="index.html">Main Hub</a>
+        </div>
+        <div class="main">
+            <form action="validate-token/" method="POST">
+                <fieldset>
+                    <p>
+                        <label for="Institution" >Institution:</label>
+                        <input type="text" name="institution"/>
+                        <div class="tooltip">&#9432;
+                            <span class="tooltiptext">placeholder</span>
+                        </div> 
+                        <br>
+                    </p
+                    <p>
+                        <label for="Password" >Password:</label>
+                        <input type="text" name="password" /> 
+                        <div class="tooltip">&#9432;
+                            <span class="tooltiptext">placeholder</span>
+                        </div> 
+                        <br>
+                    </p>
+                    <br>
+                    <input type="submit" value="Submit" />
+                </fieldset>
+            </form>
+        </div>
+    </body>
+</html>
