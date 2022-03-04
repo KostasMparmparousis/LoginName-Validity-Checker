@@ -46,7 +46,7 @@ public class LoginNameSuggesterRoute implements Route {
         responseJson="";
         personPairedWith="";
         suggestedNames="";
-        String htmlResponse= "<html><head><meta charset=\"ISO-8859-1\"><title>Servlet Read Form Data</title><link rel=\"stylesheet\" href=\"../css/style.css\"></head><body>";
+        String htmlResponse= "<html><head><meta charset=\"ISO-8859-1\"><title>Response</title><link rel=\"stylesheet\" href=\"../css/style.css\"></head><body>";
         htmlResponse+="<header><h1 style=\"color: #ed7b42;\">Response</h1></header><hr class=\"new1\"><div class=\"sidenav\"><a href=\"../index.html\">Main Hub</a><a href=\"../validator.html\">Validator</a><a href=\"../suggester.html\">Suggester</a><a href=\"../roleFinder.html\">Finder</a></div><div class=\"main\">";
         
         institution= req.session().attribute("institution");

@@ -20,12 +20,10 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
             <a href="../validator.html">Validator</a>
             <a href="TestCalls.html">Examples</a>
             <a href="ResponseSchema.html">Response Schema</a>
-            <a href="../errorCodes.html">Error Codes</a>
         </div>
         <div class="main">
             <p>Examines if a given loginName can be safely attributed to a new Account.</p>
             <h3>Response Code Table</h3>
-            
               <table>
                 <tr>
                   <th>Response Codes</th>
@@ -38,7 +36,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                   <th>Primary identifier NULL everywhere</th>
                 </tr>
                 <tr>
-                  <td>100</td>
+                    <td>10<b>X</b></td>
                   <td>&checkmark;</td>
                   <td></td>
                   <td>&checkmark;</td>
@@ -48,7 +46,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                   <td></td>
                 </tr>
                 <tr>
-                  <td>110</td>
+                  <td>11<b>X</b></td>
                   <td>&checkmark;</td>
                   <td></td>
                   <td></td>
@@ -58,7 +56,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                   <td></td>
                 </tr>
                  <tr>
-                  <td>120</td>
+                  <td>12<b>X</b></td>
                   <td>&checkmark;</td>
                   <td></td>
                   <td></td>
@@ -117,7 +115,14 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                   <td></td>
                   <td>&checkmark;</td>
                 </tr>
-              </table> 
+              </table>
+            
+            <p> where <b><i>X</i></b> referenced in the "No conflict" scenario corresponds to 1 of the 3 possible scenarios:</p>
+            <ul>
+                <li><b>0:</b> Person wants to use a <b>new </b><i>loginName</i>. </li>
+                <li><b>1:</b> Person wants to use a <i>loginName</i> that he has <b>reserved</b>. </li>
+                <li><b>1:</b> Person wants to use a <i>loginName</i> that he <b>already owns</b>. </li>
+            </ul>
             
             <h3>Responses</h3>
             <ul>

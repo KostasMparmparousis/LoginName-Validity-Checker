@@ -10,6 +10,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="css/style.css">
         <link rel="stylesheet" href="css/tooltip.css">
+         <script src="js/fillBlankAlert.js"></script> 
     </head>
     <body>
         <header>
@@ -21,10 +22,9 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
             <a href="validator/About.html">About</a>
             <a href="validator/TestCalls.html">Examples</a>
             <a href="validator/ResponseSchema.html">Response Schema</a>
-            <a href="errorCodes.html">Error Codes</a>
         </div>
         <div class="main">
-            <form action="loginNameValidator/" method="POST">
+            <form action="loginNameValidator/" method="POST" name="Form" onsubmit="return fillValidatorForm()">
                 <fieldset>
                     <p>
                         <label for="SSN" >SSN:</label>

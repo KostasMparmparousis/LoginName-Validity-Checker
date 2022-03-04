@@ -20,7 +20,6 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
             <a href="../validator.html">Validator</a>
             <a href="About.html">About</a>
             <a href="TestCalls.html">Examples</a>
-            <a href="../errorCodes.html">Error Codes</a>
         </div>
         <div class="main">
             <p>Το παρακάτω JSON schema περιγράφει την δομή του response την οποία το <b>loginNameValidator</b> αναμένεται να επιστρέψει. Επιπλεόν μπορεί να ερμηνευτεί ως validator.</p>
@@ -107,6 +106,12 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
         "items": {
             "type": "string"
         }
+    },
+    "status": {
+      "type": "string",
+      "examples": [
+        "Selection of a new loginName."
+      ]
     }
   }
 }

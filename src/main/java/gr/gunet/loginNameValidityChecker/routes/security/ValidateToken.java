@@ -38,7 +38,8 @@ public class ValidateToken implements Route{
     @Override
     public Object handle(Request request, Response response) throws Exception {
         String reqInstitution=request.queryParams("institution");
-        String password=request.queryParams("password");        
+        String password=request.queryParams("password");
+        reqInstitution=reqInstitution.trim().toLowerCase();
         if(request.session().isNew() || request.session().attribute("authorized") == null || !request.session().attribute("authorized").equals("true")){
             String tokenInstitution = keysToInstitutions.get(password);
             if(tokenInstitution == null || tokenInstitution.trim().equals("")){

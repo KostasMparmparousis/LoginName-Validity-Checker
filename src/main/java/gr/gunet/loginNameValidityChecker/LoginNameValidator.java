@@ -93,6 +93,64 @@ public class LoginNameValidator {
         return conflicts;
     }
 
+    public Collection<String> getLoginNameSources(AcademicPerson loginNameOwner, String disabledGracePeriod) throws Exception{
+      return getLoginNameSources(loginNameOwner, loginNameOwner.getLoginName(),disabledGracePeriod);
+    }
+
+    private Collection<String> getLoginNameSources(AcademicPerson loginNameOwner,String loginName,String disabledGracePeriod) throws LdapException,Exception{
+      Collection<String> loginNameSources= new HashSet();
+      SISDBView sis=null;
+      HRMSDBView hrms=null;
+      HRMSDBView hrms2=null;
+      LdapManager ldap=null;
+      Collection<LdapEntry> existingDSOwners;
+      Collection<AcademicPerson> existingOwners;
+
+      try{
+          ldap=ldapDS.getConn();
+          existingDSOwners = ldap.search(ldap.createSearchFilter("(schGrAcPersonID=*)","uid="+loginName));
+          if (!existingDSOwners.isEmpty()){
+            loginNameSources.add("DS");
+            return loginNameSources;
+          }
+      }
+      catch(Exception e){
+          throw new Exception("DS");
+      }
+
+      try{
+          sis=Views.getSISConn();
+          existingOwners= sis.fetchAll("loginName",loginName,disabledGracePeriod);
+          if(!existingOwners.isEmpty()) loginNameSources.add("SIS");
+        }
+        catch(Exception e){
+          throw new Exception("SIS");
+        }
+
+      try{
+          hrms=Views.getHRMSConn();
+          if (hrms!=null){
+            existingOwners= hrms.fetchAll("loginName",loginName,disabledGracePeriod);
+            if(!existingOwners.isEmpty()) loginNameSources.add("HRMS");
+          }
+        }
+        catch(Exception e){
+          throw new Exception("HRMS");
+        }
+
+        try{
+          hrms2=Views.getHRMS2Conn();
+          if (hrms2!=null){
+            existingOwners= hrms2.fetchAll("loginName",loginName,disabledGracePeriod);
+            if(!existingOwners.isEmpty()) loginNameSources.add("HRMS2");
+          }
+        }
+        catch(Exception e){
+          throw new Exception("HRMS2");
+        }
+      return loginNameSources;
+    }
+
     public Collection<String> getUIDPersons(AcademicPerson loginNameOwner,String disabledGracePeriod) throws Exception{
         return getUIDPersons(loginNameOwner,loginNameOwner.getLoginName(), disabledGracePeriod);
     }

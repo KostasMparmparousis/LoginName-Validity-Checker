@@ -21,15 +21,14 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
             <a href="../validator.html">Validator</a>
             <a href="About.html">About</a>
             <a href="ResponseSchema.html">Response Schema</a>
-            <a href="../errorCodes.html">Error Codes</a>
         </div>
         <div class="main">
             <p>Τα παρακάτω responses προκύπτουν ύστερα από επιτυχείς/ολοκληρωμένες κλήσεις του <b>loginNameValidator</b>:</p>
 
             <h3>Example 1.</h3>
-            <p><i>Αίτηση δημιουργίας λογαριασμού η οποία δεν επιστρέφει <b>κανένα conflict</b> βάσει αναζήτησης με το loginName. Επιπλέον ισχύει το 1 απο τα 2 ενδεχόμενα για τον αιτούμενο με αυτό το <b>Α.Μ.Κ.Α.</b>:</i></p>
+            <p><i>Αίτηση δημιουργίας λογαριασμού η οποία δεν επιστρέφει <b>κανένα conflict</b> βάσει αναζήτησης με το loginName. Επιπλέον ισχύει το 1 απο τα 3 ενδεχόμενα για τον αιτούμενο με αυτό το <b>Α.Μ.Κ.Α.</b>:</i></p>
             <ul>
-                <li> Είναι ο πρώτος λογαριασμός που δημιουργεί.</li>
+                <li>Θέλει να χρησιμοποιήσει ένα εντελώς καινούργιο loginName</li>
             </ul>
              <pre class="Calls">
                 <code>
@@ -37,8 +36,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
   "ssn": "12312312313",
   "ssnCountry": "GR",
   "birthDate": "19770823",
-  "loginName": "gunetdemo",
-  "institution": "uoa"
+  "loginName": "gunetdemo"
 }
                 </code>
             </pre>
@@ -46,13 +44,14 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
             <pre class="Calls">
                 <code>
 {
-  "Response code" : 120,
-  "message" : "No Conflicts Found, 12312312313-GR combination not found in any Database"
+ "Response code" : 120,
+ "message" : "No Conflicts Found, 12312312313-GR combination not found in any Database",
+ "status": "Selection of a new loginName."
 }
                 </code>
             </pre>
             <ul>
-                <li> Θέλει να ξαναχρησιμοποιήσει το συγκεκριμένο loginName που του έχει ήδη αποδωθεί.</li>
+                <li> Θέλει να χρησιμοποιήσει το συγκεκριμένο loginName που του έχει γινει reserved.</li>
             </ul>
 
              <pre class="Calls">
@@ -61,18 +60,41 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
   "ssn": "12312312312",
   "ssnCountry": "GR",
   "birthDate": "19770823",
-  "loginName": "gunetdemo",
-  "institution": "uoa"
+  "loginName": "gunetdemo"
 }
-
                 </code>
             </pre>
             <p><b>To response που θα επιστραφεί:</b></p>
             <pre class="Calls">
                 <code>
 {
-  "Response code" : 100,
-  "message" : "No Conflicts Found"
+ "Response code" : 101,
+ "message" : "No Conflicts Found",
+ "status": "loginName already reserved for that person."
+}
+                </code>
+            </pre>
+            <ul>
+                <li> Θέλει να ξαναχρησιμοποιήσει το συγκεκριμένο loginName που του ανήκει ήδη.</li>
+            </ul>
+
+             <pre class="Calls">
+                <code>
+{
+  "ssn": "12312312312",
+  "ssnCountry": "GR",
+  "birthDate": "19770823",
+  "loginName": "gunetdemo"
+}
+                </code>
+            </pre>
+            <p><b>To response που θα επιστραφεί:</b></p>
+            <pre class="Calls">
+                <code>
+{
+ "Response code" : 102,
+ "message" : "No Conflicts Found",
+ "status": "loginName already assigned to that person."
 }
                 </code>
             </pre>            
@@ -85,8 +107,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
   "ssn": "12312312312",
   "ssnCountry": "GR",
   "birthDate": "19770823",
-  "loginName": "test",
-  "institution": "uoa"
+  "loginName": "test"
 }
                 </code>
             </pre>
@@ -94,11 +115,12 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
             <pre class="Calls">
                 <code>
 {
-  "Response code" : 110,
-  "message" : "No Conflicts Found, 12312312312-GR is already paired with at least 1 loginName",
-  "personPairedWith": [
-    "gunetdemo"
-   ]
+ "Response code" : 110,
+ "message" : "No Conflicts Found, 12312312312-GR is already paired with at least 1 loginName",
+ "personPairedWith": [
+  "gunetdemo"
+ ],
+ "status": "Selection of a new loginName."
 }
                 </code>
             </pre>
@@ -111,8 +133,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
   "ssn": "12312312312",
   "ssnCountry": "GR",
   "birthDate": "19730825",
-  "loginName": "gunetdemo",
-  "institution": "uoa"
+  "loginName": "gunetdemo"
 }
                 </code>
             </pre>
@@ -188,15 +209,14 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
             </pre>                                    
 
             <h3>Example 5.</h3>
-            <p><i>Αίτηση δημιουργίας λογαριασμού με ολοκληρωμένα στοιχεία, του οποίου όμως το <b>loginName</b> εντοπίστηκε ότι έχει ήδη καταχωρηθεί στον Data Server χωρίς να έχει ακολουθηθεί η τυπική διαδικασία δημιουργίας λογαριασμού.</i></p>
+            <p><i>Αίτηση δημιουργίας λογαριασμού με ολοκληρωμένα στοιχεία, του οποίου όμως το <b>loginName</b> εντοπίστηκε ότι έχει ήδη καταχωρηθεί στον Directory Service χωρίς να έχει ακολουθηθεί η τυπική διαδικασία δημιουργίας λογαριασμού.</i></p>
              <pre class="Calls">
                 <code>
 {
   "ssn": "12312312312",
   "ssnCountry": "GR",
   "birthDate": "19770825",
-  "loginName": "gunetdemo",
-  "institution": "uoa"
+  "loginName": "gunetdemo"
 }
                 </code>
             </pre>
@@ -218,8 +238,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
   "ssn": "12312312312",
   "ssnCountry": "GR",
   "birthDate": "19770825",
-  "loginName": "gunetdemo",
-  "institution": "uoa"
+  "loginName": "gunetdemo"
 }
                 </code>
             </pre>

@@ -41,7 +41,7 @@ public class LoginNameValidatorRoute implements Route{
     public Object handle(Request req, Response res) throws Exception{
         response_code="";
         String loginName= req.queryParams("loginName");
-        String htmlResponse= "<html><head><meta charset=\"ISO-8859-1\"><title>Servlet Read Form Data</title><link rel=\"stylesheet\" href=\"../css/style.css\"></head><body>";
+        String htmlResponse= "<html><head><meta charset=\"ISO-8859-1\"><title>Response</title><link rel=\"stylesheet\" href=\"../css/style.css\"></head><body>";
         htmlResponse+="<header><h1 style=\"color: #ed7b42;\">Response</h1></header><hr class=\"new1\"><div class=\"sidenav\"><a href=\"../index.html\">Main Hub</a><a href=\"../validator.html\">Validator</a><a href=\"../suggester.html\">Suggester</a><a href=\"../roleFinder.html\">Finder</a></div><div class=\"main\">";
         boolean verbose=false;
         disabledGracePeriod= req.queryParams("disabledGracePeriod");
@@ -144,6 +144,7 @@ public class LoginNameValidatorRoute implements Route{
         getExistingLoginNames(reqPerson);
         
         Collection<String> nullAttributes;
+        Collection<String> loginNameSources;
         if (conflicts.isEmpty()){
             nullAttributes=loginChecker.getNullAttributes(reqPerson, disabledGracePeriod);
             if (nullAttributes!=null && !nullAttributes.isEmpty()){
@@ -152,7 +153,6 @@ public class LoginNameValidatorRoute implements Route{
                     return warningJson;
                 }
                 else{
-                    response_code+="1";
                     message+=", some Request attributes were not matched to their Database counterparts by any Record that is paired with " + reqPerson.getLoginName();
                     String nullAttrs= ",<br>&emsp;\"unmatchedAttrs\": ";
                     boolean firstElem=true;
@@ -170,15 +170,30 @@ public class LoginNameValidatorRoute implements Route{
                     responseJson+=nullAttrs;
                 }
             }
-            else{
-                response_code+="0";
+            loginNameSources = loginChecker.getLoginNameSources(reqPerson, disabledGracePeriod);
+            String status= ",<br>&emsp;\"status\": ";
+            if (loginNameSources==null || loginNameSources.isEmpty()){
+              response_code+="0";
+              status+="\"Selection of a new loginName.\"";
             }
+            else{
+              if (!loginNameSources.contains("DS")){
+                response_code+="1";
+                status+="\"loginName already reserved for that person.\"";
+              }
+              else{
+                response_code+="2";
+                status+="\"loginName already assigned to that person.\"";
+              }
+            }
+            responseJson+=status;
         }
         else{
             response_code+="0";
         }
 
         conflictsJson+="<br>&emsp;\"Response code\" : " + response_code;
+        message+="\"";
         conflictsJson+=message;
         conflictsJson+=responseJson;
         if (responseJson.equals("")) conflictsJson+="\"";
@@ -241,14 +256,13 @@ public class LoginNameValidatorRoute implements Route{
                 }
                 else {
                     response_code += "1";
-                    message += ", " + reqPerson.getSSN() + "-" + reqPerson.getSSNCountry() + " is already paired with at least 1 loginName\"";
+                    message += ", " + reqPerson.getSSN() + "-" + reqPerson.getSSNCountry() + " is already paired with at least 1 loginName";
                     foundNames += "<br>&emsp;]";
                     responseJson += foundNames;
                 }
             }else{
                 response_code+="2";
                 message+= ", " + reqPerson.getSSN() + "-" + reqPerson.getSSNCountry() + " combination not found in any Database";
-                if (!responseJson.equals("")) message+="\"";
             }
         }catch (Exception e){
             e.printStackTrace(System.err);
