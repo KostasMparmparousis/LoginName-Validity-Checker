@@ -12,60 +12,60 @@ import org.hibernate.annotations.Immutable;
 
 @Entity
 @Immutable
-@Table(name="v_vd_sis_new_2")
+@Table(name="v_vd_sis")
 public class SISPersonEntity_v2 implements Serializable,AcademicPerson{
     public SISPersonEntity_v2(){
         
     }
-
+    
     @Id
-    @Column(name = "systemID")
+    @Column(name = "systemid")
     private String systemID;
     
     @Id
-    @Column(name = "registrationID")
+    @Column(name = "registrationid")
     private String registrationID;
     
-    @Column(name = "SSN")
+    @Column(name = "ssn")
     private String SSN;
     
-    @Column(name = "SSNCOUNTRY")
+    @Column(name = "ssncountry")
     private String ssnCountry;
     
-    @Column(name = "TIN")
+    @Column(name = "tin")
     private String tin;
     
-    @Column(name = "TINCOUNTRY")
+    @Column(name = "tincountry")
     private String tinCountry;
     
-    @Column(name = "firstNameEl")
+    @Column(name = "firstnameel")
     private String firstNameEl;
     
-    @Column(name = "firstNameEn")
+    @Column(name = "firstnameen")
     private String firstNameEn;
     
-    @Column(name = "lastNameEl")
+    @Column(name = "lastnameel")
     private String lastNameEl;
     
-    @Column(name = "lastNameEn")
+    @Column(name = "lastnameen")
     private String lastNameEn;
     
-    @Column(name = "fatherFirstNameEl")
+    @Column(name = "fatherfirstnameel")
     private String fatherNameEl;
     
-    @Column(name = "fatherFirstNameEn")
+    @Column(name = "fatherfirstnameen")
     private String fatherNameEn;
     
-    @Column(name = "motherFirstNameEl")
+    @Column(name = "motherfirstnameel")
     private String motherFirstNameEl;
     
-    @Column(name = "motherFirstNameEn")
+    @Column(name = "motherfirstnameen")
     private String motherFirstNameEn;
     
-    @Column(name = "birthDate")
+    @Column(name = "birthdate")
     private String birthDate;
     
-    @Column(name = "birthYear")
+    @Column(name = "birthyear")
     private String birthYear;
 
     @Column(name = "gender")
@@ -74,45 +74,45 @@ public class SISPersonEntity_v2 implements Serializable,AcademicPerson{
     @Column(name = "citizenship")
     private String citizenship;
     
-    @Column(name = "departmentID")
+    @Column(name = "departmentid")
     private String departmentID;
     
-    @Column(name = "departmentEl")
+    @Column(name = "departmentel")
     private String departmentEl;
     
-    @Column(name = "departmentEn")
+    @Column(name = "departmenten")
     private String departmentEn;
     
-    @Column(name = "enrollmentStatus")
+    @Column(name = "enrollmentstatus")
     private String enrollmentStatus;
     
-    @Column(name = "enrollmentStatusDate")
+    @Column(name = "enrollmentstatusdate")
     private String enrollmentStatusDate;
     
-    @Column(name = "enrollmentType")
+    @Column(name = "enrollmenttype")
     private String enrollmentType;
     
-    @Column(name = "enrollmentTerm")
+    @Column(name = "enrollmentterm")
     private String enrollmentTerm;
     
-    @Column(name = "extEmail")
+    @Column(name = "extemail")
     private String extEmail;
     
-    @Column(name = "mobilePhone")
+    @Column(name = "mobilephone")
     private String mobilePhone;
     
-    @Column(name = "accountStatus")
+    @Column(name = "accountstatus")
     private String accountStatus;
     
-    @Column(name = "attendanceType")
+    @Column(name = "attendancetype")
     private String attendanceType;
     
-    @Column(name = "loginName")
+    @Column(name = "loginname")
     private String loginName;
     
-    @Column(name = "inscriptionAcYear")
+    @Column(name = "inscriptionacyear")
     private String inscriptionAcYear;
-
+    
     @Override
     public String getSystemID() {
         return systemID;
@@ -248,7 +248,7 @@ public class SISPersonEntity_v2 implements Serializable,AcademicPerson{
         return motherFirstNameEl;
     }
     
-    public String getMotherNameEl(){
+    public String getMotherNameEl() {
         return motherFirstNameEl;
     }
 
@@ -260,7 +260,7 @@ public class SISPersonEntity_v2 implements Serializable,AcademicPerson{
         return motherFirstNameEn;
     }
     
-    public String getMotherNameEn(){
+    public String getMotherNameEn() {
         return motherFirstNameEn;
     }
 

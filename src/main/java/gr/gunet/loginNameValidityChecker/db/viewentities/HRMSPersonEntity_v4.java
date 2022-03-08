@@ -10,18 +10,18 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="v_vd_hrms")
+@Table(name="V_VD_HRMS")
 public class HRMSPersonEntity_v4 implements Serializable,AcademicPerson{
     public HRMSPersonEntity_v4(){
         
     }
     
     @Id
-    @Column(name = "systemID")
+    @Column(name = "SYSTEMID")
     private String systemID;
 
     @Id
-    @Column(name = "registrationID")
+    @Column(name = "REGISTRATIONID")
     private String registrationID;
 
     @Column(name = "SSN")
@@ -36,91 +36,91 @@ public class HRMSPersonEntity_v4 implements Serializable,AcademicPerson{
     @Column(name = "TINCOUNTRY")
     private String tinCountry;
     
-    @Column(name = "academicID")
+    @Column(name = "ACADEMICID")
     private String academicID;
     
-    @Column(name = "departmentID")
+    @Column(name = "DEPARTMENTID")
     private String departmentID;
     
-    @Column(name = "departmentEl")
+    @Column(name = "DEPARTMENTEL")
     private String departmentEl;
     
-    @Column(name = "departmentEn")
+    @Column(name = "DEPARTMENTEN")
     private String departmentEn;
     
-    @Column(name = "firstNameEl")
+    @Column(name = "FIRSTNAMEEL")
     private String firstNameEl;
     
-    @Column(name = "firstNameEn")
+    @Column(name = "FIRSTNAMEEN")
     private String firstNameEn;
     
-    @Column(name = "lastNameEl")
+    @Column(name = "LASTNAMEEL")
     private String lastNameEl;
     
-    @Column(name = "lastNameEn")
+    @Column(name = "LASTNAMEEN")
     private String lastNameEn;
     
-    @Column(name = "middleNameEl")
+    @Column(name = "MIDDLENAMEEL")
     private String middleNameEl;
     
-    @Column(name = "middleNameEn")
+    @Column(name = "MIDDLENAMEEN")
     private String middleNameEn;
     
-    @Column(name = "fatherFirstNameEl")
+    @Column(name = "FATHERFIRSTNAMEEL")
     private String fatherFirstNameEl;
     
-    @Column(name = "fatherFirstNameEn")
+    @Column(name = "FATHERFIRSTNAMEEN")
     private String fatherFirstNameEn;
     
-    @Column(name = "motherFirstNameEl")
+    @Column(name = "MOTHERFIRSTNAMEEL")
     private String motherFirstNameEl;
     
-    @Column(name = "motherFirstNameEn")
+    @Column(name = "MOTHERFIRSTNAMEEN")
     private String motherFirstNameEn;
     
-    @Column(name = "birthDate")
+    @Column(name = "BIRTHDATE")
     private String birthDate;
     
-    @Column(name = "birthYear")
+    @Column(name = "BIRTHYEAR")
     private String birthYear;
     
-    @Column(name = "gender")
+    @Column(name = "GENDER")
     private String gender;
     
-    @Column(name = "citizenship")
+    @Column(name = "CITIZENSHIP")
     private String citizenship;
     
-    @Column(name = "employeeType")
+    @Column(name = "EMPLOYEETYPE")
     private String employeeType;
     
-    @Column(name = "facultyType")
+    @Column(name = "FACULTYTYPE")
     private String facultyType;
     
-    @Column(name = "staffType")
+    @Column(name = "STAFFTYPE")
     private String staffType;
     
-    @Column(name = "attendanceType")
+    @Column(name = "ATTENDANCETYPE")
     private String attendanceType;
     
-    @Column(name = "contractType")
+    @Column(name = "CONTRACTTYPE")
     private String contractType;
     
-    @Column(name  = "employeeStatus")
+    @Column(name  = "EMPLOYEESTATUS")
     private String employeeStatus;
     
-    @Column(name = "employeeStatusDate")
+    @Column(name = "EMPLOYEESTATUSDATE")
     private String employeeStatusDate;
     
-    @Column(name = "mobilePhone")
+    @Column(name = "MOBILEPHONE")
     private String mobilePhone;
     
-    @Column(name = "extEmail")
+    @Column(name = "EXTEMAIL")
     private String extEmail;
     
-    @Column(name = "accountStatus")
+    @Column(name = "ACCOUNTSTATUS")
     private String accountStatus;
     
-    @Column(name = "loginName")
+    @Column(name = "LOGINNAME")
     private String loginName;
 
     @Override
