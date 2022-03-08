@@ -63,7 +63,7 @@ public class Main implements SparkApplication {
     }
 
     public static String returnStatic(Request request,Response response){
-        response.redirect("index.html");
+        response.redirect(ServerConfigurations.getConfiguration("base_url")+"index.html");
         return null;
     }
 }

@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package gr.gunet.loginNameValidityChecker.filters;
+import gr.gunet.loginNameValidityChecker.ServerConfigurations;
 import spark.Filter;
 import spark.Request;
 import spark.Response;
@@ -24,6 +25,6 @@ public class BasicAuthFilter implements Filter{
     
     private void unauthorizedHandle(Request request,Response response){
         request.session().attribute("originalDestination", request.uri());
-        response.redirect("/loginPage.html");
+        response.redirect(ServerConfigurations.getConfiguration("base_url")+"/loginPage.html");
     }
 }

@@ -5,6 +5,7 @@
  */
 package gr.gunet.loginNameValidityChecker.routes.security;
 
+import gr.gunet.loginNameValidityChecker.ServerConfigurations;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.Base64;
@@ -55,7 +56,7 @@ public class ValidateToken implements Route{
     }
     
     private String failedValidationHandle(Request request,Response response){
-        response.redirect("/error.html");
+        response.redirect(ServerConfigurations.getConfiguration("base_url")+"/error.html");
         return "{\"validated\":false}";
     }
     
@@ -65,9 +66,9 @@ public class ValidateToken implements Route{
         request.session().maxInactiveInterval(3600);
         String redirectTo = request.session().attribute("originalDestination");
         if(redirectTo == null || redirectTo.equals("")){
-            response.redirect("/index.html");
+            response.redirect(ServerConfigurations.getConfiguration("base_url")+"/index.html");
         }else{
-            response.redirect(redirectTo);
+            response.redirect(ServerConfigurations.getConfiguration("base_url")+ redirectTo);
         }
         return "{\"validated\":true}";
     }
