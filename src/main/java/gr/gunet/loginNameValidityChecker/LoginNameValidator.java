@@ -50,7 +50,8 @@ public class LoginNameValidator {
           }
         }
         catch(Exception e){
-          throw new Exception("SIS");
+            e.printStackTrace(System.err);
+            throw new Exception("SIS");
         }
 
         try{
@@ -63,7 +64,8 @@ public class LoginNameValidator {
           }
         }
         catch(Exception e){
-          throw new Exception("HRMS");
+            e.printStackTrace(System.err);
+            throw new Exception("HRMS");
         }
 
         try{
@@ -76,7 +78,8 @@ public class LoginNameValidator {
           }
         }
         catch(Exception e){
-          throw new Exception("HRMS2");
+            e.printStackTrace(System.err);
+            throw new Exception("HRMS2");
         }
 
         try{
@@ -87,7 +90,8 @@ public class LoginNameValidator {
           }
         }
         catch(Exception e){
-          throw new Exception("DS");
+            e.printStackTrace(System.err);
+            throw new Exception("DS");
         }
 
         return conflicts;
@@ -115,6 +119,7 @@ public class LoginNameValidator {
           }
       }
       catch(Exception e){
+          e.printStackTrace(System.err);
           throw new Exception("DS");
       }
 
@@ -124,7 +129,8 @@ public class LoginNameValidator {
           if(!existingOwners.isEmpty()) loginNameSources.add("SIS");
         }
         catch(Exception e){
-          throw new Exception("SIS");
+            e.printStackTrace(System.err);
+            throw new Exception("SIS");
         }
 
       try{
@@ -135,7 +141,8 @@ public class LoginNameValidator {
           }
         }
         catch(Exception e){
-          throw new Exception("HRMS");
+            e.printStackTrace(System.err);
+            throw new Exception("HRMS");
         }
 
         try{
@@ -146,7 +153,8 @@ public class LoginNameValidator {
           }
         }
         catch(Exception e){
-          throw new Exception("HRMS2");
+            e.printStackTrace(System.err);
+            throw new Exception("HRMS2");
         }
       return loginNameSources;
     }
@@ -188,6 +196,7 @@ public class LoginNameValidator {
             existingOwners= sis.fetchAll("loginName", loginName, disabledGracePeriod);
         }
         catch(Exception e){
+            e.printStackTrace(System.err);
             throw new Exception("SIS");
         }
 
@@ -198,6 +207,7 @@ public class LoginNameValidator {
             }
         }
         catch(Exception e){
+            e.printStackTrace(System.err);
             throw new Exception("HRMS");
         }
 
@@ -208,6 +218,7 @@ public class LoginNameValidator {
             }
         }
         catch(Exception e){
+            e.printStackTrace(System.err);
             throw new Exception("HRMS2");
         }
 

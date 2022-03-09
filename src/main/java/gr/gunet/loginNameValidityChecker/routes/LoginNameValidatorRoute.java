@@ -15,6 +15,9 @@ import gr.gunet.loginNameValidityChecker.tools.PropertyReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import java.util.*;
 
@@ -43,10 +46,14 @@ public class LoginNameValidatorRoute implements Route{
         String loginName= req.queryParams("loginName");
         String htmlResponse= "<html><head><meta charset=\"ISO-8859-1\"><title>Response</title><link rel=\"stylesheet\" href=\"../css/style.css\"></head><body>";
         htmlResponse+="<header><h1 style=\"color: #ed7b42;\">Response</h1></header><hr class=\"new1\"><div class=\"sidenav\"><a href=\"../index.html\">Main Hub</a><a href=\"../validator.html\">Validator</a><a href=\"../suggester.html\">Suggester</a><a href=\"../roleFinder.html\">Finder</a></div><div class=\"main\">";
-        boolean verbose=false;
         disabledGracePeriod= req.queryParams("disabledGracePeriod");
         if(disabledGracePeriod == null || disabledGracePeriod.trim().equals("")){
           disabledGracePeriod = null;
+        }
+        else if (disabledGracePeriod.length()<3){
+            LocalDate ld = java.time.LocalDate.now().minusMonths(Integer.parseInt(req.queryParams("disabledGracePeriod")));
+            disabledGracePeriod= ld.toString();
+            disabledGracePeriod= disabledGracePeriod.replace("-", "");
         }
         institution= req.session().attribute("institution");
 
@@ -63,6 +70,25 @@ public class LoginNameValidatorRoute implements Route{
             return htmlResponse;
         }
 
+        verbose=reqPerson.getVerbose();
+        System.out.println("-----------------------------------------------------------");
+        System.out.println();
+        System.out.println("Rquest Date and Time: " + java.time.LocalDateTime.now());
+        System.out.println();
+        System.out.println("Request Attributes: ");
+        System.out.println("-SSN: "+ reqPerson.getSSN());
+        System.out.println("-SSNCountry: "+ reqPerson.getSSNCountry());
+        System.out.println("-TIN: "+ reqPerson.getTIN());
+        System.out.println("-TINCountry: "+ reqPerson.getTINCountry());
+        System.out.println("-birthDate: " + reqPerson.getBirthDate());
+        System.out.println("-disabled Grace Period: " + disabledGracePeriod);
+        System.out.println("-loginName: " + reqPerson.getLoginName());
+        System.out.println("-institution: " + institution);
+        if (verbose) System.out.println("-verbose: YES");
+        else System.out.println("-verbose: NO");
+        System.out.println();
+        System.out.println("Response: ");
+
         Views= new DBConnectionPool(institution);
         ldapDS= new LdapConnectionPool(institution);
         LoginNameValidator loginChecker = new LoginNameValidator(Views, ldapDS);
@@ -76,6 +102,10 @@ public class LoginNameValidatorRoute implements Route{
                         "&emsp;\"message\" : \"" + uid + " already exists while not following the typical DS Account generation procedure\"<br>}";
                 htmlResponse+=warningJson;
                 htmlResponse+="</div></body></html>";
+                System.out.println("-Response code: 300");
+                System.out.println("-message: \"" + uid + "already exists while not following the typical DS Account generation procedure\"");
+                System.out.println("-----------------------------------------------------------");
+                System.out.println();
                 return htmlResponse;
             }
         }
@@ -85,6 +115,10 @@ public class LoginNameValidatorRoute implements Route{
             String errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"&emsp;\"message\" : \"Could not connect to the DS\"<br>}<br>";
             htmlResponse+=errorJson;
             htmlResponse+="</div></body></html>";
+            System.out.println("-Response code: 500");
+            System.out.println("-message: " + "\"Could not connect to the DS\"");
+            System.out.println("-----------------------------------------------------------");
+            System.out.println();
             return htmlResponse;
         }
 
@@ -102,6 +136,10 @@ public class LoginNameValidatorRoute implements Route{
             String errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"&emsp;\"message\" : \"Could not connect to the " + errorSource + "\"<br>}<br>";
             htmlResponse+=errorJson;
             htmlResponse+="</div></body></html>";
+            System.out.println("-Response code: 500");
+            System.out.println("-message: " + "\"Could not connect to the " + errorSource + "\"");
+            System.out.println("-----------------------------------------------------------");
+            System.out.println();
             return htmlResponse;
         }
     }
@@ -198,6 +236,11 @@ public class LoginNameValidatorRoute implements Route{
         conflictsJson+=responseJson;
         if (responseJson.equals("")) conflictsJson+="\"";
         conflictsJson+="<br>}<br>";
+
+        System.out.println("-Response code: " + response_code);
+        System.out.println("-----------------------------------------------------------");
+        System.out.println();
+
         return conflictsJson;
     }
 
