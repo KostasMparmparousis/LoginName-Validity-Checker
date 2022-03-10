@@ -21,7 +21,7 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
-public class LoginNameSuggesterRoute implements Route {
+public class LoginNameProposerRoute implements Route {
     DBConnectionPool Views;
     LdapConnectionPool ldapDS;
     String SSN;
@@ -36,7 +36,7 @@ public class LoginNameSuggesterRoute implements Route {
     String personPairedWith;
     String suggestedNames;
     private String CONN_FILE_DIR = "/etc/v_vd/conn/";
-    public LoginNameSuggesterRoute() {
+    public LoginNameProposerRoute() {
     }
 
     @Override
@@ -47,7 +47,7 @@ public class LoginNameSuggesterRoute implements Route {
         personPairedWith="";
         suggestedNames="";
         String htmlResponse= "<html><head><meta charset=\"ISO-8859-1\"><title>Response</title><link rel=\"stylesheet\" href=\"../css/style.css\"></head><body>";
-        htmlResponse+="<header><h1 style=\"color: #ed7b42;\">Response</h1></header><hr class=\"new1\"><div class=\"sidenav\"><a href=\"../index.html\">Main Hub</a><a href=\"../validator.html\">Validator</a><a href=\"../suggester.html\">Suggester</a><a href=\"../roleFinder.html\">Finder</a></div><div class=\"main\">";
+        htmlResponse+="<header><h1 style=\"color: #ed7b42;\">Response</h1></header><hr class=\"new1\"><div class=\"sidenav\"><a href=\"../index.html\">Main Hub</a><a href=\"../validator.html\">Validator</a><a href=\"../proposer.html\">Proposer</a><a href=\"../roleFinder.html\">Finder</a></div><div class=\"main\">";
         
         institution= req.session().attribute("institution");
         SSN = req.queryParams("ssn");
@@ -94,7 +94,8 @@ public class LoginNameSuggesterRoute implements Route {
           existingOwners.addAll(sis.fetchAll(SSN, SSNCountry));
         }
         catch (Exception e){
-          errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"&emsp;\"message\" : \"Could not connect to the SIS\"<br>}<br>";
+            e.printStackTrace(System.err);
+            errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"&emsp;\"message\" : \"Could not connect to the SIS\"<br>}<br>";
         }
 
         try{
@@ -102,7 +103,8 @@ public class LoginNameSuggesterRoute implements Route {
           if (hrms != null) existingOwners.addAll(hrms.fetchAll(SSN, SSNCountry));
         }
         catch (Exception e){
-          errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"&emsp;\"message\" : \"Could not connect to the HRMS\"<br>}<br>";
+            e.printStackTrace(System.err);
+            errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"&emsp;\"message\" : \"Could not connect to the HRMS\"<br>}<br>";
         }
 
         try{
@@ -110,7 +112,8 @@ public class LoginNameSuggesterRoute implements Route {
           if (hrms2 != null) existingOwners.addAll(hrms2.fetchAll(SSN, SSNCountry));
         }
         catch (Exception e){
-          errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"&emsp;\"message\" : \"Could not connect to the HRMS2\"<br>}<br>";
+            e.printStackTrace(System.err);
+            errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"&emsp;\"message\" : \"Could not connect to the HRMS2\"<br>}<br>";
         }
 
         try{
@@ -118,7 +121,8 @@ public class LoginNameSuggesterRoute implements Route {
           if (SSNCountry.equals("GR")) existingDSOwners.addAll(ldap.search(ldap.createSearchFilter("schGrAcPersonSSN=" + SSN)));
         }
         catch (Exception e){
-          errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"&emsp;\"message\" : \"Could not connect to the DS\"<br>}<br>";
+            e.printStackTrace(System.err);
+            errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"&emsp;\"message\" : \"Could not connect to the DS\"<br>}<br>";
         }
 
         if (!errorJson.equals("")){

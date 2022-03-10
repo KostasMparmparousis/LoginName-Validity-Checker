@@ -17,12 +17,12 @@ public class Main implements SparkApplication {
         BasicAuthFilter authFilter = new BasicAuthFilter();
         Spark.before("/loginNameValidator/", authFilter);
         Spark.before("/loginNameValidator", authFilter);
-        Spark.before("/loginNameSuggester/", authFilter);
-        Spark.before("/loginNameSuggester", authFilter);
+        Spark.before("/loginNameProposer/", authFilter);
+        Spark.before("/loginNameProposer", authFilter);
         Spark.before("/roleFinder/", authFilter);
         Spark.before("/roleFinder", authFilter);
         Spark.before("/validator.html", authFilter);
-        Spark.before("/suggester.html", authFilter);
+        Spark.before("/proposer.html", authFilter);
         Spark.before("/roleFinder.html", authFilter);
 
         ValidateToken validateToken;
@@ -38,8 +38,8 @@ public class Main implements SparkApplication {
         Spark.post("/validate-token/",validateToken);
         Spark.post("/loginNameValidator/", new LoginNameValidatorRoute());
         Spark.post("/loginNameValidator", new LoginNameValidatorRoute());
-        Spark.post("/loginNameSuggester/", new LoginNameSuggesterRoute());
-        Spark.post("/loginNameSuggester", new LoginNameSuggesterRoute());
+        Spark.post("/loginNameProposer/", new LoginNameProposerRoute());
+        Spark.post("/loginNameProposer", new LoginNameProposerRoute());
         Spark.post("/roleFinder/", new RoleFinderRoute());
         Spark.post("/roleFinder", new RoleFinderRoute());
         Spark.get("/help/", new HelpPageRoute());

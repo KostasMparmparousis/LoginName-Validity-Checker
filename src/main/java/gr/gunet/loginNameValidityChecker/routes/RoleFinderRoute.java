@@ -39,7 +39,7 @@ public class RoleFinderRoute implements Route {
 //        institution= propReader.getProperty("institution");
         institution= req.session().attribute("institution");
         String htmlResponse= "<html><head><meta charset=\"ISO-8859-1\"><title>Response</title><link rel=\"stylesheet\" href=\"../css/style.css\"></head><body>";
-        htmlResponse+="<header><h1 style=\"color: #ed7b42;\">Response</h1></header><hr class=\"new1\"><div class=\"sidenav\"><a href=\"../index.html\">Main Hub</a><a href=\"../validator.html\">Validator</a><a href=\"../suggester.html\">Suggester</a><a href=\"../roleFinder.html\">Finder</a></div><div class=\"main\">";
+        htmlResponse+="<header><h1 style=\"color: #ed7b42;\">Response</h1></header><hr class=\"new1\"><div class=\"sidenav\"><a href=\"../index.html\">Main Hub</a><a href=\"../validator.html\">Validator</a><a href=\"../proposer.html\">Proposer</a><a href=\"../roleFinder.html\">Finder</a></div><div class=\"main\">";
 
         loginName = req.queryParams("loginName");
 //        String Active=reader.readPropertyAsString("onlyActive");
@@ -74,7 +74,8 @@ public class RoleFinderRoute implements Route {
           existingSISOwners= sis.fetchAll("loginName", loginName, onlyActive);
         }
         catch (Exception e){
-          errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"  \"message\" : \"Could not connect to the SIS\"<br>}<br>";
+            e.printStackTrace(System.err);
+            errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"  \"message\" : \"Could not connect to the SIS\"<br>}<br>";
         }
 
         try{
@@ -82,7 +83,8 @@ public class RoleFinderRoute implements Route {
           if (hrms!=null) existingHRMSOwners= hrms.fetchAll("loginName", loginName, onlyActive);
         }
         catch (Exception e){
-          errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"  \"message\" : \"Could not connect to the HRMS\"<br>}<br>";
+            e.printStackTrace(System.err);
+            errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"  \"message\" : \"Could not connect to the HRMS\"<br>}<br>";
         }
 
         try{
@@ -90,7 +92,8 @@ public class RoleFinderRoute implements Route {
           if (hrms2!=null) existingHRMS2Owners= hrms2.fetchAll("loginName", loginName, onlyActive);
         }
         catch (Exception e){
-          errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"  \"message\" : \"Could not connect to the HRMS2\"<br>}<br>";
+            e.printStackTrace(System.err);
+            errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"  \"message\" : \"Could not connect to the HRMS2\"<br>}<br>";
         }
 
         if (!errorJson.equals("")){
