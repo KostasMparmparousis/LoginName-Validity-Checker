@@ -10,7 +10,6 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="css/style.css">
         <link rel="stylesheet" href="css/tooltip.css">
-         <script src="js/fillBlankAlert.js"></script> 
     </head>
     <body>
         <header>
@@ -24,81 +23,126 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
             <a href="validator/ResponseSchema.html">Response Schema</a>
         </div>
         <div class="main">
-            <form action="loginNameValidator/" method="POST" name="Form" onsubmit="return fillValidatorForm()">
+            <form action="loginNameValidator/" method="POST" name="Form">
                 <fieldset>
+                    <p>All fields marked with * are required.</p>
                     <h3>Examine If Available:</h3>
                     <p>
-                        <label for="LoginName" ><b>LoginName:</b></label>
-                        <input type="text" name="loginName" /> 
-                        <div class="tooltip">&#9432;
-                            <span class="tooltiptext">Το επιθυμητό userName του αιτούμενου με απόδοση σε λατινικούς χαρακτήρες.</span>
-                        </div> 
-                        <br>
+                    <div>
+                        <label for="LoginName" ><b class="parameter">LoginName *</b></label>
+                        <div class="field">
+                            <input class="form" type="text" name="loginName" required/> 
+                            <div class="tooltip">&#9432;
+                                <span class="tooltiptext">Το επιθυμητό userName του αιτούμενου με απόδοση σε λατινικούς χαρακτήρες.</span>
+                            </div> 
+                        </div>
+                    </div>
+                    <br>
                     </p>
+
                     <h3>National Identifiers:</h3>
                     <p>
-                        <label for="SSN" ><b>SSN:</b></label>
-                        <input type="text" name="ssn"/>
-                        <div class="tooltip">&#9432;
-                            <span class="tooltiptext">Τιμή του Αριθμού Μητρώου Κοινωνικής Ασφάλισης (Α.Μ.Κ.Α.) του αιτούμενου.</span>
-                        </div> 
-                        <br>
+                    <div>
+                        <label for="SSN" ><b class="parameter">SSN *</b></label>
+                        <div class="field">
+                            <input class="form" type="text" name="ssn" required/> 
+                            <div class="tooltip">&#9432;
+                                <span class="tooltiptext">Τιμή του Αριθμού Μητρώου Κοινωνικής Ασφάλισης (Α.Μ.Κ.Α.) του αιτούμενου.</span>
+                            </div> 
+                        </div>
+                    </div>
+                    <br>
                     </p>
+
                     <p>
-                        <label for="SSNCountry" ><b>SSNCountry:</b></label>
-                        <input type="text" name="ssnCountry" /> 
-                        <div class="tooltip">&#9432;
-                            <span class="tooltiptext">Χώρα έκδοσης του Α.Μ.Κ.Α. Σημειώνεται με την 2-γράμματη κωδικοποίηση του ISO 3166.</span>
-                        </div> 
-                        <br>
+                    <div>
+                        <label for="SSNCountry" ><b class="parameter">SSNCountry *</b></label>
+                        <div class="field">
+                            <input class="form" type="text" name="ssnCountry" required/> 
+                            <div class="tooltip">&#9432;
+                                <span class="tooltiptext">Χώρα έκδοσης του Α.Μ.Κ.Α. Σημειώνεται με την 2-γράμματη κωδικοποίηση του ISO 3166.</span>
+                            </div> 
+                        </div>
+                    </div>
+                    <br>
                     </p>
+
                     <p>
-                        <label for="TIN" ><b>TIN:</b></label>
-                        <input type="text" name="tin" /> 
-                        <div class="tooltip">&#9432;
-                            <span class="tooltiptext">Τιμή του Αριθμού Φορολογικού Μητρώου (Α.Φ.Μ.) του αιτούμενου.</span>
-                        </div> 
-                        <br>
+                    <div>
+                        <label for="TIN" ><b class="parameter">TIN </b></label>
+                        <div class="field">
+                            <input class="form" type="text" name="tin" /> 
+                            <div class="tooltip">&#9432;
+                                <span class="tooltiptext">Τιμή του Αριθμού Φορολογικού Μητρώου (Α.Φ.Μ.) του αιτούμενου.</span>
+                            </div> 
+                        </div>
+                    </div>
+                    <br>
                     </p>
+
                     <p>
-                        <label for="TINCountry" ><b>TINCountry:</b></label>
-                        <input type="text" name="tinCountry" /> 
-                        <div class="tooltip">&#9432;
-                            <span class="tooltiptext">Χώρα έκδοσης του Α.Φ.Μ. Σημειώνεται με την 2-γράμματη κωδικοποίηση του ISO 3166.</span>
-                        </div> 
-                        <br>
+                    <div>
+                        <label for="TINCountry" ><b class="parameter">TINCountry </b></label>
+                        <div class="field">
+                            <input class="form" type="text" name="tinCountry" /> 
+                            <div class="tooltip">&#9432;
+                                <span class="tooltiptext">Χώρα έκδοσης του Α.Φ.Μ. Σημειώνεται με την 2-γράμματη κωδικοποίηση του ISO 3166.</span>
+                            </div> 
+                        </div>
+                    </div>
+                    <br>
                     </p>
+
                     <h3>More Information About The Individual:</h3>
                     <p>
-                        <label for="dateOfBirth" ><b>Date of birth:</b></label>
-                        <input type="text" name="birthDate" /> 
-                        <div class="tooltip">&#9432;
-                            <span class="tooltiptext">Η ημερομηνία γέννησης του αιτούμενου, σύμφωνα με το πρότυπο ISO 8601:2004. Η ημερομηνία περιλαμβάνει το έτος, το μήνα και την ημέρα με τη μορφή YYYYMMDD.</span>
-                        </div> 
-                        <br>
+                    <div>
+                        <label for="dateOfBirth" ><b class="parameter">Date of birth *</b></label>
+                        <div class="field">
+                            <input class="form" type="text" name="birthDate" required/> 
+                            <div class="tooltip">&#9432;
+                                <span class="tooltiptext">Η ημερομηνία γέννησης του αιτούμενου, σύμφωνα με το πρότυπο ISO 8601:2004. Η ημερομηνία περιλαμβάνει το έτος, το μήνα και την ημέρα με τη μορφή YYYYMMDD.</span>
+                            </div> 
+                        </div>
+                    </div>
+                    <br>
                     </p>
+
                     <h3>Service Options:</h3>
                     <p>
-                        <label for="Disabled Grace Period" ><b>Disabled Grace Period:</b></label>
-                        <input type="text" name="disabledGracePeriod" /> 
-                        <div class="tooltip">&#9432;
-                            <span class="tooltiptext">
-                                Ημερομηνία απο την οποία και ύστερα ένα μέλος του ιδρύματος θεωρείται ενεργό, εαν στην βάση με τα τωρινά δεδομένα είναι ανενεργό, σύμφωνα με το πρότυπο ISO 8601:2004. Η ημερομηνία περιλαμβάνει το έτος, το μήνα και την ημέρα με τη μορφή YYYYMMDD.
+                    <div>
+                        <label for="Disabled Grace Period" ><b class="parameter">Disabled Grace Period </b></label>
+                        <div class="field">
+                            <input class="form" type="text" name="disabledGracePeriod" /> 
+                            <div class="tooltip">&#9432;
+                                <span class="tooltiptext">Ημερομηνία απο την οποία και ύστερα ένα μέλος του ιδρύματος θεωρείται ενεργό, εαν στην βάση με τα τωρινά δεδομένα είναι ανενεργό, σύμφωνα με το πρότυπο ISO 8601:2004. Η ημερομηνία περιλαμβάνει το έτος, το μήνα και την ημέρα με τη μορφή YYYYMMDD.
                                 Επιπλέον μπορεί να δωθεί σάν ακέραιος αριθμός, που αναπαριστά τους μήνες για τους οποίους διαρκεί αυτή η περίοδος (ΧΧ).
-                            </span>
-                        </div> 
-                        <br>
+                                </span>
+                            </div> 
+                            
+                        </div>
+                    </div>
+                    <br>
                     </p>
+
                     <p>
-                        <label for="Verbose:" ><b>Verbose:</b></label>
-                        <label for="yes" style="width:20px;" >Yes</label> <input type="checkbox" name="verbose" value="Yes" />
-                        <label for="no" style="width:20px;" >No</label> <input type="checkbox" name="verbose" value="No" />
-                        <div class="tooltip">&#9432;
-                            <span class="tooltiptext">Αν δωθεί η τιμή No, τότε εάν εντοπιστούν conflicts ύστερα απο αναζήτηση βάσει του δωσμένου loginName θα εμφανιστεί μόνο μήνυμα ύπαρξης τους στην απάντηση. Εάν δωθεί η τιμή Yes, τότε το response θα περιέχει μια αναλυτική περιγραφή των πεδίων στα οποία συναντήθηκαν conlicts.</span>
-                        </div> 
-                        <br>
+                    <div>
+                        <label for="Verbose" ><b class="parameter">Verbose:</b></label>
+                        <div class="field">
+                            <span class="class" style="margin-right: 50px">
+                            <label class="radio" for="Yes" style="">Yes</label>
+                            <input class="radio" type="radio" name="verbose" value="Yes" checked>
+                            <label class="radio" for="no" style="">No</label>
+                            <input class="radio" type="radio" name="verbose" value="No" >
+                            </span>
+                            <div class="tooltip" style="float:right">&#9432;
+                                <span class="tooltiptext">Αν δωθεί η τιμή No, τότε εάν εντοπιστούν conflicts ύστερα απο αναζήτηση βάσει του δωσμένου loginName θα εμφανιστεί μόνο μήνυμα ύπαρξης τους στην απάντηση. Εάν δωθεί η τιμή Yes, τότε το response θα περιέχει μια αναλυτική περιγραφή των πεδίων στα οποία συναντήθηκαν conlicts.</span>
+                            </div> 
+                        </div>
+                    </div>
+                    <br>
                     </p>
-                    <input type="submit" value="Submit" />
+
+                    <input class="submit" type="submit" value="Submit" />
                 </fieldset>
             </form>
         </div>

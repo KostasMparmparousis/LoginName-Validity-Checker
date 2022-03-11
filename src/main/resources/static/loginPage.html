@@ -22,24 +22,27 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
         <div class="main">
             <form action="validate-token/" method="POST">
                 <fieldset>
-                    <p>
-                        <label for="Institution" >Institution:</label>
-                        <input type="text" name="institution"/>
-                        <div class="tooltip">&#9432;
-                            <span class="tooltiptext">The Name of your institution.</span>
-                        </div> 
-                        <br>
-                    </p
-                    <p>
-                        <label for="Password" >Password:</label>
-                        <input type="password" name="password" /> 
-                        <div class="tooltip">&#9432;
-                            <span class="tooltiptext">The Password given to you by the identity team.</span>
-                        </div> 
-                        <br>
-                    </p>
+                    <div>
+                        <label for="Institution" ><b class="parameter">Institution </b></label>
+                        <div class="field">
+                            <input class="form" type="text" name="institution" required/> 
+                        </div>
+                    </div>
                     <br>
-                    <input type="submit" value="Submit" />
+                    </p>
+
+                    <p>
+                    <div>
+                        <label for="Password" ><b class="parameter">Password </b></label>
+                        <div class="field">
+                            <input class="form" type="password" name="password" required/> 
+                        </div>
+                    </div>
+                    <br>
+                    </p>
+                    <p>
+                    <input class="submit" type="submit" value="Submit" />
+
                 </fieldset>
             </form>
         </div>

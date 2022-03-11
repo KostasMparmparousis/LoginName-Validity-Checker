@@ -14,23 +14,42 @@ fieldset{
     margin-bottom: 12px;
     overflow: hidden;
     padding: 0 .625em;
-    height: 500px;
+    height: 600px;
 }
-label{
+label.text{
     cursor: pointer;
     display: inline-block;
-    padding: 3px 6px;
     text-align: right;
-    width: 200px;
+    width: auto;
     vertical-align: top;
     float: left;
 }
-input{
-    font-size: inherit;
+
+label.radio{
+    display: inline-block;
+    vertical-align: top;
+}
+
+input.form{
+    margin-left: 10px;
     float: left;
+}
+
+input.radio{
+    font-size: inherit;
+}
+
+input.submit{
+    float:right;
+    margin-right: 550px;
+}
+
+b.parameter{
+    float:left;
 }
 h3{
     color: #ed7b42;
+    margin: inherit;
 }
 
 pre.Calls{
@@ -131,4 +150,9 @@ hr.new2 {
   display: none;
   background-color: #262626;
   padding-left: 8px;
+}
+
+.field{
+    float: right;
+    margin-right: 550px;
 }
