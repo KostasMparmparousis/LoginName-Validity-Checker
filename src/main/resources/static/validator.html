@@ -26,8 +26,18 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
         <div class="main">
             <form action="loginNameValidator/" method="POST" name="Form" onsubmit="return fillValidatorForm()">
                 <fieldset>
+                    <h3>Examine If Available:</h3>
                     <p>
-                        <label for="SSN" >SSN:</label>
+                        <label for="LoginName" ><b>LoginName:</b></label>
+                        <input type="text" name="loginName" /> 
+                        <div class="tooltip">&#9432;
+                            <span class="tooltiptext">Το επιθυμητό userName του αιτούμενου με απόδοση σε λατινικούς χαρακτήρες.</span>
+                        </div> 
+                        <br>
+                    </p>
+                    <h3>National Identifiers:</h3>
+                    <p>
+                        <label for="SSN" ><b>SSN:</b></label>
                         <input type="text" name="ssn"/>
                         <div class="tooltip">&#9432;
                             <span class="tooltiptext">Τιμή του Αριθμού Μητρώου Κοινωνικής Ασφάλισης (Α.Μ.Κ.Α.) του αιτούμενου.</span>
@@ -35,7 +45,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                         <br>
                     </p>
                     <p>
-                        <label for="SSNCountry" >SSNCountry:</label>
+                        <label for="SSNCountry" ><b>SSNCountry:</b></label>
                         <input type="text" name="ssnCountry" /> 
                         <div class="tooltip">&#9432;
                             <span class="tooltiptext">Χώρα έκδοσης του Α.Μ.Κ.Α. Σημειώνεται με την 2-γράμματη κωδικοποίηση του ISO 3166.</span>
@@ -43,7 +53,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                         <br>
                     </p>
                     <p>
-                        <label for="TIN" >TIN:</label>
+                        <label for="TIN" ><b>TIN:</b></label>
                         <input type="text" name="tin" /> 
                         <div class="tooltip">&#9432;
                             <span class="tooltiptext">Τιμή του Αριθμού Φορολογικού Μητρώου (Α.Φ.Μ.) του αιτούμενου.</span>
@@ -51,23 +61,25 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                         <br>
                     </p>
                     <p>
-                        <label for="TINCountry" >TINCountry:</label>
+                        <label for="TINCountry" ><b>TINCountry:</b></label>
                         <input type="text" name="tinCountry" /> 
                         <div class="tooltip">&#9432;
                             <span class="tooltiptext">Χώρα έκδοσης του Α.Φ.Μ. Σημειώνεται με την 2-γράμματη κωδικοποίηση του ISO 3166.</span>
                         </div> 
                         <br>
                     </p>
+                    <h3>More Information About The Individual:</h3>
                     <p>
-                        <label for="dateOfBirth" >Date of birth:</label>
+                        <label for="dateOfBirth" ><b>Date of birth:</b></label>
                         <input type="text" name="birthDate" /> 
                         <div class="tooltip">&#9432;
                             <span class="tooltiptext">Η ημερομηνία γέννησης του αιτούμενου, σύμφωνα με το πρότυπο ISO 8601:2004. Η ημερομηνία περιλαμβάνει το έτος, το μήνα και την ημέρα με τη μορφή YYYYMMDD.</span>
                         </div> 
                         <br>
                     </p>
+                    <h3>Service Options:</h3>
                     <p>
-                        <label for="Disabled Grace Period" >Disabled Grace Period:</label>
+                        <label for="Disabled Grace Period" ><b>Disabled Grace Period:</b></label>
                         <input type="text" name="disabledGracePeriod" /> 
                         <div class="tooltip">&#9432;
                             <span class="tooltiptext">
@@ -78,15 +90,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                         <br>
                     </p>
                     <p>
-                        <label for="LoginName" >LoginName:</label>
-                        <input type="text" name="loginName" /> 
-                        <div class="tooltip">&#9432;
-                            <span class="tooltiptext">Το επιθυμητό userName του αιτούμενου με απόδοση σε λατινικούς χαρακτήρες.</span>
-                        </div> 
-                        <br>
-                    </p>
-                    <p>
-                        <label for="Verbose:" >Verbose:</label>
+                        <label for="Verbose:" ><b>Verbose:</b></label>
                         <label for="yes" style="width:20px;" >Yes</label> <input type="checkbox" name="verbose" value="Yes" />
                         <label for="no" style="width:20px;" >No</label> <input type="checkbox" name="verbose" value="No" />
                         <div class="tooltip">&#9432;
