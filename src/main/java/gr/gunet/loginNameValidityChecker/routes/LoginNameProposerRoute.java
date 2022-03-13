@@ -4,6 +4,7 @@ import gr.gunet.loginNameValidityChecker.RequestPerson;
 import gr.gunet.loginNameValidityChecker.generator.UserNameGen;
 import gr.gunet.loginNameValidityChecker.tools.CustomJsonReader;
 import gr.gunet.loginNameValidityChecker.AcademicPerson;
+import gr.gunet.loginNameValidityChecker.ResponseMessages;
 import gr.gunet.loginNameValidityChecker.db.HRMSDBView;
 import gr.gunet.loginNameValidityChecker.db.SISDBView;
 import gr.gunet.loginNameValidityChecker.db.DBConnectionPool;
@@ -41,6 +42,7 @@ public class LoginNameProposerRoute implements Route {
 
     @Override
     public Object handle(Request req, Response res) throws Exception {
+        ResponseMessages responses= new ResponseMessages();
         response_code="";
         message="";
         responseJson="";

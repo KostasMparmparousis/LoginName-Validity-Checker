@@ -9,6 +9,7 @@ import gr.gunet.loginNameValidityChecker.generator.UserNameGen;
 import gr.gunet.loginNameValidityChecker.ldap.LdapManager;
 import gr.gunet.loginNameValidityChecker.tools.CustomJsonReader;
 import gr.gunet.loginNameValidityChecker.RequestPerson;
+import gr.gunet.loginNameValidityChecker.ResponseMessages;
 import gr.gunet.loginNameValidityChecker.db.DBConnectionPool;
 import gr.gunet.loginNameValidityChecker.ldap.LdapConnectionPool;
 import gr.gunet.loginNameValidityChecker.tools.PropertyReader;
@@ -42,6 +43,7 @@ public class LoginNameValidatorRoute implements Route{
     }
     @Override
     public Object handle(Request req, Response res) throws Exception{
+        ResponseMessages responses= new ResponseMessages();
         response_code="";
         String loginName= req.queryParams("loginName");
         String htmlResponse= "<html><head><meta charset=\"ISO-8859-1\"><title>Response</title><link rel=\"stylesheet\" href=\"../css/style.css\"></head><body>";

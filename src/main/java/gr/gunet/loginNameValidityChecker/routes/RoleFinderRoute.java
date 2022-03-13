@@ -2,6 +2,7 @@ package gr.gunet.loginNameValidityChecker.routes;
 
 import com.google.gson.Gson;
 import gr.gunet.loginNameValidityChecker.AcademicPerson;
+import gr.gunet.loginNameValidityChecker.ResponseMessages;
 import gr.gunet.loginNameValidityChecker.db.DBConnectionPool;
 import gr.gunet.loginNameValidityChecker.db.HRMSDBView;
 import gr.gunet.loginNameValidityChecker.db.SISDBView;
@@ -30,6 +31,7 @@ public class RoleFinderRoute implements Route {
 
     @Override
     public Object handle(Request req, Response res) throws Exception {
+        ResponseMessages responses= new ResponseMessages();
         String roleJson= "{";
         String message="";
         String roles="";
@@ -42,12 +44,7 @@ public class RoleFinderRoute implements Route {
         htmlResponse+="<header><h1 style=\"color: #ed7b42;\">Response</h1></header><hr class=\"new1\"><div class=\"sidenav\"><a href=\"../index.html\">Main Hub</a><a href=\"../validator.html\">Validator</a><a href=\"../proposer.html\">Proposer</a><a href=\"../roleFinder.html\">Finder</a></div><div class=\"main\">";
 
         loginName = req.queryParams("loginName");
-//        String Active=reader.readPropertyAsString("onlyActive");
-//        if (Active== null || Active.trim().equals("") || Active.equals("false")){
-//          onlyActive=false;
-//        }
-//        else onlyActive=true;
-        
+
         if (loginName.trim().equals("")){
           closeViews();
           response_code="400";
