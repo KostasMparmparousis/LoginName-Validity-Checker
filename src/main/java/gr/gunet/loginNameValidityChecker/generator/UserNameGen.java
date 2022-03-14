@@ -26,7 +26,7 @@ public class UserNameGen {
     private String FN="";
     private String LN="";
     
-    private int LNchars=5;
+    private int LNchars=4;
     private String LNtakeCharsFrom="start";
 
     private double LNpercentageOfName=0.5;
@@ -46,13 +46,13 @@ public class UserNameGen {
     public UserNameGen(AcademicPerson academicPerson){
         this.academicPerson=academicPerson;
         this.dsPerson=null;
-        separators= new String[]{"_"};
+        separators= new String[]{"."};
 
         gen= new GeneratingMethods(academicPerson, separators, "", "");
 
-        prioritizeBy=new String[]{"fullNames", "partOfNames", "percentOfNames"};
+        prioritizeBy=new String[]{"fullNames", "prefixedLastName", "partOfNames"};
         lowerLimit=6;
-        upperLimit=16;
+        upperLimit=20;
         upperAmountOfNamesSuggested=6;
         orderBy="alphabetically";
     }
@@ -60,13 +60,13 @@ public class UserNameGen {
     public UserNameGen(LdapEntry dsPerson){
         this.academicPerson=null;
         this.dsPerson=dsPerson;
-        separators= new String[]{"_"};
+        separators= new String[]{"."};
 
         gen= new GeneratingMethods(dsPerson, separators, "", "");
 
-        prioritizeBy=new String[]{"fullNames", "partOfNames", "percentOfNames"};
+        prioritizeBy=new String[]{"fullNames", "prefixedLastName", "partOfNames"};
         lowerLimit=6;
-        upperLimit=16;
+        upperLimit=20;
         upperAmountOfNamesSuggested=6;
         orderBy="alphabetically";
     }
@@ -74,15 +74,15 @@ public class UserNameGen {
     public UserNameGen(String FN, String LN){
         this.academicPerson=null;
         this.dsPerson=null;
-        separators= new String[]{"_"};
+        separators= new String[]{"."};
         this.FN=FN;
         this.LN=LN;
 
         gen= new GeneratingMethods(FN, LN, separators, "", "");
 
-        prioritizeBy=new String[]{"fullNames", "partOfNames", "percentOfNames"};
+        prioritizeBy=new String[]{"fullNames", "prefixedLastName", "partOfNames"};
         lowerLimit=6;
-        upperLimit=16;
+        upperLimit=20;
         upperAmountOfNamesSuggested=6;
         orderBy="alphabetically";
     }
@@ -93,10 +93,12 @@ public class UserNameGen {
         Vector<String> fullNames=gen.FullNames();
         Vector<String> partOfNames = new Vector<String>();
         Vector<String> percentOfNames = new Vector<String>();
+        Vector<String> prefixedLastNames = new Vector<String>();
 
         if(gen.getFirstName()==null || gen.getLastName()==null) return null;
 
         partOfNames=gen.partOfNames(FNchars, FNtakeCharsFrom, LNchars, LNtakeCharsFrom);
+        prefixedLastNames=gen.prefixedLastNames(FNchars);
         percentOfNames=gen.percentOfNames(FNpercentageOfName, FNtakePercentFrom, LNpercentageOfName, LNtakePercentFrom);
 
         for (String priority: prioritizeBy){
@@ -104,6 +106,9 @@ public class UserNameGen {
                 case "fullNames":
                     addToArray(proposedNames, fullNames);
                     break;
+                case "prefixedLastName":
+                   addToArray(proposedNames, prefixedLastNames);
+                   break;
                 case "partOfNames":
                     addToArray(proposedNames, partOfNames);
                     break;
