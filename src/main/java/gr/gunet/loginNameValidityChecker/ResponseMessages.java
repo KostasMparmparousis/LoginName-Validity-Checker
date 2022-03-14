@@ -61,7 +61,7 @@ public class ResponseMessages {
     }
 
     public void initError(){
-        Error.put("500 ", "Could not connect to the ");
+        Error.put("500", "Could not connect to the ");
     }
 
     public String getValidatorMessage(String code){
@@ -77,7 +77,11 @@ public class ResponseMessages {
     }
 
     public String getErrorMessage(String code, String source){
-        return Error.get(code) + source + ".";
+      if (code.equals("500")) return Error.get(code) + source + ".";
+      else {
+        String content= source;
+        return content;
+      }
     }
 
     public String getValidatorResponse(String code, String content){
@@ -100,7 +104,7 @@ public class ResponseMessages {
         response_code = formattedString(response_code, 1) + ",";
         String message="";
 
-        if (!code.equals("500")){
+        if (!code.equals("500") && !code.equals("400")){
             message= "\"Message\": \"" + boldWord(getValidatorMessage(code))+ "\"";
             message = formattedString(message,1);
             message+=content;

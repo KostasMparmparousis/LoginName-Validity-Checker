@@ -44,15 +44,38 @@ public class RoleFinderRoute implements Route {
         htmlResponse+="<header><h1 style=\"color: #ed7b42;\">Response</h1></header><hr class=\"new1\"><div class=\"sidenav\"><a href=\"../index.html\">Main Hub</a><a href=\"../validator.html\">Validator</a><a href=\"../proposer.html\">Proposer</a><a href=\"../roleFinder.html\">Finder</a></div><div class=\"main\">";
 
         loginName = req.queryParams("loginName");
+        String errorDescription="";
 
-        if (loginName.trim().equals("")){
+        if(loginName == null || loginName.trim().equals("")) {
+          response_code = "400";
+          errorDescription= "No loginName provided.";
+        }
+        else if (!loginName.equals(loginName.trim())){
+          response_code = "400";
+          errorDescription="Whitespace character found.";
+        }
+        else if (loginName.length() < 4 || loginName.length() > 20){
+          response_code = "400";
+          errorDescription="LoginName length outside character limits.";
+        }else if (!loginName.matches("([a-z0-9]+[._-]?[a-z0-9]+)+")){
+          response_code = "400";
+          for(int i=0;i<loginName.length();i++){
+              char ch = loginName.charAt(i);
+              if(Character.isUpperCase(ch)){
+                errorDescription="Capital character found.";
+                break;
+              }
+          }
+          if (errorDescription.equals("")) errorDescription= "Invalid loginName format.";
+        }
+
+        if (response_code.equals("400")){
           closeViews();
-          response_code="400";
-          message= "<br>&emsp;\"message\": \"No loginName provided\"";
+          message= "<br>&emsp;\"message\": \"" + errorDescription + "\"";
           roleJson+= "<br>&emsp;\"Response code\" : " + response_code + ",";
           roleJson+=message;
           htmlResponse+=roleJson;
-          htmlResponse+="</div></body></html>";
+          htmlResponse+="<br>}</div></body></html>";
           return htmlResponse;
         }
 

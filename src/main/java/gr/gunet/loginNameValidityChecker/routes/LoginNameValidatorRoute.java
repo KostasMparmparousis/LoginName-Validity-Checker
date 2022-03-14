@@ -62,8 +62,9 @@ public class LoginNameValidatorRoute implements Route{
             reqPerson = new RequestPerson(req);
         }catch(Exception e){
             e.printStackTrace(System.err);
+            String errorMessage=e.getMessage();
             closeViews();
-            return responses.getValidatorResponse("400", ""); //fix that later
+            return responses.getValidatorResponse("400", errorMessage);
         }
 
         verbose=reqPerson.getVerbose();
