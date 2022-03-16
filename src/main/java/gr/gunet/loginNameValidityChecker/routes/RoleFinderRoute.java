@@ -25,7 +25,6 @@ public class RoleFinderRoute implements Route {
     String loginName;
     String institution;
     boolean onlyActive;
-    private String CONN_FILE_DIR = "/etc/v_vd/conn/";
     public RoleFinderRoute() {
     }
 
@@ -177,13 +176,7 @@ public class RoleFinderRoute implements Route {
         htmlResponse+="</div></body></html>";
         return htmlResponse;
     }
-    public boolean institutionExists(String institution){
-      Path path= Paths.get(CONN_FILE_DIR+ institution + ".properties");
-      if (!Files.exists(path)) {
-        return false;
-      }
-      return true;
-    }
+
     public void closeViews(){
         Views.clean();
         ldapDS.clean();

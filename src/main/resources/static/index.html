@@ -8,7 +8,7 @@
     <body>
         
         <header>
-            <h1 style="color: #ed7b42;">uAssign</h1>
+            <h1 style="color: #ed7b42;">uLookup</h1>
         </header>
         <hr class="new1">
         <div class="sidenav">
@@ -19,7 +19,7 @@
         </div>
         <div class="main">
             <p>
-                <i>uAssign</i> is an all-around mechanism designed to assist the University Account creation procedure.
+                <i>uLookup</i> is an all-around mechanism designed to assist the University Account creation procedure.
             </p>
             <p>
                 During the procedure of creating a new University Account, a loginName for the new account must be decided.
@@ -31,12 +31,15 @@
                 <ul>
                     <li>The Student Information System (SIS), for  student records.</li>
                     <li>The Human Resource Management Software (HRMS) of the University, for facutly, staff etc.</li>
-                    <li>The Human Resource Management Software of the Research Committee - Special Account for Research Funds Software (ELKE) for contractual staff, associates, researchers etc.</li>
+                    <li>The Human Resource Management Software of the Research Committee.</li>
                     <li>The Directory Service (DS).</li>
                 </ul>
             </p>
+
+            <p> The lifetime cycle of a new Account typically commences with its registration to the available Authoritative Sources (<i>SIS,HRMS,Associates</i>). Another approach to this would be the registration of every new Account to a central Management System (i.e. DS).</p>
+
             <p>
-                <i>uAssign</i> assists the user in picking a suitable loginName during the account creation process by offering the following services/endpoints:
+                Both strategies come with their strengths and weaknesses, however the Authoritative Sources registration model is the one currently used nation-wide.<i>uLookup</i> aims to facilitate this Account creation approach, by assisting the user in picking a suitable loginName with the following services/endpoints:
                 <ul>
                     <li> <b>loginNameValidator/</b> -checks if the provided loginName can be assigned to the specified person.</li>
                     <li> <b>loginNameProposer/</b> -recommends a valid loginName for the specified person.</li>

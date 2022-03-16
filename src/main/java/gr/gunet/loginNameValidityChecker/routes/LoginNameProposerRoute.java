@@ -36,7 +36,6 @@ public class LoginNameProposerRoute implements Route {
     String responseJson;
     String personPairedWith;
     String suggestedNames;
-    private String CONN_FILE_DIR = "/etc/v_vd/conn/";
     public LoginNameProposerRoute() {
     }
 
@@ -220,14 +219,6 @@ public class LoginNameProposerRoute implements Route {
         return "Invalid Name format.";
       }
       return "";
-    }
-    
-    public boolean institutionExists(String institution){
-      Path path= Paths.get(CONN_FILE_DIR+ institution + ".properties");
-      if (!Files.exists(path)) {
-        return false;
-      }
-      return true;
     }
 
     public int generateNames(){

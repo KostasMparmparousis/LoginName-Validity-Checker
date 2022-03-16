@@ -35,7 +35,6 @@ public class LoginNameValidatorRoute implements Route{
     String disabledGracePeriod=null;
     String responseCode;
     String responseContent;
-    private String CONN_FILE_DIR = "/etc/v_vd/conn/";
     String institution;
     ResponseMessages responses;
     public LoginNameValidatorRoute() {
