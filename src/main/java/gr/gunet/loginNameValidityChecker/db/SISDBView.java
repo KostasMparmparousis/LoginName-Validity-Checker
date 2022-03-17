@@ -4,7 +4,6 @@ import gr.gunet.loginNameValidityChecker.AcademicPerson;
 import gr.gunet.loginNameValidityChecker.db.viewentities.SISPersonEntity_v1;
 import gr.gunet.loginNameValidityChecker.db.viewentities.SISPersonEntity_v2;
 import gr.gunet.loginNameValidityChecker.db.viewentities.SISPersonEntity_v3;
-import gr.gunet.loginNameValidityChecker.db.viewentities.SISPersonEntity_v4;
 import gr.gunet.loginNameValidityChecker.tools.PropertyReader;
 import java.util.Collection;
 import java.util.HashMap;
@@ -77,11 +76,8 @@ public class SISDBView extends DBManager{
         }else if(entityVersion.equals("3")){
             List<SISPersonEntity_v3> results = select(sql,SISPersonEntity_v3.class);
             retVals.addAll(results);
-        }else if(entityVersion.equals("4")){
-            List<SISPersonEntity_v4> results = select(sql,SISPersonEntity_v4.class);
-            retVals.addAll(results);
         }else{
-            throw new Exception("Unsupported entity version '"+entityVersion+"' on HRMS DB View.");
+            throw new Exception("Unsupported entity version '"+entityVersion+"' on SIS DB View.");
         }
         return retVals;
     }
@@ -117,9 +113,6 @@ public class SISDBView extends DBManager{
         }else if(entityVersion.equals("3")){
             List<SISPersonEntity_v3> results = select(sql,SISPersonEntity_v3.class);
             retVals.addAll(results);
-        }else if(entityVersion.equals("4")){
-            List<SISPersonEntity_v4> results = select(sql,SISPersonEntity_v4.class);
-            retVals.addAll(results);
         }else{
             throw new Exception("Unsupported entity version '"+entityVersion+"' on HRMS DB View.");
         }
@@ -139,9 +132,6 @@ public class SISDBView extends DBManager{
             retVals.addAll(results);
         }else if(entityVersion.equals("3")){
             List<SISPersonEntity_v3> results = select(sql,SISPersonEntity_v3.class);
-            retVals.addAll(results);
-        }else if(entityVersion.equals("4")){
-            List<SISPersonEntity_v4> results = select(sql,SISPersonEntity_v4.class);
             retVals.addAll(results);
         }else{
             throw new Exception("Unsupported entity version '"+entityVersion+"' on HRMS DB View.");
@@ -176,9 +166,6 @@ public class SISDBView extends DBManager{
             retVals.addAll(results);
         }else if(entityVersion.equals("3")){
             List<SISPersonEntity_v3> results = select(sql,SISPersonEntity_v3.class);
-            retVals.addAll(results);
-        }else if(entityVersion.equals("4")){
-            List<SISPersonEntity_v4> results = select(sql,SISPersonEntity_v4.class);
             retVals.addAll(results);
         }else{
             throw new Exception("Unsupported entity version '"+entityVersion+"' on HRMS DB View.");

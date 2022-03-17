@@ -10,7 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="v_vd_hrms_the")
+@Table(name="V_VD_HRMS")
 public class HRMSPersonEntity_v3 implements Serializable,AcademicPerson{
     public HRMSPersonEntity_v3(){
         
@@ -78,7 +78,7 @@ public class HRMSPersonEntity_v3 implements Serializable,AcademicPerson{
     @Column(name = "motherFirstNameEn")
     private String motherFirstNameEn;
     
-    @Column(name = "birthdate")
+    @Column(name = "birthDate")
     private String birthdate;
     
     @Column(name = "birthYear")

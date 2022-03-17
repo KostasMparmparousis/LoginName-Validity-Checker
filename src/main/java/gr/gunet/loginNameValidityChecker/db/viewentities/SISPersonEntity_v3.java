@@ -8,11 +8,11 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import org.hibernate.annotations.Immutable;
+//import org.hibernate.annotations.Immutable;
 
 @Entity
-@Immutable
-@Table(name="v_vd_sis_2")
+//@Immutable
+@Table(name="V_VD_SIS")
 public class SISPersonEntity_v3 implements Serializable,AcademicPerson{
     public SISPersonEntity_v3(){
         
