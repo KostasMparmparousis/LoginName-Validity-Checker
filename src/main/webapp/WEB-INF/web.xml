@@ -7,7 +7,7 @@
             <filter-class>spark.servlet.SparkFilter</filter-class>
             <init-param>
                 <param-name>applicationClass</param-name>
-                <param-value>gr.gunet.loginNameValidityChecker.Main</param-value>
+                <param-value>gr.gunet.uLookup.Main</param-value>
             </init-param>
         </filter>
         <filter-mapping>
