@@ -36,7 +36,6 @@ public class LoginNameProposerRoute implements Route {
     String responseJson;
     String personPairedWith;
     String suggestedNames;
-    private String CONN_FILE_DIR = "/etc/v_vd/conn/";
     public LoginNameProposerRoute() {
     }
 
@@ -72,6 +71,18 @@ public class LoginNameProposerRoute implements Route {
         HRMSDBView hrms2=null;
         LdapManager ldap=null;
 
+        if (!findErrors().equals("")){
+          String returnJson="{";
+          response_code="400";
+          message= "<br>&emsp;\"message\": \"" + findErrors() + "\"";
+          returnJson+= "<br>&emsp;\"Response code\" : " + response_code+ ",";
+          returnJson+=message;
+          returnJson+="<br>}";
+          htmlResponse+=returnJson;
+          htmlResponse+="</div></body></html>";
+          return htmlResponse;
+        }
+
         if (SSN.trim().equals("") || SSNCountry.trim().equals("")){
           response_code+="3";
           message= "<br>&emsp;\"message\":\"";
@@ -85,7 +96,6 @@ public class LoginNameProposerRoute implements Route {
           responseJson+=suggestedNames;
           returnJson+=responseJson;
           returnJson+="<br>}";
-          res.body(new Gson().toJson(returnJson));
           htmlResponse+=returnJson;
           htmlResponse+="</div></body></html>";
           return htmlResponse;
@@ -182,13 +192,33 @@ public class LoginNameProposerRoute implements Route {
         htmlResponse+="</div></body></html>";
         return htmlResponse;
     }
-
-    public boolean institutionExists(String institution){
-      Path path= Paths.get(CONN_FILE_DIR+ institution + ".properties");
-      if (!Files.exists(path)) {
-        return false;
+    
+    public String findErrors(){
+      if (!findErrors(FN).equals("")) return findErrors(FN);
+      if (!findErrors(LN).equals("")) return findErrors(LN);
+      return "";
+    }
+    
+    public String findErrors(String Name){
+      if(Name == null || Name.trim().equals("")){
+         return "";
       }
-      return true;
+      else if (Name.length()>1 && !Name.equals(Name.trim())){
+        return "Whitespace character found.";
+      }
+      else if (Name.length() < 2 || Name.length() > 20){
+        return "Name length outside character limits.";
+      }
+      else if (!Name.matches("[a-z0-9]+")){
+        for(int i=0;i<Name.length();i++){
+            char ch = Name.charAt(i);
+            if(Character.isUpperCase(ch)){
+                return "Capital character found.";
+            }
+        }
+        return "Invalid Name format.";
+      }
+      return "";
     }
 
     public int generateNames(){

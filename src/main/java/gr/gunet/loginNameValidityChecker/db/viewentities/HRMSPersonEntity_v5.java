@@ -2,19 +2,17 @@ package gr.gunet.loginNameValidityChecker.db.viewentities;
 
 import gr.gunet.loginNameValidityChecker.AcademicPerson;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashSet;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import org.hibernate.annotations.Immutable;
+import java.util.Collection;
+import java.util.HashSet;
 
 @Entity
-@Immutable
-@Table(name="v_vd_sis2")
-public class SISPersonEntity_v4 implements Serializable,AcademicPerson{
-    public SISPersonEntity_v4(){
+@Table(name="v_vd_hrms")
+public class HRMSPersonEntity_v5 implements Serializable,AcademicPerson{
+    public HRMSPersonEntity_v5(){
         
     }
     
@@ -38,6 +36,18 @@ public class SISPersonEntity_v4 implements Serializable,AcademicPerson{
     @Column(name = "TINCOUNTRY")
     private String tinCountry;
     
+    @Column(name = "academicID")
+    private String academicID;
+    
+    @Column(name = "departmentID")
+    private String departmentID;
+    
+    @Column(name = "departmentEl")
+    private String departmentEl;
+    
+    @Column(name = "departmentEn")
+    private String departmentEn;
+    
     @Column(name = "firstNameEl")
     private String firstNameEl;
     
@@ -50,11 +60,17 @@ public class SISPersonEntity_v4 implements Serializable,AcademicPerson{
     @Column(name = "lastNameEn")
     private String lastNameEn;
     
+    @Column(name = "middleNameEl")
+    private String middleNameEl;
+    
+    @Column(name = "middleNameEn")
+    private String middleNameEn;
+    
     @Column(name = "fatherFirstNameEl")
-    private String fatherNameEl;
+    private String fatherFirstNameEl;
     
     @Column(name = "fatherFirstNameEn")
-    private String fatherNameEn;
+    private String fatherFirstNameEn;
     
     @Column(name = "motherFirstNameEl")
     private String motherFirstNameEl;
@@ -63,56 +79,50 @@ public class SISPersonEntity_v4 implements Serializable,AcademicPerson{
     private String motherFirstNameEn;
     
     @Column(name = "birthDate")
-    private String birthDate;
+    private String birthdate;
     
     @Column(name = "birthYear")
     private String birthYear;
-
+    
     @Column(name = "gender")
     private String gender;
     
     @Column(name = "citizenship")
     private String citizenship;
     
-    @Column(name = "departmentID")
-    private String departmentID;
+    @Column(name = "employeeType")
+    private String employeeType;
     
-    @Column(name = "departmentEl")
-    private String departmentEl;
+    @Column(name = "facultyType")
+    private String facultyType;
     
-    @Column(name = "departmentEn")
-    private String departmentEn;
-    
-    @Column(name = "enrollmentStatus")
-    private String enrollmentStatus;
-    
-    @Column(name = "enrollmentStatusDate")
-    private String enrollmentStatusDate;
-    
-    @Column(name = "enrollmentType")
-    private String enrollmentType;
-    
-    @Column(name = "enrollmentTerm")
-    private String enrollmentTerm;
-    
-    @Column(name = "extEmail")
-    private String extEmail;
-    
-    @Column(name = "mobilePhone")
-    private String mobilePhone;
-    
-    @Column(name = "accountStatus")
-    private String accountStatus;
+    @Column(name = "staffType")
+    private String staffType;
     
     @Column(name = "attendanceType")
     private String attendanceType;
     
+    @Column(name = "contractType")
+    private String contractType;
+    
+    @Column(name  = "employeeStatus")
+    private String employeeStatus;
+    
+    @Column(name = "employeeStatusDate")
+    private String employeeStatusDate;
+    
+    @Column(name = "mobilePhone")
+    private String mobilePhone;
+    
+    @Column(name = "extEmail")
+    private String extEmail;
+    
+    @Column(name = "accountStatus")
+    private String accountStatus;
+    
     @Column(name = "loginName")
     private String loginName;
-    
-    @Column(name = "inscriptionAcYear")
-    private String inscriptionAcYear;
-    
+
     @Override
     public String getSystemID() {
         return systemID;
@@ -120,6 +130,15 @@ public class SISPersonEntity_v4 implements Serializable,AcademicPerson{
 
     public void setSystemID(String systemID) {
         this.systemID = systemID;
+    }
+
+    @Override
+    public String getRegistrationID() {
+        return registrationID;
+    }
+
+    public void setRegistrationID(String registrationID) {
+        this.registrationID = registrationID;
     }
 
     @Override
@@ -145,13 +164,13 @@ public class SISPersonEntity_v4 implements Serializable,AcademicPerson{
       return ssncountry;
     }
 
+    public void setSsnCountry(String ssnCountry) {
+        this.ssnCountry = ssnCountry;
+    }
+    
     @Override
     public String getSSNCountry(){
       return ssnCountry;
-    }
-    
-    public void setSsnCountry(String ssnCountry) {
-        this.ssnCountry = ssnCountry;
     }
 
     @Override
@@ -160,14 +179,14 @@ public class SISPersonEntity_v4 implements Serializable,AcademicPerson{
       if (tin!=null) Tin.add(tin);
       return Tin;
     }
+
+    public void setTin(String tin) {
+        this.tin = tin;
+    }
     
     @Override
     public String getTIN(){
       return tin;
-    }
-
-    public void setTin(String tin) {
-        this.tin = tin;
     }
 
     @Override
@@ -176,14 +195,46 @@ public class SISPersonEntity_v4 implements Serializable,AcademicPerson{
       if(tinCountry!=null) tincountry.add(tinCountry.toUpperCase());
       return tincountry;
     }
+
+    public void setTinCountry(String tinCountry) {
+        this.tinCountry = tinCountry;
+    }
     
     @Override
     public String getTINCountry(){
       return tinCountry;
     }
-    
-    public void setTinCountry(String tinCountry) {
-        this.tinCountry = tinCountry;
+
+    public String getAcademicID() {
+        return academicID;
+    }
+
+    public void setAcademicID(String academicID) {
+        this.academicID = academicID;
+    }
+
+    public String getDepartmentID() {
+        return departmentID;
+    }
+
+    public void setDepartmentID(String departmentID) {
+        this.departmentID = departmentID;
+    }
+
+    public String getDepartmentEl() {
+        return departmentEl;
+    }
+
+    public void setDepartmentEl(String departmentEl) {
+        this.departmentEl = departmentEl;
+    }
+
+    public String getDepartmentEn() {
+        return departmentEn;
+    }
+
+    public void setDepartmentEn(String departmentEn) {
+        this.departmentEn = departmentEn;
     }
 
     public String getFirstNameEl() {
@@ -220,35 +271,39 @@ public class SISPersonEntity_v4 implements Serializable,AcademicPerson{
         this.lastNameEn = lastNameEn;
     }
 
-    public String getFatherNameEl() {
-        return fatherNameEl;
+    public String getMiddleNameEl() {
+        return middleNameEl;
     }
-    
+
+    public void setMiddleNameEl(String middleNameEl) {
+        this.middleNameEl = middleNameEl;
+    }
+
+    public String getMiddleNameEn() {
+        return middleNameEn;
+    }
+
+    public void setMiddleNameEn(String middleNameEn) {
+        this.middleNameEn = middleNameEn;
+    }
+
     public String getFatherFirstNameEl() {
-        return fatherNameEl;
+        return fatherFirstNameEl;
     }
 
-    public void setFatherNameEl(String fatherNameEl) {
-        this.fatherNameEl = fatherNameEl;
+    public void setFatherFirstNameEl(String fatherFirstNameEl) {
+        this.fatherFirstNameEl = fatherFirstNameEl;
     }
 
-    public String getFatherNameEn() {
-        return fatherNameEn;
-    }
-    
     public String getFatherFirstNameEn() {
-        return fatherNameEn;
+        return fatherFirstNameEn;
     }
 
-    public void setFatherNameEn(String fatherNameEn) {
-        this.fatherNameEn = fatherNameEn;
+    public void setFatherFirstNameEn(String fatherFirstNameEn) {
+        this.fatherFirstNameEn = fatherFirstNameEn;
     }
 
     public String getMotherFirstNameEl() {
-        return motherFirstNameEl;
-    }
-    
-    public String getMotherNameEl() {
         return motherFirstNameEl;
     }
 
@@ -259,22 +314,22 @@ public class SISPersonEntity_v4 implements Serializable,AcademicPerson{
     public String getMotherFirstNameEn() {
         return motherFirstNameEn;
     }
-    
-    public String getMotherNameEn() {
-        return motherFirstNameEn;
-    }
 
     public void setMotherFirstNameEn(String motherFirstNameEn) {
         this.motherFirstNameEn = motherFirstNameEn;
     }
 
+    public String getBirthdate() {
+        return birthdate;
+    }
+    
     @Override
     public String getBirthDate() {
-        return birthDate;
+        return birthdate;
     }
 
-    public void setBirthDate(String birthDate) {
-        this.birthDate = birthDate;
+    public void setBirthdate(String birthdate) {
+        this.birthdate = birthdate;
     }
 
     @Override
@@ -282,7 +337,7 @@ public class SISPersonEntity_v4 implements Serializable,AcademicPerson{
         return birthYear;
     }
 
-    public void setBirthYear(String birthYear) {
+    public void setBirthyear(String birthYear) {
         this.birthYear = birthYear;
     }
 
@@ -304,85 +359,28 @@ public class SISPersonEntity_v4 implements Serializable,AcademicPerson{
         this.citizenship = citizenship;
     }
 
-    @Override
-    public String getRegistrationID() {
-        return registrationID;
+    public String getEmployeeType() {
+        return employeeType;
     }
 
-    public void setRegistrationID(String registrationID) {
-        this.registrationID = registrationID;
+    public void setEmployeeType(String employeeType) {
+        this.employeeType = employeeType;
     }
 
-    public String getDepartmentID() {
-        return departmentID;
+    public String getFacultyType() {
+        return facultyType;
     }
 
-    public void setDepartmentID(String departmentID) {
-        this.departmentID = departmentID;
+    public void setFacultyType(String facultyType) {
+        this.facultyType = facultyType;
     }
 
-    public String getDepartmentEl() {
-        return departmentEl;
+    public String getStaffType() {
+        return staffType;
     }
 
-    public void setDepartmentEl(String departmentEl) {
-        this.departmentEl = departmentEl;
-    }
-
-    public String getDepartmentEn() {
-        return departmentEn;
-    }
-
-    public void setDepartmentEn(String departmentEn) {
-        this.departmentEn = departmentEn;
-    }
-
-    public String getEnrollmentStatus() {
-        return enrollmentStatus;
-    }
-
-    public void setEnrollmentStatus(String enrollmentStatus) {
-        this.enrollmentStatus = enrollmentStatus;
-    }
-
-    public String getEnrollmentStatusDate() {
-        return enrollmentStatusDate;
-    }
-
-    public void setEnrollmentStatusDate(String enrollmentStatusDate) {
-        this.enrollmentStatusDate = enrollmentStatusDate;
-    }
-
-    public String getEnrollmentType() {
-        return enrollmentType;
-    }
-
-    public void setEnrollmentType(String enrollmentType) {
-        this.enrollmentType = enrollmentType;
-    }
-
-    public String getExtEmail() {
-        return extEmail;
-    }
-
-    public void setExtEmail(String extEmail) {
-        this.extEmail = extEmail;
-    }
-
-    public String getMobilePhone() {
-        return mobilePhone;
-    }
-
-    public void setMobilePhone(String mobilePhone) {
-        this.mobilePhone = mobilePhone;
-    }
-
-    public String getAccountStatus() {
-        return accountStatus;
-    }
-
-    public void setAccountStatus(String accountStatus) {
-        this.accountStatus = accountStatus;
+    public void setStaffType(String staffType) {
+        this.staffType = staffType;
     }
 
     public String getAttendanceType() {
@@ -393,12 +391,52 @@ public class SISPersonEntity_v4 implements Serializable,AcademicPerson{
         this.attendanceType = attendanceType;
     }
 
-    public String getEnrollmentTerm() {
-        return enrollmentTerm;
+    public String getContractType() {
+        return contractType;
     }
 
-    public void setEnrollmentTerm(String enrollmentTerm) {
-        this.enrollmentTerm = enrollmentTerm;
+    public void setContractType(String contractType) {
+        this.contractType = contractType;
+    }
+
+    public String getEmployeeStatus() {
+        return employeeStatus;
+    }
+
+    public void setEmployeeStatus(String employeeStatus) {
+        this.employeeStatus = employeeStatus;
+    }
+
+    public String getEmployeeStatusDate() {
+        return employeeStatusDate;
+    }
+
+    public void setEmployeeStatusDate(String employeeStatusDate) {
+        this.employeeStatusDate = employeeStatusDate;
+    }
+
+    public String getMobilePhone() {
+        return mobilePhone;
+    }
+
+    public void setMobilePhone(String mobilePhone) {
+        this.mobilePhone = mobilePhone;
+    }
+
+    public String getExtEmail() {
+        return extEmail;
+    }
+
+    public void setExtEmail(String extEmail) {
+        this.extEmail = extEmail;
+    }
+
+    public String getAccountStatus() {
+        return accountStatus;
+    }
+
+    public void setAccountStatus(String accountStatus) {
+        this.accountStatus = accountStatus;
     }
 
     @Override
@@ -408,18 +446,5 @@ public class SISPersonEntity_v4 implements Serializable,AcademicPerson{
 
     public void setLoginName(String loginName) {
         this.loginName = loginName;
-    }
-
-    public String getInscriptionAcYear() {
-        return inscriptionAcYear;
-    }
-
-    public void setInscriptionAcYear(String inscriptionAcYear) {
-        this.inscriptionAcYear = inscriptionAcYear;
-    }
-
-    @Override
-    public String getAcademicID() {
-        return null;
     }
 }

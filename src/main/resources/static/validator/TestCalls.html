@@ -25,232 +25,196 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
         <div class="main">
             <p>Τα παρακάτω responses προκύπτουν ύστερα από επιτυχείς/ολοκληρωμένες κλήσεις του <b>loginNameValidator</b>:</p>
 
-            <h3>Example 1.</h3>
-            <p><i>Αίτηση δημιουργίας λογαριασμού η οποία δεν επιστρέφει <b>κανένα conflict</b> βάσει αναζήτησης με το loginName. Επιπλέον ισχύει το 1 απο τα 3 ενδεχόμενα για τον αιτούμενο με αυτό το <b>Α.Μ.Κ.Α.</b>:</i></p>
+            <h2 style="margin:revert; color: #00cc00;">No conflicts.</h3>
+            <p><i>Αίτηση δημιουργίας λογαριασμού η οποία δεν επιστρέφει <b>κανένα conflict</b> βάσει αναζήτησης με το loginName. Πιθανά είναι τα παρακάτω σενάρια:</i></p>
             <ul>
-                <li>Θέλει να χρησιμοποιήσει ένα εντελώς καινούργιο loginName</li>
+                <li>Είναι ο <b>πρώτος λογαριασμός</b> του υποψηφίου στο ίδρυμα (<span style="color: #00cc00;">100</span>).</li>
             </ul>
-             <pre class="Calls">
-                <code>
-{
-  "ssn": "12312312313",
-  "ssnCountry": "GR",
-  "birthDate": "19770823",
-  "loginName": "gunetdemo"
-}
-                </code>
-            </pre>
-            <p><b>To response που θα επιστραφεί:</b></p>
             <pre class="Calls">
                 <code>
 {
- "Response code" : 120,
- "message" : "No Conflicts Found, 12312312313-GR combination not found in any Database",
- "status": "Selection of a new loginName."
+ "Response code": 100,
+ "Message": "No conflicts. Also this will probably be the <b>Person's first Account</b> in any registry."
 }
                 </code>
             </pre>
             <ul>
-                <li> Θέλει να χρησιμοποιήσει το συγκεκριμένο loginName που του έχει γινει reserved.</li>
+                <li> Θέλει να χρησιμοποιήσει το συγκεκριμένο loginName που του έχει γινει <b>reserved</b> (<span style="color: #00cc00;">101</span>).</li>
             </ul>
-
-             <pre class="Calls">
-                <code>
-{
-  "ssn": "12312312312",
-  "ssnCountry": "GR",
-  "birthDate": "19770823",
-  "loginName": "gunetdemo"
-}
-                </code>
-            </pre>
-            <p><b>To response που θα επιστραφεί:</b></p>
             <pre class="Calls">
                 <code>
 {
- "Response code" : 101,
- "message" : "No Conflicts Found",
- "status": "loginName already reserved for that person."
+ "Response code": 101,
+ "Message": "No conflicts. The Person has already <b>reserved</b> the requested loginName."
 }
                 </code>
             </pre>
             <ul>
-                <li> Θέλει να ξαναχρησιμοποιήσει το συγκεκριμένο loginName που του ανήκει ήδη.</li>
+                <li> Θέλει να ξαναχρησιμοποιήσει το συγκεκριμένο loginName που του <b>ανήκει ήδη</b> (<span style="color: #00cc00;">102</span>).</li>
             </ul>
 
-             <pre class="Calls">
-                <code>
-{
-  "ssn": "12312312312",
-  "ssnCountry": "GR",
-  "birthDate": "19770823",
-  "loginName": "gunetdemo"
-}
-                </code>
-            </pre>
-            <p><b>To response που θα επιστραφεί:</b></p>
             <pre class="Calls">
                 <code>
 {
- "Response code" : 102,
- "message" : "No Conflicts Found",
- "status": "loginName already assigned to that person."
+ "Response code": 102,
+ "Message": "No conflicts. The Person <b>owns</b> the requested loginName."
+}
+                </code>
+            </pre>
+
+            <ul>
+                <li> Ενώ το υποψήφιο loginName είναι διαθέσιμο, σε κάποιο registry βρέθηκε για τον αιτούμενο ένα <b>ήδη υπάρχων</b> loginName (<span style="color: #00cc00;">110</span>).</li>
+            </ul>
+
+            <pre class="Calls">
+                <code>
+{
+ "Response code": 110,
+ "Message": "No conflicts. But this Person already <b>owns a different loginName</b>.",
+ "personPairedWith": [
+  "gunetdemo"
+ ]
 }
                 </code>
             </pre>            
 
-            <h3>Example 2.</h3>
-            <p><i>Αίτηση δημιουργίας λογαριασμού η οποία δεν επιστρέφει <b>κανένα conflict</b> βάσει αναζήτησης με το loginName. <b>Όμως</b> για τον αιτούμενο με αυτά τα προσωπικά στοιχεία έχει καταχωρηθεί <b>ήδη διαφορετικό</b> userName.</i></p>
-             <pre class="Calls">
-                <code>
-{
-  "ssn": "12312312312",
-  "ssnCountry": "GR",
-  "birthDate": "19770823",
-  "loginName": "test"
-}
-                </code>
-            </pre>
-            <p><b>To response που θα επιστραφεί:</b></p>
+            <h2 style="margin:revert; color: #cc0000;">Conflicts found.</h3>
+            <p><i>Αίτηση δημιουργίας λογαριασμού η οποία <b>επιστρέφει conflict</b> βάσει αναζήτησης με το loginName. Πιθανά είναι τα παρακάτω σενάρια:</i></p>
+             <ul>
+                 <li>Ένα η παραπάνω attribute <b>πέρα απο</b> τους primary identifiers (SSN,SSNCountry) ήταν <b>διαφορετικό</b> μεταξύ του Request και των δεδομένων σε κάποιο Registry (<span style="color: #cc0000;">200</span>).</li>
+            </ul>
             <pre class="Calls">
                 <code>
 {
- "Response code" : 110,
- "message" : "No Conflicts Found, 12312312312-GR is already paired with at least 1 loginName",
- "personPairedWith": [
-  "gunetdemo"
- ],
- "status": "Selection of a new loginName."
+ "Response code": 200,
+ "Message": "Conflicts found. After the lookup SSN-SSNCountry were identical, but one or more of the remaining attributes were different."
 }
                 </code>
             </pre>
+            <ul>
+                <li> Το υποψήφιο loginName υπάρχει και ανήκει σε έναν διαφορετικό χρήστη. Ωστόσο βρέθηκε ενα <b>ήδη υπάρχων</b> loginName για τον αιτούμενο (<span style="color: #cc0000;">210</span>).</li>
+            </ul>
+            <pre class="Calls">
+                <code>
+{
+ "Response code": 210,
+ "Message": "Conflicts found. The requested loginName belongs to someone else. However this Person is already paired with a different loginName."
+}
+                </code>
+            </pre>
+            <ul>
+                <li> Το υποψήφιο loginName υπάρχει και ανήκει σε έναν διαφορετικό χρήστη. Επιπλέον <b>δεν βρέθηκε</b> κάποιο υπάρχων loginName για τον αιτούμενο (<span style="color: #cc0000;">220</span>).</li>
+            </ul>
 
-            <h3>Example 3.</h3>
-            <p><i>Αίτηση δημιουργίας λογαριασμού η οποία <b>επιστρέφει conflict</b> βάσει αναζήτησης με το loginName. Επιπλέον η παράμετρος <b>verbose</b> είναι <b>false</b>.</i></p>
-             <pre class="Calls">
-                <code>
-{
-  "ssn": "12312312312",
-  "ssnCountry": "GR",
-  "birthDate": "19730825",
-  "loginName": "gunetdemo"
-}
-                </code>
-            </pre>
-            <p><b>To response που θα επιστραφεί:</b></p>
             <pre class="Calls">
                 <code>
 {
-  "Response code" : 200,
-  "message" : "Conflicts Found, 12312312312-GR is already paired with at least 1 loginName"
-}
-                </code>
-            </pre>                        
-
-            <h3>Example 4.</h3>
-            <p><i>Αίτηση δημιουργίας λογαριασμού η οποία <b>επιστρέφει conflict</b> βάσει αναζήτησης με το loginName. Επιπλέον η παράμετρος <b>verbose</b> είναι <b>true</b>.</i></p>
-             <pre class="Calls">
-                <code>
-{
-  "ssn": "12312312312",
-  "ssnCountry": "GR",
-  "birthDate": "19730825",
-  "loginName": "gunetdemo",
-  "institution": "uoa"
+ "Response code": 220,
+ "Message": "Conflicts found. The requested loginName belongs to someone else."
 }
                 </code>
             </pre>
-            <p><b>To response που θα επιστραφεί:</b></p>
-            <pre class="Calls">
-                <code>
-{
-  "Response code" : 200,
-  "message" : "Conflicts Found, 12312312312-GR is already paired with at least 1 loginName",
-  "conflicts": [
-    {
-      "type":"existing-login",
-      "description":"A record exists in 'DS' with the same loginName, but a different date of birth",
-      "conflictingData":"birthDate",
-      "conflictingRecordKey":"academicID=E2Q4KXGLNSPLB25T8TLLT5",
-      "conflictSource":"ds",
-      "requestValue":"19730825",
-      "conflictingValue":"19770825"
-    },
-    {
-      "type":"existing-login",
-      "description":"A record exists in 'SIS DB View' with the same loginName, but a different date of birth",
-      "conflictingData":"birthDate",
-      "conflictingRecordKey":"registrationID=0001-05-003000,systemID=003000",
-      "conflictSource":"sis",
-      "requestValue":"19730825",
-      "conflictingValue":"19770825"
-    },
-    {
-      "type":"existing-login",
-      "description":"A record exists in 'Associates DB View' with the same loginName, but a different date of birth",
-      "conflictingData":"birthDate",
-      "conflictingRecordKey":"registrationID=1,systemID=1",
-      "conflictSource":"associates",
-      "requestValue":"19730825",
-      "conflictingValue":"19770825"
-    },
-    {
-      "type":"existing-login",
-      "description":"A record exists in 'HRMS DB View' with the same loginName, but a different date of birth",
-      "conflictingData":"birthDate",
-      "conflictingRecordKey":"registrationID=ΔΠ-9128,systemID=1802",
-      "conflictSource":"hrms",
-      "requestValue":"19730825",
-      "conflictingValue":"19770825"
-    }
-  ]
-}
-                </code>
-            </pre>                                    
-
-            <h3>Example 5.</h3>
-            <p><i>Αίτηση δημιουργίας λογαριασμού με ολοκληρωμένα στοιχεία, του οποίου όμως το <b>loginName</b> εντοπίστηκε ότι έχει ήδη καταχωρηθεί στον Directory Service χωρίς να έχει ακολουθηθεί η τυπική διαδικασία δημιουργίας λογαριασμού.</i></p>
-             <pre class="Calls">
-                <code>
-{
-  "ssn": "12312312312",
-  "ssnCountry": "GR",
-  "birthDate": "19770825",
-  "loginName": "gunetdemo"
-}
-                </code>
-            </pre>
-            <p><b>To response που θα επιστραφεί:</b></p>
-            <pre class="Calls">
-                <code>
-{
-  "Response code" : 300, 
-  "message" : "gunetdemo already exists while not following the typical DS Account generation procedure"
-}
-                </code>
-            </pre>                                    
             
-            <h3>Example 6.</h3>
-            <p><i>Αίτηση δημιουργίας λογαριασμού με ολοκληρωμένα στοιχεία, του οποίου όμως για το <b>loginName</b> ενω υπάρχει τουλάχιστον μία εγγραφή σε κάποιο source, δεν βρέθηκαν επαρκή στοιχεία ώστε να μπορούμε να πούμε με σιγουριά ότι πρόκειται για το ίδιο άτομο (1 ή περισσότερα απο τα πεδία <b>SSN</b>, <b>SSNCountry</b> είναι <b>NULL παντού</b>).</i></p>
-             <pre class="Calls">
-                <code>
-{
-  "ssn": "12312312312",
-  "ssnCountry": "GR",
-  "birthDate": "19770825",
-  "loginName": "gunetdemo"
-}
-                </code>
-            </pre>
-            <p><b>To response που θα επιστραφεί:</b></p>
+            <p><i>Διαθέσιμη προς χρήση είναι και η επιλογή <b>verbose</b>. Έχοντας την ενεργοποιημένη σε περίπτωση Conflict θα εμφανιστεί μια αναλυτική περιγραφή για την προέλευση αυτού. Για παράδειγμα:</i></p>
             <pre class="Calls">
                 <code>
 {
-  "Response code" : 310, 
-  "message" : "A primary identifier given in the Request (ssn or ssnCountry) was never matched by any Record that is paired with 'gunetdemo'. We can not safely assume they are the same person."
+ "Response code": 220,
+ "Message": "Conflicts found. The requested loginName belongs to someone else.",
+ "conflicts": [
+  {
+   "type":"existing-login",
+   "description":"A record exists in 'SIS DB View' with the same loginName, but a different SSN",
+   "conflictingData":"SSN",
+   "conflictingRecordKey":"registrationID=1628-00-000000,systemID=086EDB91-E6F5-485C-A3AD-BC6E08590F6E",
+   "conflictSource":"sis",
+   "requestValue":"12312312313",
+   "conflictingValue":"12312312312"
+  },
+  {
+   "type":"existing-login",
+   "description":"A record exists in 'HRMS DB View' with the same loginName, but a different SSN",
+   "conflictingData":"SSN",
+   "conflictingRecordKey":"registrationID=ΔΠ-9128,systemID=1802",
+   "conflictSource":"hrms",
+   "requestValue":"12312312313",
+   "conflictingValue":"12312312312"
+  },
+  {
+   "type":"existing-login",
+   "description":"A record exists in 'DS' with the same loginName, but a different SSN",
+   "conflictingData":"SSN",
+   "conflictingRecordKey":"academicID=E2Q4KXGLNSPLB25T8TLLT5",
+   "conflictSource":"ds",
+   "requestValue":"12312312313",
+   "conflictingValue":"12312312312"
+  },
+  {
+   "type":"existing-login",
+   "description":"A record exists in 'HRMS DB View' with the same loginName, but a different SSN",
+   "conflictingData":"SSN",
+   "conflictingRecordKey":"registrationID=θΑΧ031115,systemID=1802",
+   "conflictSource":"hrms",
+   "requestValue":"12312312313",
+   "conflictingValue":"12312312312"
+  },
+  {
+   "type":"existing-login",
+   "description":"A record exists in 'Associates DB View' with the same loginName, but a different SSN",
+   "conflictingData":"SSN",
+   "conflictingRecordKey":"registrationID=1,systemID=1",
+   "conflictSource":"associates",
+   "requestValue":"12312312313",
+   "conflictingValue":"12312312312"
+  },
+  {
+   "type":"existing-login",
+   "description":"A record exists in 'HRMS DB View' with the same loginName, but a different SSN",
+   "conflictingData":"SSN",
+   "conflictingRecordKey":"registrationID=ΔΠ-9128,systemID=1802",
+   "conflictSource":"hrms",
+   "requestValue":"12312312313",
+   "conflictingValue":"12312312312"
+  },
+  {
+   "type":"existing-login",
+   "description":"A record exists in 'Associates DB View' with the same loginName, but a different SSN",
+   "conflictingData":"SSN",
+   "conflictingRecordKey":"registrationID=1,systemID=1",
+   "conflictSource":"associates",
+   "requestValue":"12312312313",
+   "conflictingValue":"12312312312"
+  }
+ ]
 }
                 </code>
-            </pre>                                                
+            </pre>
+            
+
+            <h2 style="margin:revert; color: #FDDA0D;">Warning.</h3>
+            <p><i>Ενδέχεται να υπάρξουν περιπτώσεις στις οποίες τα δεδομένα διαθέσιμα στα registries δεν μας αρκούν ώστε να καταλήξουμε με σιγουριά στο αποτέλεσμα No conflicts/Conflicts found. Αυτές οι περιπτώσεις είναι:</i></p>
+             <ul>
+                 <li> Αίτηση δημιουργίας λογαριασμού με ολοκληρωμένα στοιχεία, του οποίου όμως το <b>loginName</b> εντοπίστηκε ότι έχει ήδη καταχωρηθεί στον Directory Service χωρίς να έχει ακολουθηθεί η τυπική διαδικασία δημιουργίας λογαριασμού (<span style="color: #FDDA0D;">300</span>).</li>
+            </ul>
+            <pre class="Calls">
+                <code>
+{
+ "Response code": 300,
+ "Message": "A user with that loginName was found in the DS, but he was not created following the typical Account generation procedure."
+}
+                </code>
+            </pre>
+            <ul>
+                 <li> Αίτηση δημιουργίας λογαριασμού με ολοκληρωμένα στοιχεία, του οποίου όμως για το <b>loginName</b> ενω υπάρχει τουλάχιστον μία εγγραφή σε κάποιο source, δεν βρέθηκαν επαρκή στοιχεία ώστε να μπορούμε να πούμε με σιγουριά ότι πρόκειται για το ίδιο άτομο (1 ή περισσότερα απο τα πεδία <b>SSN</b>, <b>SSNCountry</b> είναι <b>NULL παντού</b>) (<span style="color: #FDDA0D;">310</span>).</li>
+            </ul>
+            <pre class="Calls">
+                <code>
+{
+ "Response code": 310,
+ "Message": "LoginName was found after lookup, however we can not examine if it belongs to the same Person. One or more primary identifiers were NULL."
+}
+                </code>
+            </pre>
         </div>
     </body>
 </html>

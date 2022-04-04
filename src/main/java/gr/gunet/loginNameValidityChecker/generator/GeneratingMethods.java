@@ -109,6 +109,26 @@ public class GeneratingMethods {
          return vec;
     }
 
+    public Vector<String> prefixedLastNames(int FNchars){
+      Vector<String> vec = new Vector<String>();
+      int FNlength=firstName.length();
+      if (FNchars==0) return vec;
+      else if (FNchars > FNlength) FNchars=FNlength;
+
+      int count=0;
+      for (String Separator: Separators){
+        for (int i=FNchars; i>0; i--){
+          String FN,LN;
+          FN=getSubstring(firstName, i, "start", FNlength);
+          LN=lastName;
+          Vector<String> Names= orderOfNames(FN, LN, Separator);
+          vec.addAll(count,Names);
+          count+=Names.size();
+        }
+      }
+      return vec;
+    }
+
     public Vector<String> orderOfNames(String FirstName, String LastName, String Separator){
         Vector<String> vec = new Vector<String>();
         if (FNplacement==null) FNplacement="";

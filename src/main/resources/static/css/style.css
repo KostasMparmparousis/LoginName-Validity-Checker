@@ -87,6 +87,40 @@ hr.new2 {
   border-top: 1px solid;
 }
 
+br.checkbox{
+    line-height: 25px;
+}
+
+.test{
+    float:left;
+}
+.checkList{
+    float: left;
+    margin-left: auto;
+}
+
+.checkLists{
+    width: 100%;
+    position: fixed;
+    margin-top: 50px;
+}
+
+hr.sidebar{
+    width: auto;
+    margin: initial;
+    border: 1px solid #0693e3;
+}
+
+fieldset.sidebar{
+    height: auto;
+    width: 290px;
+    position: inherit;
+    float:right;
+    padding: 0px;
+    border: 2px solid #0693e3;
+    margin: 0;
+}
+
  /* The sidebar menu */
 .sidenav {
   height: 100%; /* Full-height: remove this if you want "auto" height */

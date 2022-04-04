@@ -77,7 +77,7 @@ public class HRMSPersonEntity_v2 implements Serializable,AcademicPerson{
     @Column(name = "motherFirstNameEn")
     private String motherFirstNameEn;
 
-    @Column(name = "birthdate")
+    @Column(name = "birthDate")
     private String birthdate;
 
     @Column(name = "birthYear")

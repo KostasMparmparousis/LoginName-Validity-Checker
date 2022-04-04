@@ -82,6 +82,10 @@ public class HRMSDBView extends DBManager{
             List<HRMSPersonEntity_v4> results = select(sql,HRMSPersonEntity_v4.class);
             retVals.addAll(results);
         }
+        else if(entityVersion.equals("5")){
+            List<HRMSPersonEntity_v5> results = select(sql,HRMSPersonEntity_v5.class);
+            retVals.addAll(results);
+        }
         else{
             throw new Exception("Unsupported entity version '"+entityVersion+"' on HRMS DB View.");
         }
@@ -127,6 +131,10 @@ public class HRMSDBView extends DBManager{
             List<HRMSPersonEntity_v4> results = select(sql,HRMSPersonEntity_v4.class);
             retVals.addAll(results);
         }
+        else if(entityVersion.equals("5")){
+            List<HRMSPersonEntity_v5> results = select(sql,HRMSPersonEntity_v5.class);
+            retVals.addAll(results);
+        }
         else{
             throw new Exception("Unsupported entity version '"+entityVersion+"' on HRMS DB View.");
         }
@@ -164,6 +172,9 @@ public class HRMSDBView extends DBManager{
         }else if(entityVersion.equals("4")){
             List<HRMSPersonEntity_v4> results = select(sql,HRMSPersonEntity_v4.class);
             retVals.addAll(results);
+        }else if(entityVersion.equals("5")){
+            List<HRMSPersonEntity_v5> results = select(sql,HRMSPersonEntity_v5.class);
+            retVals.addAll(results);
         }else{
             throw new Exception("Unsupported entity version '"+entityVersion+"' on HRMS DB View.");
         }
@@ -187,7 +198,11 @@ public class HRMSDBView extends DBManager{
         }else if(entityVersion.equals("4")){
             List<HRMSPersonEntity_v4> results = select(sql,HRMSPersonEntity_v4.class);
             retVals.addAll(results);
-        }else{
+        }else if(entityVersion.equals("5")){
+            List<HRMSPersonEntity_v5> results = select(sql,HRMSPersonEntity_v5.class);
+            retVals.addAll(results);
+        }
+        else{
             throw new Exception("Unsupported entity version '"+entityVersion+"' on HRMS DB View.");
         }
         return retVals;
