@@ -30,7 +30,7 @@ public class RequestPerson implements AcademicPerson{
       this.ssnCountry=new HashSet();
       this.tin=new HashSet();
       this.tinCountry=new HashSet();
-      
+
       SSN= jsonReader.readPropertyAsString("ssn");
       if(SSN == null || SSN.trim().equals("")){
         throw new Exception("No ssn provided");
@@ -48,14 +48,19 @@ public class RequestPerson implements AcademicPerson{
       }
 
       TIN= jsonReader.readPropertyAsString("tin");
-      if (TIN!=null && !TIN.trim().equals("")) tin.add(TIN);
-      
-      TINCountry= jsonReader.readPropertyAsString("tinCountry");
-      if (TINCountry!=null && !TINCountry.trim().equals("")) tinCountry.add(TINCountry);
+      if(TIN == null || TIN.trim().equals("")){
+        TIN=null;
+      }
+      else{
+        tin.add(TIN);
+      }
 
-      this.birthYear = jsonReader.readPropertyAsString("birthYear");
-      if(this.birthYear == null || this.birthYear.trim().equals("")){
-        throw new Exception("No birthYear provided");
+      TINCountry= jsonReader.readPropertyAsString("tinCountry");
+      if(TINCountry == null || TINCountry.trim().equals("")){
+        TINCountry=null;
+      }
+      else{
+        tinCountry.add(TINCountry);
       }
 
       this.birthDate = jsonReader.readPropertyAsString("birthDate");
@@ -68,31 +73,27 @@ public class RequestPerson implements AcademicPerson{
 
       this.loginName = jsonReader.readPropertyAsString("loginName");
       if(this.loginName == null || this.loginName.trim().equals("")){
-        throw new Exception("No loginName provided");
+        throw new Exception("No loginName provided.");
       }
       else if (!loginName.equals(loginName.trim())){
-        throw new Exception("Whitespace character found");
+        throw new Exception("Whitespace character found.");
       }
       else if (loginName.length() < 4 || loginName.length() > 20){
-        throw new Exception("LoginName length outside character limits");
+        throw new Exception("LoginName length outside character limits.");
       }else if (!loginName.matches("([a-z0-9]+[._-]?[a-z0-9]+)+")){
-        throw new Exception("Invalid loginName format");
-      }
-      else{
         for(int i=0;i<loginName.length();i++){
             char ch = loginName.charAt(i);
             if(Character.isUpperCase(ch)){
-                throw new Exception("Capital character found");
+                throw new Exception("Capital character found.");
             }
         }
+        throw new Exception("Invalid loginName format.");
       }
-
-      this.institution = jsonReader.readPropertyAsString("institution");
-      if(this.institution == null || this.institution.trim().equals("")){
-        throw new Exception("No institution provided");
+      String Verbose=jsonReader.readPropertyAsString("verbose");
+      if(Verbose == null || Verbose.trim().equals("")|| Verbose.equals("No")){
+        verbose=false;
       }
-
-      verbose=jsonReader.readPropertyAsBoolean("verbose");
+      else verbose=true;
     }
 
     public RequestPerson(Request req) throws Exception{

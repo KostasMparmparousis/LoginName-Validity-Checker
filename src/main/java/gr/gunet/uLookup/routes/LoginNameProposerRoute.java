@@ -42,19 +42,19 @@ public class LoginNameProposerRoute implements Route {
     @Override
     public Object handle(Request req, Response res) throws Exception {
         ResponseMessages responses= new ResponseMessages();
+        CustomJsonReader jsonReader = new CustomJsonReader(req.body());
         response_code="";
         message="";
         responseJson="";
         personPairedWith="";
         suggestedNames="";
-        String htmlResponse= "<html><head><meta charset=\"ISO-8859-1\"><title>Response</title><link rel=\"stylesheet\" href=\"../css/style.css\"></head><body>";
-        htmlResponse+="<header><h1 style=\"color: #ed7b42;\">Response</h1></header><hr class=\"new1\"><div class=\"sidenav\"><a href=\"../index.html\">Main Hub</a><a href=\"../validator.html\">Validator</a><a href=\"../proposer.html\">Proposer</a><a href=\"../roleFinder.html\">Finder</a></div><div class=\"main\">";
-        
-        institution= req.session().attribute("institution");
-        SSN = req.queryParams("ssn");
-        SSNCountry = req.queryParams("ssnCountry");
-        FN= req.queryParams("firstName");
-        LN= req.queryParams("lastName");
+        String response="";
+
+        institution= jsonReader.readPropertyAsString("institution");
+        SSN = jsonReader.readPropertyAsString("ssn");
+        SSNCountry = jsonReader.readPropertyAsString("ssnCountry");
+        FN= jsonReader.readPropertyAsString("firstName");
+        LN= jsonReader.readPropertyAsString("lastName");
 
         Views= new DBConnectionPool(institution);
         ldapDS= new LdapConnectionPool(institution);
@@ -74,31 +74,28 @@ public class LoginNameProposerRoute implements Route {
         if (!findErrors().equals("")){
           String returnJson="{";
           response_code="400";
-          message= "<br>&emsp;\"message\": \"" + findErrors() + "\"";
-          returnJson+= "<br>&emsp;\"Response code\" : " + response_code+ ",";
+          message= "\n\t\"message\": \"" + findErrors() + "\"";
+          returnJson+= "\n\t\"Response code\" : " + response_code+ ",";
           returnJson+=message;
-          returnJson+="<br>}";
-          htmlResponse+=returnJson;
-          htmlResponse+="</div></body></html>";
-          return htmlResponse;
+          returnJson+="\n}";
+          response=returnJson;
+          return response;
         }
-
         if (SSN.trim().equals("") || SSNCountry.trim().equals("")){
           response_code+="3";
-          message= "<br>&emsp;\"message\":\"";
+          message= "\n\t\"message\":\"";
           if (SSN.trim().equals("")) message+= "SSN not given, ";
           if (SSNCountry.trim().equals("")) message+="SSNCountry not given, ";
           int exit_code= generateNames();
           String returnJson="{";
           response_code+="0";
-          returnJson+= "<br>&emsp;\"Response code\" : " + response_code+ ",";
+          returnJson+= "\n\t\"Response code\" : " + response_code+ ",";
           returnJson+=message;
           responseJson+=suggestedNames;
           returnJson+=responseJson;
-          returnJson+="<br>}";
-          htmlResponse+=returnJson;
-          htmlResponse+="</div></body></html>";
-          return htmlResponse;
+          returnJson+="\n}";
+          response+=returnJson;
+          return response;
         }
 
         try{
@@ -107,7 +104,7 @@ public class LoginNameProposerRoute implements Route {
         }
         catch (Exception e){
             e.printStackTrace(System.err);
-            errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"&emsp;\"message\" : \"Could not connect to the SIS\"<br>}<br>";
+            errorJson="{\n\t\"Response code\" : 500," +"\n\t\"message\" : \"Could not connect to the SIS\"\n}\n";
         }
 
         try{
@@ -116,7 +113,7 @@ public class LoginNameProposerRoute implements Route {
         }
         catch (Exception e){
             e.printStackTrace(System.err);
-            errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"&emsp;\"message\" : \"Could not connect to the HRMS\"<br>}<br>";
+            errorJson="{\n\t\"Response code\" : 500," +"\n\t\"message\" : \"Could not connect to the HRMS\"\n}\n";
         }
 
         try{
@@ -125,7 +122,7 @@ public class LoginNameProposerRoute implements Route {
         }
         catch (Exception e){
             e.printStackTrace(System.err);
-            errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"&emsp;\"message\" : \"Could not connect to the HRMS2\"<br>}<br>";
+            errorJson="{\n\t\"Response code\" : 500," +"\n\t\"message\" : \"Could not connect to ELKE\"\n}\n";
         }
 
         try{
@@ -134,28 +131,25 @@ public class LoginNameProposerRoute implements Route {
         }
         catch (Exception e){
             e.printStackTrace(System.err);
-            errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"&emsp;\"message\" : \"Could not connect to the DS\"<br>}<br>";
+            errorJson="{\n\t\"Response code\" : 500," +"\n\t\"message\" : \"Could not connect to the DS\"\n}\n";
         }
 
         if (!errorJson.equals("")){
-          htmlResponse+=errorJson;
-          htmlResponse+="</div></body></html>";
-          return htmlResponse;
+          response+=errorJson;
+          return response;
         }
 
         Vector<String> existingUserNames= new Vector<String>();
         if (!existingOwners.isEmpty() || !existingDSOwners.isEmpty()) {
             response_code+="1";
-
-            personPairedWith= "<br>&emsp;\"personPairedWith\": [";
-
+            personPairedWith= "\n\t\"personPairedWith\": [";
             boolean firstElem = true;
             if (!existingOwners.isEmpty()) {
                 for (AcademicPerson person : existingOwners) {
                     if (!existingUserNames.contains(person.getLoginName())) {
                         if (firstElem) firstElem = false;
                         else personPairedWith += ",";
-                        personPairedWith += "<br>&emsp;&emsp;";
+                        personPairedWith += "\n\t\t";
                         personPairedWith += "\"" + person.getLoginName() + "\"";
                         existingUserNames.add(person.getLoginName());
                     }
@@ -167,30 +161,29 @@ public class LoginNameProposerRoute implements Route {
                     if (!existingUserNames.contains(uid)) {
                         if (firstElem) firstElem = false;
                         else personPairedWith += ",";
-                        personPairedWith += "<br>&emsp;&emsp;";
+                        personPairedWith += "\n\t\t";
                         personPairedWith += "\"" + uid + "\"";
                         existingUserNames.add(uid);
                     }
                 }
             }
-            personPairedWith += "<br>&emsp;]";
-            message= "<br>&emsp;\"message\": \"" + SSN + "-" + SSNCountry + " is already paired with at least 1 loginName, ";
+            personPairedWith += "\n\t]";
+            message= "\n\t\"message\": \"" + SSN + "-" + SSNCountry + " is already paired with at least 1 loginName, ";
         }else{
             response_code+="2";
-            message= "<br>&emsp;\"message\": \"" + SSN + "-" + SSNCountry + " combination not found in any Database, ";
+            message= "\n\t\"message\": \"" + SSN + "-" + SSNCountry + " combination not found in any Database, ";
         }
         int exit_code= generateNames();
         responseJson+=personPairedWith;
         responseJson+=suggestedNames;
         String returnJson="{";
         response_code+="0";
-        returnJson+= "<br>&emsp;\"Response code\" : " + response_code+ ",";
+        returnJson+= "\n\t\"Response code\" : " + response_code+ ",";
         returnJson+=message;
         returnJson+=responseJson;
-        returnJson+="<br>}";
-        htmlResponse+=returnJson;
-        htmlResponse+="</div></body></html>";
-        return htmlResponse;
+        returnJson+="\n}";
+        response+=returnJson;
+        return response;
     }
     
     public String findErrors(){
@@ -255,13 +248,12 @@ public class LoginNameProposerRoute implements Route {
             else{
                 loginGen=new UserNameGen(FN, LN);
             }
-
             if (loginGen!=null) proposedNames= loginGen.proposeNames();
             if (proposedNames!=null && !proposedNames.isEmpty()){
                 response_code+="0";
                 message+= "Generator managed to create suggested names\",";
                 if (!personPairedWith.equals("")) personPairedWith+=",";
-                suggestedNames = "<br>&emsp;\"suggestions\":&emsp;[";
+                suggestedNames = "\n\t\"suggestions\":\t[";
                 for(String login : proposedNames){
                     if (loginGen.checkIfUserNameExists(login, Views, ldapDS, disabledGracePeriod)) continue;
                     if(firstElem){
@@ -269,10 +261,10 @@ public class LoginNameProposerRoute implements Route {
                     }else{
                         suggestedNames += ",";
                     }
-                    suggestedNames +="<br>&emsp;&emsp;";
+                    suggestedNames +="\n\t\t";
                     suggestedNames += "\""+login+"\"";
                 }
-                suggestedNames+="<br>&emsp;]";
+                suggestedNames+="\n\t]";
             }
             else{
               response_code+="1";

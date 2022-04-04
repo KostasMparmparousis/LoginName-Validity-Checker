@@ -31,18 +31,18 @@ public class RoleFinderRoute implements Route {
     @Override
     public Object handle(Request req, Response res) throws Exception {
         ResponseMessages responses= new ResponseMessages();
+        CustomJsonReader jsonReader = new CustomJsonReader(req.body());
         String roleJson= "{";
         String message="";
         String roles="";
         String response_code="";
+        String response="";
 
 //        PropertyReader propReader= new PropertyReader(CONN_FILE_DIR+"/institution.properties");
 //        institution= propReader.getProperty("institution");
-        institution= req.session().attribute("institution");
-        String htmlResponse= "<html><head><meta charset=\"ISO-8859-1\"><title>Response</title><link rel=\"stylesheet\" href=\"../css/style.css\"></head><body>";
-        htmlResponse+="<header><h1 style=\"color: #ed7b42;\">Response</h1></header><hr class=\"new1\"><div class=\"sidenav\"><a href=\"../index.html\">Main Hub</a><a href=\"../validator.html\">Validator</a><a href=\"../proposer.html\">Proposer</a><a href=\"../roleFinder.html\">Finder</a></div><div class=\"main\">";
+        institution= jsonReader.readPropertyAsString("institution");
 
-        loginName = req.queryParams("loginName");
+        loginName = jsonReader.readPropertyAsString("loginName");
         String errorDescription="";
 
         if(loginName == null || loginName.trim().equals("")) {
@@ -70,12 +70,12 @@ public class RoleFinderRoute implements Route {
 
         if (response_code.equals("400")){
           closeViews();
-          message= "<br>&emsp;\"message\": \"" + errorDescription + "\"";
-          roleJson+= "<br>&emsp;\"Response code\" : " + response_code + ",";
+          message= "\n\t\"message\": \"" + errorDescription + "\"";
+          roleJson+= "\n\t\"Response code\" : " + response_code + ",";
           roleJson+=message;
-          htmlResponse+=roleJson;
-          htmlResponse+="<br>}</div></body></html>";
-          return htmlResponse;
+          response+=roleJson;
+          response+="\n}";
+          return response;
         }
 
         Views = new DBConnectionPool(institution);
@@ -94,7 +94,7 @@ public class RoleFinderRoute implements Route {
         }
         catch (Exception e){
             e.printStackTrace(System.err);
-            errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"  \"message\" : \"Could not connect to the SIS\"<br>}<br>";
+            errorJson="{\n\t\"Response code\" : 500,\n" +"  \"message\" : \"Could not connect to the SIS\"\n}\n";
         }
 
         try{
@@ -103,7 +103,7 @@ public class RoleFinderRoute implements Route {
         }
         catch (Exception e){
             e.printStackTrace(System.err);
-            errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"  \"message\" : \"Could not connect to the HRMS\"<br>}<br>";
+            errorJson="{\n\t\"Response code\" : 500,\n" +"  \"message\" : \"Could not connect to the HRMS\"\n}\n";
         }
 
         try{
@@ -112,31 +112,27 @@ public class RoleFinderRoute implements Route {
         }
         catch (Exception e){
             e.printStackTrace(System.err);
-            errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"  \"message\" : \"Could not connect to the HRMS2\"<br>}<br>";
+            errorJson="{\n\t\"Response code\" : 500,\n" +"  \"message\" : \"Could not connect to the HRMS2\"\n}\n";
         }
 
-        if (!errorJson.equals("")){
-          htmlResponse+=errorJson;
-          htmlResponse+="</div></body></html>";
-          return htmlResponse;
-        }
+        if (!errorJson.equals("")) return errorJson;
 
         if (existingSISOwners.isEmpty() && existingHRMSOwners.isEmpty() && existingHRMS2Owners.isEmpty()){
             response_code="000";
-            message= "<br>&emsp;\"message\": \"" + loginName + " not found in any Database\"";
+            message= "\n\t\"message\": \"" + loginName + " not found in any Database\"";
         }
         else {
             response_code="";
             boolean firstElem = true;
-            message= "<br>&emsp;\"message\": \"" + loginName + " found\",";
-            roles= "<br>&emsp;\"Roles\" : [";
+            message= "\n\t\"message\": \"" + loginName + " found\",";
+            roles= "\n\t\"Roles\" : [";
             if (!existingSISOwners.isEmpty()) {
                 if(firstElem){
                     firstElem = false;
                 }else{
                     roles += ",";
                 }
-                roles += "<br>&emsp;&emsp;";
+                roles += "\n\t\t";
                 roles += "\"Student\"";
                 response_code += "1";
             }
@@ -148,7 +144,7 @@ public class RoleFinderRoute implements Route {
                 }else{
                     roles += ",";
                 }
-                roles += "<br>&emsp;&emsp;";
+                roles += "\n\t\t";
                 roles += "\"Member of the Teaching Staff\"";
                 response_code += "1";
             }
@@ -160,21 +156,20 @@ public class RoleFinderRoute implements Route {
                 }else{
                     roles += ",";
                 }
-                roles += "<br>&emsp;&emsp;";
+                roles += "\n\t\t";
                 roles += "\"Associate\"";
                 response_code += "1";
             }
             else response_code += "0";
 
-            roles+="<br>&emsp;]";
+            roles+="\n\t]";
         }
-        roleJson+= "<br>&emsp;\"Response code\" : " + response_code + ",";
+        roleJson+= "\n\t\"Response code\" : " + response_code + ",";
         roleJson+=message;
         roleJson+=roles;
-        roleJson+="<br>}<br>";
-        htmlResponse+=roleJson;
-        htmlResponse+="</div></body></html>";
-        return htmlResponse;
+        roleJson+="\n}\n";
+        response+=roleJson;
+        return response;
     }
 
     public void closeViews(){

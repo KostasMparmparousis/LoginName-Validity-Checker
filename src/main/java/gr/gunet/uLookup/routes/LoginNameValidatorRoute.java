@@ -42,10 +42,11 @@ public class LoginNameValidatorRoute implements Route{
     @Override
     public Object handle(Request req, Response res) throws Exception{
         responses= new ResponseMessages();
+        CustomJsonReader jsonReader = new CustomJsonReader(req.body());
         responseCode="";
-        String loginName= req.queryParams("loginName");
+        String loginName= jsonReader.readPropertyAsString("loginName");
         String htmlContent="";
-        disabledGracePeriod= req.queryParams("disabledGracePeriod");
+        disabledGracePeriod= jsonReader.readPropertyAsString("disabledGracePeriod");
         if(disabledGracePeriod == null || disabledGracePeriod.trim().equals("")){
           disabledGracePeriod = null;
         }
@@ -54,19 +55,18 @@ public class LoginNameValidatorRoute implements Route{
             disabledGracePeriod= ld.toString();
             disabledGracePeriod= disabledGracePeriod.replace("-", "");
         }
-        institution= req.session().attribute("institution");
-
+        institution= jsonReader.readPropertyAsString("institution");
         RequestPerson reqPerson;
         try{
-            reqPerson = new RequestPerson(req);
+            reqPerson = new RequestPerson(jsonReader);
         }catch(Exception e){
             e.printStackTrace(System.err);
             String errorMessage=e.getMessage();
             closeViews();
             return responses.getValidatorResponse("400", errorMessage);
         }
-
         verbose=reqPerson.getVerbose();
+        
         System.out.println("-----------------------------------------------------------");
         System.out.println();
         System.out.println("Rquest Date and Time: " + java.time.LocalDateTime.now());
@@ -142,9 +142,9 @@ public class LoginNameValidatorRoute implements Route{
                 for(Conflict conflict : conflicts){
                     if(firstElem){
                         firstElem = false;
-                        responseContent+="[<br>";
+                        responseContent+="[\n";
                     }else{
-                        responseContent += ",<br>";
+                        responseContent += ",\n";
                     }
                     responseContent += conflict.toJson();
                 }
