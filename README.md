@@ -1,22 +1,35 @@
-# University-Registration-Companion.
-*University Registration Companion* is an all-around mechanism designed to assist the University Account creation procedure.
+# uLookup.
+The lifecycle of a university member usually starts with the registration in one of the following information systems, depending on the applicant's role: 
+* The **Student Information System** (***SIS***), for students.
+* The **Human Resource Management Software** (***HRMS***)  of the University, for faculty members, staff etc.
+* The **Human Resource Management Software of the Research Committee** (***ELKE***), for contractual staff, associates, researchers etc.
+* The **Directory Service** (***DS/LDAP***) for any other type of members that do not fit into any of the above categories such as the guests accounts.
 
-During the procedure of creating a new University Account, a loginName for the new account must be decided. Many university services use this loginName as a personal identifier and therefore it must be unique per person across multiple registries.
+This distributed schema of entry points, has been dictated mostly by the universities' organizational structure and the fact that the authoritative systems where you create, manage and delete identities, have been organized vertically i.e. one authoritative system for students, one for staff members, other of researchers etc. This design choice comes with its pros and cons. 
 
-These registries are:
-* The Student Information System (SIS).
-* The Human Resource Management Software (HRMS).
-* A Second Human Resource Management Software concerning only the
-Associates (HRMS2/Associates).
-* The Data Server (DS).
+<img src="https://i.ibb.co/jvfJCVF/test-1.png" alt="test-1" style="width: 66%;" border="0">
 
-The *University Registration Companion* assists the user in picking a suitable loginName during the account creation process by offering the following services/endpoints:
-* ***loginNameValidator/*** - checks if the provided loginName can be assigned to the specified person.
-* ***loginNameSuggester/*** - recommends a valid loginName for the specified person.
-* ***roleFinder/*** - provides information regarding the specified person's roles in the University (Student, Member of the Teaching Staff, Associate etc), if they already have such a role.
+ It is certainly more agile in many aspects considering that each system serves different types of requirements, however in terms of Identity Management introduces the problem of profiles reconciliation and complicates the personal identifiers management process, since there is no central registration office.
 
-The endpoints expect to receive a **JSON** formatted request and respond likewise.
+The most common personal identifier in the digital world is the principal name of the account, which is required to access the university's digital services i.e. the username. The username should be: 
+* **unique** per person/account across all university registries.
+* **human-palatable** in order to be rememberable and reproducible by typical human users.
+* **persistent** for the lifetime of the account or even more considering that the username:
+    * could be allocated at the registration phase, even before the account creation in the directory service (LDAP).
+    * may need to be reserved for a specific time period following the deprovisioning of the account from the directory service.
 
+**uLookup** is an all-around mechanism designed to **assist in the allocation of a username** to a new university member or to an additional account of an existing member. The service checks for the availability of a username across all authoritative identity sources and can notify for usernames that have already been paired with the same person on a another authoritative source, thus should be used instead. In addition, via the uLookup service the university can define a global policy regarding the format and the algorithm that should be used to construct a username.
+
+The intended users of the uLookup service are:
+* the application stacks of the four authoritative identity sources, which may access the service **via its API**.
+* the administrators of the institutional users' catalog (DS/LDAP) **via the uLookup web application**.
+
+*uLookup* offers the following services/endpoints:
+* **loginNameValidator** - checks if the provided loginName can be assigned to the specified person.
+* **loginNameProposer** - recommends a valid loginName for the specified person.
+* **roleFinder** - provides information regarding the specified person's roles in the University (Student, Member of the Teaching Staff, Associate etc), if they already have such a role.
+
+The endpoints respond with a **JSON** formatted answer. 
 ## Quick Start
 ### loginNameValidator
 During the procedure of creating a new University Account, one must examine whether a proposed loginName for that Account would generate any *conflicts* with the already present data across all 4 databases.  
