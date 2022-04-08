@@ -62,7 +62,7 @@ public class DBManager {
 
         return results;
     }
-
+    
     public void inactivate(){
         if(entityManager != null){
             entityManager.close();

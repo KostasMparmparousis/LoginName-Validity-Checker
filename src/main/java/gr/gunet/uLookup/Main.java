@@ -2,6 +2,7 @@ package gr.gunet.uLookup;
 import gr.gunet.uLookup.routes.security.ValidateToken;
 import gr.gunet.uLookup.filters.BasicAuthFilter;
 import gr.gunet.uLookup.routes.*;
+import gr.gunet.uLookup.routes.security.LogoutHandle;
 import spark.Request;
 import spark.Response;
 import spark.Spark;
@@ -34,8 +35,20 @@ public class Main implements SparkApplication {
             return;
         }
 
+        LogoutHandle logoutHandle;
+        try{
+            logoutHandle = new LogoutHandle();
+        }catch(Exception e){
+            e.printStackTrace(System.err);
+            Spark.stop();
+            return;
+        }
+
         Spark.post("/validate-token",validateToken);
         Spark.post("/validate-token/",validateToken);
+        Spark.post("/logout",logoutHandle);
+        Spark.post("/logout/",logoutHandle);
+
         Spark.post("/loginNameValidator/", new LoginNameValidatorRoute());
         Spark.post("/loginNameValidator", new LoginNameValidatorRoute());
         Spark.post("/loginNameProposer/", new LoginNameProposerRoute());

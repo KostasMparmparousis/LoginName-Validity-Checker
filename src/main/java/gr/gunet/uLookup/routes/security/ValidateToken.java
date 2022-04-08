@@ -6,7 +6,6 @@
 package gr.gunet.uLookup.routes.security;
 
 import gr.gunet.uLookup.ServerConfigurations;
-import gr.gunet.uLookup.ServerConfigurations;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.Base64;
@@ -17,13 +16,13 @@ import spark.Route;
 
 public class ValidateToken implements Route{
     private static final String DEFAULT_AUTH_TOKEN_FILE = "/etc/v_vd/tokens/authorizationTokens";
-    
+
     private final HashMap<String,String> keysToInstitutions;
-    
+
     public ValidateToken() throws Exception{
         this(DEFAULT_AUTH_TOKEN_FILE);
     }
-    
+
     public ValidateToken(String authorizationTokenFileName) throws Exception{
         FileReader tokenFReader = new FileReader(authorizationTokenFileName);
         BufferedReader tokenBReader = new BufferedReader(tokenFReader);
@@ -55,12 +54,12 @@ public class ValidateToken implements Route{
         
         return successfulValidationHandle(request, response, reqInstitution);
     }
-    
+
     private String failedValidationHandle(Request request,Response response){
         response.redirect(ServerConfigurations.getConfiguration("base_url")+"/error.html");
         return "{\"validated\":false}";
     }
-    
+
     private String successfulValidationHandle(Request request,Response response, String institution){
         request.session().attribute("authorized", "true");
         request.session().attribute("institution",institution);
