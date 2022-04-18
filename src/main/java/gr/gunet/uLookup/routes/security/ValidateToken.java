@@ -15,7 +15,7 @@ import spark.Route;
 import spark.Spark;
 
 public class ValidateToken implements Route{
-    private static final String AUTH_TOKEN_FILE = "/etc/v_vd/tokens/tokens";
+    private static final String AUTH_TOKEN_FILE = "/etc/v_vd/tokens/token";
 
     private final ArrayList<String> authenticationKeys;
 
@@ -35,7 +35,10 @@ public class ValidateToken implements Route{
 
     @Override
     public Object handle(Request request, Response response) throws Exception {
-        String password= request.headers("Authorization").split(" ")[1];
+        String password = "";
+        if (request.headers("Authorization")==null) return failedValidationHandle(request, response);
+        if (!request.headers("Authorization").contains(" ")) password= request.headers("Authorization");
+        else password= request.headers("Authorization").split(" ")[1];
         if(request.session().isNew() || request.session().attribute("authorized") == null || !request.session().attribute("authorized").equals("true")){
           if (!authenticationKeys.contains(password)) return failedValidationHandle(request, response);
         }

@@ -13,6 +13,7 @@ public class Main implements SparkApplication {
     public Main(){}
     @Override
     public void init(){
+        Spark.ipAddress("127.0.0.1");
         BasicAuthFilter authFilter = new BasicAuthFilter();
         Spark.before("/validator/", authFilter);
         Spark.before("/validator", authFilter);
