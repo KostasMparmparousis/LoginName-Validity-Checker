@@ -36,11 +36,19 @@ public class LoginNameProposerRoute implements Route {
     String responseJson;
     String personPairedWith;
     String suggestedNames;
-    public LoginNameProposerRoute() {
+    ResponseMessages responses;
+    public LoginNameProposerRoute(String institution) {
+      this.institution= institution;
     }
 
     @Override
     public Object handle(Request req, Response res) throws Exception {
+        responses=new ResponseMessages();
+        if (!req.session().attribute("authorized").equals("true")){
+          String errorMessage= "You were not authorized";
+          closeViews();
+          return responses.getValidatorResponse("401", errorMessage);
+        }
         ResponseMessages responses= new ResponseMessages();
         CustomJsonReader jsonReader = new CustomJsonReader(req.body());
         response_code="";
@@ -50,7 +58,6 @@ public class LoginNameProposerRoute implements Route {
         suggestedNames="";
         String response="";
 
-        institution= jsonReader.readPropertyAsString("institution");
         SSN = jsonReader.readPropertyAsString("ssn");
         SSNCountry = jsonReader.readPropertyAsString("ssnCountry");
         FN= jsonReader.readPropertyAsString("firstName");

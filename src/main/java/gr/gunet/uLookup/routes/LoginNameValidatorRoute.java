@@ -37,11 +37,18 @@ public class LoginNameValidatorRoute implements Route{
     String responseContent;
     String institution;
     ResponseMessages responses;
-    public LoginNameValidatorRoute() {
+    public LoginNameValidatorRoute(String institution) {
+      this.institution= institution;
     }
+
     @Override
     public Object handle(Request req, Response res) throws Exception{
         responses= new ResponseMessages();
+        if (!req.session().attribute("authorized").equals("true")){
+          String errorMessage= "You were not authorized";
+          closeViews();
+          return responses.getValidatorResponse("401", errorMessage);
+        }
         CustomJsonReader jsonReader = new CustomJsonReader(req.body());
         responseCode="";
         String loginName= jsonReader.readPropertyAsString("loginName");
@@ -55,7 +62,6 @@ public class LoginNameValidatorRoute implements Route{
             disabledGracePeriod= ld.toString();
             disabledGracePeriod= disabledGracePeriod.replace("-", "");
         }
-        institution= jsonReader.readPropertyAsString("institution");
         RequestPerson reqPerson;
         try{
             reqPerson = new RequestPerson(jsonReader);

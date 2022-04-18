@@ -23,7 +23,6 @@ public class RequestPerson implements AcademicPerson{
     private String gender;
     private String citizenship;
     private String loginName;
-    private String institution;
     private boolean verbose;
     public RequestPerson(CustomJsonReader jsonReader) throws Exception{
       this.ssn=new HashSet();
@@ -261,10 +260,6 @@ public class RequestPerson implements AcademicPerson{
     @Override
     public String getAcademicID() {
         return null;
-    }
-
-    public String getInstitution() {
-        return institution;
     }
 
     public Boolean getVerbose(){

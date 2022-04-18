@@ -25,22 +25,25 @@ public class RoleFinderRoute implements Route {
     String loginName;
     String institution;
     boolean onlyActive;
-    public RoleFinderRoute() {
+    ResponseMessages responses;
+    public RoleFinderRoute(String institution) {
+      this.institution= institution;
     }
 
     @Override
     public Object handle(Request req, Response res) throws Exception {
-        ResponseMessages responses= new ResponseMessages();
+        responses= new ResponseMessages();
+        if (!req.session().attribute("authorized").equals("true")){
+          String errorMessage= "You were not authorized";
+          closeViews();
+          return responses.getValidatorResponse("401", errorMessage);
+        }
         CustomJsonReader jsonReader = new CustomJsonReader(req.body());
         String roleJson= "{";
         String message="";
         String roles="";
         String response_code="";
         String response="";
-
-//        PropertyReader propReader= new PropertyReader(CONN_FILE_DIR+"/institution.properties");
-//        institution= propReader.getProperty("institution");
-        institution= jsonReader.readPropertyAsString("institution");
 
         loginName = jsonReader.readPropertyAsString("loginName");
         String errorDescription="";

@@ -83,7 +83,7 @@ public class ResponseMessages {
         response_code = formattedString(response_code, 1) + ",";
         String message="";
 
-        if (!code.equals("500") && !code.equals("400")){
+        if (!code.equals("500") && !code.equals("400") && !code.equals("401")){
             message= "\"Message\": \"" + getValidatorMessage(code)+ "\"";
             message = formattedString(message,1);
             message+=content;

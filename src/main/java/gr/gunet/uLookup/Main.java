@@ -6,10 +6,10 @@ import spark.Spark;
 import spark.servlet.SparkApplication;
 import spark.staticfiles.StaticFilesConfiguration;
 import gr.gunet.uLookup.filters.BasicAuthFilter;
-import gr.gunet.uLookup.routes.security.ValidateToken;
-
+import gr.gunet.uLookup.tools.CommandLineParser;
 
 public class Main implements SparkApplication {
+    String institution = null;
     public Main(){}
     @Override
     public void init(){
@@ -21,24 +21,12 @@ public class Main implements SparkApplication {
         Spark.before("/finder/", authFilter);
         Spark.before("/finder", authFilter);
 
-        ValidateToken validateToken;
-        try{
-            validateToken = new ValidateToken();
-        }catch(Exception e){
-            e.printStackTrace(System.err);
-            Spark.stop();
-            return;
-        }
-
-        Spark.post("/validate-token",validateToken);
-        Spark.post("/validate-token/",validateToken);
-
-        Spark.post("/validator/", new LoginNameValidatorRoute());
-        Spark.post("/validator", new LoginNameValidatorRoute());
-        Spark.post("/proposer/", new LoginNameProposerRoute());
-        Spark.post("/proposer", new LoginNameProposerRoute());
-        Spark.post("/finder/", new RoleFinderRoute());
-        Spark.post("/finder", new RoleFinderRoute());
+        Spark.post("/validator/", new LoginNameValidatorRoute(institution));
+        Spark.post("/validator", new LoginNameValidatorRoute(institution));
+        Spark.post("/proposer/", new LoginNameProposerRoute(institution));
+        Spark.post("/proposer", new LoginNameProposerRoute(institution));
+        Spark.post("/finder/", new RoleFinderRoute(institution));
+        Spark.post("/finder", new RoleFinderRoute(institution));
         Spark.get("/help/", new HelpPageRoute());
         Spark.get("/help", new HelpPageRoute());
 
@@ -50,6 +38,13 @@ public class Main implements SparkApplication {
     public void destroy(){}
 
     public static void main(String[] args){
-        new Main().init();
+        CommandLineParser clp = new CommandLineParser(args);
+        Main Application= new Main();
+        Application.getInstitution(clp);
+        Application.init();
+    }
+
+    public void getInstitution(CommandLineParser clp){
+      institution=clp.getInstitution();
     }
 }
