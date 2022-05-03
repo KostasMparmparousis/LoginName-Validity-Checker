@@ -3,7 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package gr.gunet.uLookup.filters;
-//import gr.gunet.uLookup.ServerConfigurations;
+import gr.gunet.uLookup.ServerConfigurations;
 import gr.gunet.uLookup.routes.security.ValidateToken;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -14,10 +14,17 @@ import spark.Spark;
 
 public class BasicAuthFilter implements Filter{
     ValidateToken validateToken;
+    String institution;
+    ServerConfigurations configs;
+  public BasicAuthFilter(String institution, ServerConfigurations configs) {
+    this.institution= institution;
+    this.configs=configs;
+  }
+    
     @Override
     public void handle(Request request,Response response) throws Exception {
         try{
-            validateToken = new ValidateToken();
+            validateToken = new ValidateToken(institution);
         }catch(Exception e){
             e.printStackTrace(System.err);
             Spark.stop();
@@ -37,7 +44,11 @@ public class BasicAuthFilter implements Filter{
     
     private void unauthorizedHandle(Request request,Response response) throws Exception{
         try {
-          validateToken.handle(request, response);
+          if (request.headers("Authorization")!=null) validateToken.handle(request, response);
+          else{
+            request.session().attribute("originalDestination", request.uri());
+            response.redirect(configs.getConfiguration("base_url")+"/loginPage.html");
+          }
         } catch (Exception ex) {
           Logger.getLogger(BasicAuthFilter.class.getName()).log(Level.SEVERE, null, ex);
         }

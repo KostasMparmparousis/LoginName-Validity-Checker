@@ -29,6 +29,7 @@ import spark.Route;
 import spark.Spark;
 
 public class LoginNameValidatorRoute implements Route{
+    boolean fromWeb;
     DBConnectionPool Views;
     LdapConnectionPool ldapDS;
     boolean verbose= false;
@@ -43,33 +44,64 @@ public class LoginNameValidatorRoute implements Route{
 
     @Override
     public Object handle(Request req, Response res) throws Exception{
-        responses= new ResponseMessages();
+        String title="";
+        responses= new ResponseMessages(req.session().attribute("web"));
+        RequestPerson reqPerson;
         if (!req.session().attribute("authorized").equals("true")){
           String errorMessage= "You were not authorized";
           closeViews();
-          return responses.getValidatorResponse("401", errorMessage);
+          return responses.getResponse("401", errorMessage, title);
         }
-        CustomJsonReader jsonReader = new CustomJsonReader(req.body());
-        responseCode="";
-        String loginName= jsonReader.readPropertyAsString("loginName");
         String htmlContent="";
-        disabledGracePeriod= jsonReader.readPropertyAsString("disabledGracePeriod");
-        if(disabledGracePeriod == null || disabledGracePeriod.trim().equals("")){
-          disabledGracePeriod = null;
+        responseCode="";
+
+        if (!req.session().attribute("web").equals("true")){
+          fromWeb=false;
+          res.type("application/json");
+          CustomJsonReader jsonReader = new CustomJsonReader(req.body());
+          String loginName= jsonReader.readPropertyAsString("loginName");
+          
+          disabledGracePeriod= jsonReader.readPropertyAsString("disabledGracePeriod");
+          if(disabledGracePeriod == null || disabledGracePeriod.trim().equals("")){
+            disabledGracePeriod = null;
+          }
+          else if (disabledGracePeriod.length()<3){
+              LocalDate ld = java.time.LocalDate.now().minusMonths(Integer.parseInt(req.queryParams("disabledGracePeriod")));
+              disabledGracePeriod= ld.toString();
+              disabledGracePeriod= disabledGracePeriod.replace("-", "");
+          }
+          try{
+              reqPerson = new RequestPerson(jsonReader);
+          }catch(Exception e){
+              e.printStackTrace(System.err);
+              String errorMessage=e.getMessage();
+              closeViews();
+              return responses.getResponse("400", errorMessage, title);
+          }
         }
-        else if (disabledGracePeriod.length()<3){
-            LocalDate ld = java.time.LocalDate.now().minusMonths(Integer.parseInt(req.queryParams("disabledGracePeriod")));
-            disabledGracePeriod= ld.toString();
-            disabledGracePeriod= disabledGracePeriod.replace("-", "");
-        }
-        RequestPerson reqPerson;
-        try{
-            reqPerson = new RequestPerson(jsonReader);
-        }catch(Exception e){
-            e.printStackTrace(System.err);
-            String errorMessage=e.getMessage();
-            closeViews();
-            return responses.getValidatorResponse("400", errorMessage);
+        else{
+          fromWeb=true;
+          res.type("text/html");
+          String loginName= req.queryParams("loginName");
+          disabledGracePeriod= req.queryParams("disabledGracePeriod");
+
+          if(disabledGracePeriod == null || disabledGracePeriod.trim().equals("")){
+            disabledGracePeriod = null;
+          }
+          else if (disabledGracePeriod.length()<3){
+              LocalDate ld = java.time.LocalDate.now().minusMonths(Integer.parseInt(req.queryParams("disabledGracePeriod")));
+              disabledGracePeriod= ld.toString();
+              disabledGracePeriod= disabledGracePeriod.replace("-", "");
+          }
+
+          try{
+            reqPerson = new RequestPerson(req);
+          }catch(Exception e){
+              e.printStackTrace(System.err);
+              String errorMessage=e.getMessage();
+              closeViews();
+              return responses.getResponse("400", errorMessage, title);
+          }
         }
         verbose=reqPerson.getVerbose();
         
@@ -104,7 +136,7 @@ public class LoginNameValidatorRoute implements Route{
                 System.out.println("-message: \"" + uid + "already exists while not following the typical DS Account generation procedure\"");
                 System.out.println("-----------------------------------------------------------");
                 System.out.println();
-                return responses.getValidatorResponse("300", "");
+                return responses.getResponse("300", "", title);
             }
         }
         catch(Exception e){
@@ -114,7 +146,7 @@ public class LoginNameValidatorRoute implements Route{
             System.out.println("-message: " + "\"Could not connect to the DS\"");
             System.out.println("-----------------------------------------------------------");
             System.out.println();
-            return responses.getValidatorResponse("500", "DS");
+            return responses.getResponse("500", "DS", title);
         }
 
         Collection<Conflict> conflicts;
@@ -126,7 +158,7 @@ public class LoginNameValidatorRoute implements Route{
             System.out.println("-Response code: " + responseCode);
             System.out.println("-----------------------------------------------------------");
             System.out.println();
-            return responses.getValidatorResponse(responseCode, responseContent);
+            return responses.getResponse(responseCode, responseContent, title);
         }catch(Exception e){
             e.printStackTrace(System.err);
             String errorSource= e.getMessage();
@@ -134,7 +166,7 @@ public class LoginNameValidatorRoute implements Route{
             System.out.println("-message: " + "\"Could not connect to the " + errorSource + "\"");
             System.out.println("-----------------------------------------------------------");
             System.out.println();
-            return responses.getValidatorResponse("500", errorSource);
+            return responses.getResponse("500", errorSource, title);
         }
     }
 
@@ -152,7 +184,7 @@ public class LoginNameValidatorRoute implements Route{
                     }else{
                         responseContent += ",\n";
                     }
-                    responseContent += conflict.toJson();
+                    responseContent += conflict.toJson(fromWeb);
                 }
                 responseContent+= responses.formattedString("]", 1);
             }

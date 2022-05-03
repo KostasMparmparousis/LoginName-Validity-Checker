@@ -25,6 +25,7 @@ import spark.Route;
 public class LoginNameProposerRoute implements Route {
     DBConnectionPool Views;
     LdapConnectionPool ldapDS;
+    boolean fromWeb;
     String SSN;
     String SSNCountry;
     String FN;
@@ -43,25 +44,36 @@ public class LoginNameProposerRoute implements Route {
 
     @Override
     public Object handle(Request req, Response res) throws Exception {
-        responses=new ResponseMessages();
-        if (!req.session().attribute("authorized").equals("true")){
-          String errorMessage= "You were not authorized";
-          closeViews();
-          return responses.getValidatorResponse("401", errorMessage);
-        }
-        ResponseMessages responses= new ResponseMessages();
-        CustomJsonReader jsonReader = new CustomJsonReader(req.body());
+        responses= new ResponseMessages(req.session().attribute("web"));
+        String title="Suggested LoginNames";
+        String response="";
         response_code="";
         message="";
         responseJson="";
         personPairedWith="";
         suggestedNames="";
-        String response="";
-
-        SSN = jsonReader.readPropertyAsString("ssn");
-        SSNCountry = jsonReader.readPropertyAsString("ssnCountry");
-        FN= jsonReader.readPropertyAsString("firstName");
-        LN= jsonReader.readPropertyAsString("lastName");
+        if (!req.session().attribute("authorized").equals("true")){
+          String errorMessage= "You were not authorized";
+          closeViews();
+          return responses.getResponse("401", errorMessage, title);
+        }
+        if (!req.session().attribute("web").equals("true")){
+          fromWeb=false;
+          res.type("application/json");
+          CustomJsonReader jsonReader = new CustomJsonReader(req.body());
+          SSN = jsonReader.readPropertyAsString("ssn");
+          SSNCountry = jsonReader.readPropertyAsString("ssnCountry");
+          FN= jsonReader.readPropertyAsString("firstName");
+          LN= jsonReader.readPropertyAsString("lastName");
+        }
+        else{
+          fromWeb=true;
+          res.type("text/html");
+          SSN = req.queryParams("ssn");
+          SSNCountry = req.queryParams("ssnCountry");
+          FN= req.queryParams("firstName");
+          LN= req.queryParams("lastName");
+        }
 
         Views= new DBConnectionPool(institution);
         ldapDS= new LdapConnectionPool(institution);
@@ -79,30 +91,13 @@ public class LoginNameProposerRoute implements Route {
         LdapManager ldap=null;
 
         if (!findErrors().equals("")){
-          String returnJson="{";
-          response_code="400";
-          message= "\n\t\"message\": \"" + findErrors() + "\"";
-          returnJson+= "\n\t\"Response code\" : " + response_code+ ",";
-          returnJson+=message;
-          returnJson+="\n}";
-          response=returnJson;
-          return response;
+          return responses.getResponse("400", findErrors(), title);
         }
         if (SSN.trim().equals("") || SSNCountry.trim().equals("")){
           response_code+="3";
-          message= "\n\t\"message\":\"";
-          if (SSN.trim().equals("")) message+= "SSN not given, ";
-          if (SSNCountry.trim().equals("")) message+="SSNCountry not given, ";
           int exit_code= generateNames();
-          String returnJson="{";
           response_code+="0";
-          returnJson+= "\n\t\"Response code\" : " + response_code+ ",";
-          returnJson+=message;
-          responseJson+=suggestedNames;
-          returnJson+=responseJson;
-          returnJson+="\n}";
-          response+=returnJson;
-          return response;
+          return responses.getResponse(response_code, suggestedNames, title);
         }
 
         try{
@@ -111,7 +106,12 @@ public class LoginNameProposerRoute implements Route {
         }
         catch (Exception e){
             e.printStackTrace(System.err);
-            errorJson="{\n\t\"Response code\" : 500," +"\n\t\"message\" : \"Could not connect to the SIS\"\n}\n";
+            closeViews();
+            System.out.println("-Response code: 500");
+            System.out.println("-message: " + "\"Could not connect to the SIS\"");
+            System.out.println("-----------------------------------------------------------");
+            System.out.println();
+            return responses.getResponse("500", "SIS", title);
         }
 
         try{
@@ -120,7 +120,12 @@ public class LoginNameProposerRoute implements Route {
         }
         catch (Exception e){
             e.printStackTrace(System.err);
-            errorJson="{\n\t\"Response code\" : 500," +"\n\t\"message\" : \"Could not connect to the HRMS\"\n}\n";
+            closeViews();
+            System.out.println("-Response code: 500");
+            System.out.println("-message: " + "\"Could not connect to the HRMS\"");
+            System.out.println("-----------------------------------------------------------");
+            System.out.println();
+            return responses.getResponse("500", "HRMS", title);
         }
 
         try{
@@ -129,7 +134,12 @@ public class LoginNameProposerRoute implements Route {
         }
         catch (Exception e){
             e.printStackTrace(System.err);
-            errorJson="{\n\t\"Response code\" : 500," +"\n\t\"message\" : \"Could not connect to ELKE\"\n}\n";
+            closeViews();
+            System.out.println("-Response code: 500");
+            System.out.println("-message: " + "\"Could not connect to the HRMS\"");
+            System.out.println("-----------------------------------------------------------");
+            System.out.println();
+            return responses.getResponse("500", "ELKE", title);
         }
 
         try{
@@ -138,25 +148,27 @@ public class LoginNameProposerRoute implements Route {
         }
         catch (Exception e){
             e.printStackTrace(System.err);
-            errorJson="{\n\t\"Response code\" : 500," +"\n\t\"message\" : \"Could not connect to the DS\"\n}\n";
-        }
-
-        if (!errorJson.equals("")){
-          response+=errorJson;
-          return response;
+            closeViews();
+            System.out.println("-Response code: 500");
+            System.out.println("-message: " + "\"Could not connect to the DS\"");
+            System.out.println("-----------------------------------------------------------");
+            System.out.println();
+            return responses.getResponse("500", "DS", title);
         }
 
         Vector<String> existingUserNames= new Vector<String>();
         if (!existingOwners.isEmpty() || !existingDSOwners.isEmpty()) {
             response_code+="1";
-            personPairedWith= "\n\t\"personPairedWith\": [";
+            if (!fromWeb) personPairedWith= "\n\t\"personPairedWith\": [";
+            else personPairedWith= "<br>&emsp;\"personPairedWith\": [";
             boolean firstElem = true;
             if (!existingOwners.isEmpty()) {
                 for (AcademicPerson person : existingOwners) {
                     if (!existingUserNames.contains(person.getLoginName())) {
                         if (firstElem) firstElem = false;
                         else personPairedWith += ",";
-                        personPairedWith += "\n\t\t";
+                        if (!fromWeb) personPairedWith += "\n\t\t";
+                        else personPairedWith += "<br>&emsp;&emsp;";
                         personPairedWith += "\"" + person.getLoginName() + "\"";
                         existingUserNames.add(person.getLoginName());
                     }
@@ -168,29 +180,23 @@ public class LoginNameProposerRoute implements Route {
                     if (!existingUserNames.contains(uid)) {
                         if (firstElem) firstElem = false;
                         else personPairedWith += ",";
-                        personPairedWith += "\n\t\t";
+                        if (!fromWeb) personPairedWith += "\n\t\t";
+                        else personPairedWith += "<br>&emsp;&emsp;";
                         personPairedWith += "\"" + uid + "\"";
                         existingUserNames.add(uid);
                     }
                 }
             }
-            personPairedWith += "\n\t]";
-            message= "\n\t\"message\": \"" + SSN + "-" + SSNCountry + " is already paired with at least 1 loginName, ";
+            if (!fromWeb) personPairedWith += "\n\t]";
+            else personPairedWith += "<br>&emsp;]";
         }else{
             response_code+="2";
-            message= "\n\t\"message\": \"" + SSN + "-" + SSNCountry + " combination not found in any Database, ";
         }
         int exit_code= generateNames();
         responseJson+=personPairedWith;
         responseJson+=suggestedNames;
-        String returnJson="{";
         response_code+="0";
-        returnJson+= "\n\t\"Response code\" : " + response_code+ ",";
-        returnJson+=message;
-        returnJson+=responseJson;
-        returnJson+="\n}";
-        response+=returnJson;
-        return response;
+        return responses.getResponse(response_code, responseJson, title);
     }
     
     public String findErrors(){
@@ -260,7 +266,8 @@ public class LoginNameProposerRoute implements Route {
                 response_code+="0";
                 message+= "Generator managed to create suggested names\",";
                 if (!personPairedWith.equals("")) personPairedWith+=",";
-                suggestedNames = "\n\t\"suggestions\":\t[";
+                if (!fromWeb) suggestedNames = "\n\t\"suggestions\":\t[";
+                else suggestedNames = "<br>&emsp;\"suggestions\":&emsp;[";
                 for(String login : proposedNames){
                     if (loginGen.checkIfUserNameExists(login, Views, ldapDS, disabledGracePeriod)) continue;
                     if(firstElem){
@@ -268,10 +275,12 @@ public class LoginNameProposerRoute implements Route {
                     }else{
                         suggestedNames += ",";
                     }
-                    suggestedNames +="\n\t\t";
+                    if (!fromWeb) suggestedNames +="\n\t\t";
+                    else suggestedNames +="<br>&emsp;&emsp;";
                     suggestedNames += "\""+login+"\"";
                 }
-                suggestedNames+="\n\t]";
+                if (!fromWeb) suggestedNames+="\n\t]";
+                else suggestedNames+="<br>&emsp;]";
             }
             else{
               response_code+="1";
