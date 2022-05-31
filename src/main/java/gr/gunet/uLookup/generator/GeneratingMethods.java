@@ -11,7 +11,6 @@ public class GeneratingMethods {
     String prefix;
     String FNplacement;
     String LNplacement;
-    String inscriptionYear;
     String firstName;
     String lastName;
 
@@ -33,7 +32,7 @@ public class GeneratingMethods {
         this.LNplacement=LNplacement;
         if (dsPerson.getAttribute("displayName")!=null) {
             String displayName = dsPerson.getAttribute("displayName").getStringValue();
-            String names[] = displayName.split(" ");
+            String[] names = displayName.split(" ");
             this.firstName = names[0];
             this.lastName = names[1];
         }
@@ -167,7 +166,7 @@ public class GeneratingMethods {
                 N=Name.substring(length-chars , length);
                 break;
             default:
-                int randomInd=0;
+                int randomInd;
                 do{
                     randomInd= rand.nextInt(length - chars + 1);
                 } while((randomInd+chars)>length);

@@ -1,19 +1,11 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package gr.gunet.uLookup.routes.security;
 import gr.gunet.uLookup.ServerConfigurations;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Set;
 import spark.Request;
 import spark.Response;
 import spark.Route;
-import spark.Spark;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.ArrayList;
 
 public class ValidateToken implements Route{
     private static final String API_TOKEN_FILE = "/etc/v_vd/tokens/apiAccessKey";
@@ -67,8 +59,8 @@ public class ValidateToken implements Route{
     }
 
     @Override
-    public Object handle(Request request, Response response) throws Exception {
-        String password="";
+    public Object handle(Request request, Response response) {
+        String password;
         fromWeb=false;
         if (request.queryParams("password")!=null) {
           request.session().attribute("web", "true");
@@ -98,7 +90,7 @@ public class ValidateToken implements Route{
     
     private Boolean failedValidationHandle(Request request,Response response){
         request.session().attribute("authorized", "false");
-        if (fromWeb) response.redirect(configs.getConfiguration("base_url")+"/error.html");
+        if (fromWeb) response.redirect(ServerConfigurations.getConfiguration("base_url")+"/error.html");
         return false;
     }
 
@@ -110,9 +102,9 @@ public class ValidateToken implements Route{
 
         if (fromWeb){
           if(redirectTo == null || redirectTo.equals("")){
-              response.redirect(configs.getConfiguration("base_url")+"/index.html");
+              response.redirect(ServerConfigurations.getConfiguration("base_url")+"/index.html");
           }else{
-              response.redirect(configs.getConfiguration("base_url")+ redirectTo);
+              response.redirect(ServerConfigurations.getConfiguration("base_url")+ redirectTo);
           }
         }
         return true;

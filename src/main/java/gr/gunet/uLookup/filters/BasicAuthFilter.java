@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package gr.gunet.uLookup.filters;
 import gr.gunet.uLookup.ServerConfigurations;
 import gr.gunet.uLookup.routes.security.ValidateToken;
@@ -22,7 +18,7 @@ public class BasicAuthFilter implements Filter{
   }
     
     @Override
-    public void handle(Request request,Response response) throws Exception {
+    public void handle(Request request,Response response) {
         try{
             validateToken = new ValidateToken(institution);
         }catch(Exception e){
@@ -42,12 +38,12 @@ public class BasicAuthFilter implements Filter{
         }
     }
     
-    private void unauthorizedHandle(Request request,Response response) throws Exception{
+    private void unauthorizedHandle(Request request,Response response) {
         try {
           if (request.headers("Authorization")!=null) validateToken.handle(request, response);
           else{
             request.session().attribute("originalDestination", request.uri());
-            response.redirect(configs.getConfiguration("base_url")+"/loginPage.html");
+            response.redirect(ServerConfigurations.getConfiguration("base_url")+"/loginPage.html");
           }
         } catch (Exception ex) {
           Logger.getLogger(BasicAuthFilter.class.getName()).log(Level.SEVERE, null, ex);

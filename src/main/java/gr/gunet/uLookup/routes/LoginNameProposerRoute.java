@@ -1,6 +1,4 @@
 package gr.gunet.uLookup.routes;
-import com.google.gson.Gson;
-import gr.gunet.uLookup.RequestPerson;
 import gr.gunet.uLookup.generator.UserNameGen;
 import gr.gunet.uLookup.tools.CustomJsonReader;
 import gr.gunet.uLookup.AcademicPerson;
@@ -10,10 +8,6 @@ import gr.gunet.uLookup.db.SISDBView;
 import gr.gunet.uLookup.db.DBConnectionPool;
 import gr.gunet.uLookup.ldap.LdapManager;
 import gr.gunet.uLookup.ldap.LdapConnectionPool;
-import gr.gunet.uLookup.tools.PropertyReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import org.ldaptive.LdapEntry;
 
 import java.util.Collection;
@@ -38,15 +32,15 @@ public class LoginNameProposerRoute implements Route {
     String personPairedWith;
     String suggestedNames;
     ResponseMessages responses;
+    String title;
     public LoginNameProposerRoute(String institution) {
       this.institution= institution;
     }
 
     @Override
-    public Object handle(Request req, Response res) throws Exception {
+    public Object handle(Request req, Response res) {
         responses= new ResponseMessages(req.session().attribute("web"));
-        String title="Suggested LoginNames";
-        String response="";
+        title="Suggested LoginNames";
         response_code="";
         message="";
         responseJson="";
@@ -78,85 +72,54 @@ public class LoginNameProposerRoute implements Route {
         Views= new DBConnectionPool(institution);
         ldapDS= new LdapConnectionPool(institution);
 
-        Collection<AcademicPerson> existingOwners = new Vector<AcademicPerson>();
-        Collection<LdapEntry> existingDSOwners = new Vector<LdapEntry>();
+        Collection<AcademicPerson> existingOwners;
+        Collection<LdapEntry> existingDSOwners = new Vector<>();
 
-        String foundJson= "{";
         message="";
-        String errorJson="";
-
-        SISDBView sis=null;
-        HRMSDBView hrms=null;
-        HRMSDBView hrms2=null;
-        LdapManager ldap=null;
 
         if (!findErrors().equals("")){
           return responses.getResponse("400", findErrors(), title);
         }
         if (SSN.trim().equals("") || SSNCountry.trim().equals("")){
           response_code+="3";
-          int exit_code= generateNames();
+          generateNames();
           response_code+="0";
           return responses.getResponse(response_code, suggestedNames, title);
         }
 
         try{
-          sis = Views.getSISConn();
-          existingOwners.addAll(sis.fetchAll(SSN, SSNCountry));
+            SISDBView sis = Views.getSISConn();
+            existingOwners = new Vector<>(sis.fetchAll(SSN, SSNCountry));
         }
         catch (Exception e){
-            e.printStackTrace(System.err);
-            closeViews();
-            System.out.println("-Response code: 500");
-            System.out.println("-message: " + "\"Could not connect to the SIS\"");
-            System.out.println("-----------------------------------------------------------");
-            System.out.println();
-            return responses.getResponse("500", "SIS", title);
+            return errorMessage(e,"SIS");
         }
 
         try{
-          hrms = Views.getHRMSConn();
-          if (hrms != null) existingOwners.addAll(hrms.fetchAll(SSN, SSNCountry));
+            HRMSDBView hrms = Views.getHRMSConn();
+            if (hrms != null) existingOwners.addAll(hrms.fetchAll(SSN, SSNCountry));
         }
         catch (Exception e){
-            e.printStackTrace(System.err);
-            closeViews();
-            System.out.println("-Response code: 500");
-            System.out.println("-message: " + "\"Could not connect to the HRMS\"");
-            System.out.println("-----------------------------------------------------------");
-            System.out.println();
-            return responses.getResponse("500", "HRMS", title);
+            return errorMessage(e,"HRMS");
         }
 
         try{
-          hrms2 = Views.getHRMS2Conn();
-          if (hrms2 != null) existingOwners.addAll(hrms2.fetchAll(SSN, SSNCountry));
+            HRMSDBView hrms2 = Views.getHRMS2Conn();
+            if (hrms2 != null) existingOwners.addAll(hrms2.fetchAll(SSN, SSNCountry));
         }
         catch (Exception e){
-            e.printStackTrace(System.err);
-            closeViews();
-            System.out.println("-Response code: 500");
-            System.out.println("-message: " + "\"Could not connect to the HRMS\"");
-            System.out.println("-----------------------------------------------------------");
-            System.out.println();
-            return responses.getResponse("500", "ELKE", title);
+            return errorMessage(e,"ELKE");
         }
 
         try{
-          ldap = ldapDS.getConn();
-          if (SSNCountry.equals("GR")) existingDSOwners.addAll(ldap.search(ldap.createSearchFilter("schGrAcPersonSSN=" + SSN)));
+            LdapManager ldap = ldapDS.getConn();
+            if (SSNCountry.equals("GR")) existingDSOwners.addAll(ldap.search(ldap.createSearchFilter("schGrAcPersonSSN=" + SSN)));
         }
         catch (Exception e){
-            e.printStackTrace(System.err);
-            closeViews();
-            System.out.println("-Response code: 500");
-            System.out.println("-message: " + "\"Could not connect to the DS\"");
-            System.out.println("-----------------------------------------------------------");
-            System.out.println();
-            return responses.getResponse("500", "DS", title);
+            return errorMessage(e,"DS");
         }
 
-        Vector<String> existingUserNames= new Vector<String>();
+        Vector<String> existingUserNames= new Vector<>();
         if (!existingOwners.isEmpty() || !existingDSOwners.isEmpty()) {
             response_code+="1";
             if (!fromWeb) personPairedWith= "\n\t\"personPairedWith\": [";
@@ -166,33 +129,33 @@ public class LoginNameProposerRoute implements Route {
                 for (AcademicPerson person : existingOwners) {
                     if (!existingUserNames.contains(person.getLoginName())) {
                         if (firstElem) firstElem = false;
-                        else personPairedWith += ",";
-                        if (!fromWeb) personPairedWith += "\n\t\t";
-                        else personPairedWith += "<br>&emsp;&emsp;";
-                        personPairedWith += "\"" + person.getLoginName() + "\"";
+                        else personPairedWith = personPairedWith.concat(",");
+                        if (!fromWeb) personPairedWith = personPairedWith.concat("\n\t\t");
+                        else personPairedWith = personPairedWith.concat("<br>&emsp;&emsp;");
+                        personPairedWith = personPairedWith.concat("\"" + person.getLoginName() + "\"");
                         existingUserNames.add(person.getLoginName());
                     }
                 }
             }
-            else if (!existingDSOwners.isEmpty()) {
+            if (!existingDSOwners.isEmpty()) {
                 for (LdapEntry person : existingDSOwners) {
                     String uid = person.getAttribute("uid").getStringValue();
                     if (!existingUserNames.contains(uid)) {
                         if (firstElem) firstElem = false;
-                        else personPairedWith += ",";
-                        if (!fromWeb) personPairedWith += "\n\t\t";
-                        else personPairedWith += "<br>&emsp;&emsp;";
-                        personPairedWith += "\"" + uid + "\"";
+                        else personPairedWith = personPairedWith.concat( ",");
+                        if (!fromWeb) personPairedWith = personPairedWith.concat("\n\t\t");
+                        else personPairedWith = personPairedWith.concat("<br>&emsp;&emsp;");
+                        personPairedWith = personPairedWith.concat("\"" + uid + "\"");
                         existingUserNames.add(uid);
                     }
                 }
             }
-            if (!fromWeb) personPairedWith += "\n\t]";
-            else personPairedWith += "<br>&emsp;]";
+            if (!fromWeb) personPairedWith = personPairedWith.concat("\n\t]");
+            else personPairedWith = personPairedWith.concat("<br>&emsp;]");
         }else{
             response_code+="2";
         }
-        int exit_code= generateNames();
+        generateNames();
         responseJson+=personPairedWith;
         responseJson+=suggestedNames;
         response_code+="0";
@@ -215,7 +178,7 @@ public class LoginNameProposerRoute implements Route {
       else if (Name.length() < 2 || Name.length() > 20){
         return "Name length outside character limits.";
       }
-      else if (!Name.matches("[a-z0-9]+")){
+      else if (!Name.matches("[a-z\\d]+")){
         for(int i=0;i<Name.length();i++){
             char ch = Name.charAt(i);
             if(Character.isUpperCase(ch)){
@@ -227,26 +190,20 @@ public class LoginNameProposerRoute implements Route {
       return "";
     }
 
-    public int generateNames(){
-        Collection<AcademicPerson> existingOwners = new Vector<AcademicPerson>();
-        Collection<LdapEntry> existingDSOwners = new Vector<LdapEntry>();
-        int exit_code=0;
-        SISDBView sis=null;
-        HRMSDBView hrms=null;
-        HRMSDBView hrms2=null;
-        LdapManager ldap=null;
-        Vector<String> proposedNames =new Vector<String>();
+    public void generateNames(){
+        Collection<LdapEntry> existingDSOwners = new Vector<>();
+        Vector<String> proposedNames = new Vector<>();
         UserNameGen loginGen = null;
         boolean firstElem = true;
         try {
-            sis = Views.getSISConn();
-            hrms = Views.getHRMSConn();
-            hrms2 = Views.getHRMS2Conn();
-            ldap = ldapDS.getConn();
+            SISDBView sis = Views.getSISConn();
+            HRMSDBView hrms = Views.getHRMSConn();
+            HRMSDBView hrms2 = Views.getHRMS2Conn();
+            LdapManager ldap = ldapDS.getConn();
 
             if (FN.trim().equals("") || LN.trim().equals("")){
                 if (!SSN.trim().equals("") && !SSNCountry.trim().equals("")){
-                    existingOwners.addAll(sis.fetchAll(SSN, SSNCountry));
+                    Collection<AcademicPerson> existingOwners = new Vector<>(sis.fetchAll(SSN, SSNCountry));
                     if (hrms != null) existingOwners.addAll(hrms.fetchAll(SSN, SSNCountry));
                     if (hrms2 != null) existingOwners.addAll(hrms2.fetchAll(SSN, SSNCountry));
                     if ( SSNCountry.equals("GR") ){
@@ -273,14 +230,14 @@ public class LoginNameProposerRoute implements Route {
                     if(firstElem){
                         firstElem = false;
                     }else{
-                        suggestedNames += ",";
+                        suggestedNames= suggestedNames.concat(",");
                     }
-                    if (!fromWeb) suggestedNames +="\n\t\t";
-                    else suggestedNames +="<br>&emsp;&emsp;";
-                    suggestedNames += "\""+login+"\"";
+                    if (!fromWeb) suggestedNames= suggestedNames.concat("\n\t\t");
+                    else suggestedNames= suggestedNames.concat("<br>&emsp;&emsp;");
+                    suggestedNames= suggestedNames.concat("\""+login+"\"");
                 }
-                if (!fromWeb) suggestedNames+="\n\t]";
-                else suggestedNames+="<br>&emsp;]";
+                if (!fromWeb) suggestedNames= suggestedNames.concat("\n\t]");
+                else suggestedNames= suggestedNames.concat("<br>&emsp;]");
             }
             else{
               response_code+="1";
@@ -290,12 +247,30 @@ public class LoginNameProposerRoute implements Route {
             e.printStackTrace(System.err);
             closeViews();
         }
-        return exit_code;
+    }
+
+    public String errorMessage(Exception e, String source){
+        e.printStackTrace(System.err);
+        closeViews();
+        if (source!=null){
+            System.out.println("-Response code: 500");
+            System.out.println("-message: " + "\"Could not connect to the " + source + ".\"");
+            System.out.println("-----------------------------------------------------------");
+            System.out.println();
+            return responses.getResponse("500", source, title);
+        }
+        else{
+            System.out.println("-Response code: 501");
+            System.out.println("-message: An error has occurred");
+            System.out.println("-----------------------------------------------------------");
+            System.out.println();
+            return responses.getResponse("501", "An error has occurred.", title);
+        }
     }
 
     public void closeViews(){
-        Views.clean();
-        ldapDS.clean();
+        DBConnectionPool.clean();
+        LdapConnectionPool.clean();
     }
 
 }

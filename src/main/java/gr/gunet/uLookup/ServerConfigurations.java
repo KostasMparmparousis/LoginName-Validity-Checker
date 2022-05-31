@@ -12,7 +12,7 @@ public class ServerConfigurations {
         configurations.put("base_url", base_url);
       }
     }
-        
+
     public static String getConfiguration(String confParam){
         return configurations.get(confParam);
     }

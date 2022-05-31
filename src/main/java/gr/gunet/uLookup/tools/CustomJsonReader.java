@@ -11,22 +11,19 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class CustomJsonReader {
-    private final String rootBody;
     private final JsonObject rootObject;
-    private final JsonParser parser;
 
     public CustomJsonReader(String jsonBody) throws JsonSyntaxException{
-        this.rootBody = jsonBody;
-        parser = new JsonParser();
-        rootObject = parser.parse(rootBody).getAsJsonObject();
+        JsonParser parser = new JsonParser();
+        rootObject = parser.parse(jsonBody).getAsJsonObject();
     }
 
-    private String formatedString(String unformatedString){
+    private String formattedString(String unformattedString){
         String retVal;
-        if(unformatedString == null){
+        if(unformattedString == null){
             return null;
         }else{
-            retVal = unformatedString.trim();
+            retVal = unformattedString.trim();
         }
         if(retVal.equals("")){
             return null;
@@ -42,7 +39,7 @@ public class CustomJsonReader {
         }else if(element.isJsonArray()){
             JsonArray array = element.getAsJsonArray();
             if(array != null){
-                return formatedString(array.toString().replaceAll("\"", ""));
+                return formattedString(array.toString().replaceAll("\"", ""));
                 
             }else{
                 return null;
@@ -60,7 +57,7 @@ public class CustomJsonReader {
     }
 
     public String readPropertyAsString(String propertyName){
-        return formatedString(readPropertyAsStringRaw(propertyName));
+        return formattedString(readPropertyAsStringRaw(propertyName));
     }
 
     public Boolean readPropertyAsBoolean(String propertyName){
@@ -93,7 +90,7 @@ public class CustomJsonReader {
     }
 
     public List<JsonObject> readJsonArrayAsObjectList(){
-        List<JsonObject> retVal = new LinkedList();
+        LinkedList<JsonObject> retVal = new LinkedList<>();
         if(rootObject.isJsonArray()){
             JsonArray array = rootObject.getAsJsonArray();
             if(array != null){

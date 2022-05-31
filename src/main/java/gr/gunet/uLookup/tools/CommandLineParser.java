@@ -1,13 +1,5 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package gr.gunet.uLookup.tools;
 
-/**
- *
- * @author barbarousisk
- */
 public class CommandLineParser {
   private String institution;
   private String mode="public";

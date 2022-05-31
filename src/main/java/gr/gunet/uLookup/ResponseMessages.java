@@ -11,23 +11,22 @@ public class ResponseMessages {
     private static HashMap<String,String> Error=null;
 
     public ResponseMessages(String web){
-        if (web.equals("true")) fromWeb=true;
-        else fromWeb=false;
+        fromWeb= web.equals("true");
 
         if (Validator==null){
-            Validator = new HashMap();
+            Validator = new HashMap<String,String>();
             initValidator();
         }
         if (Proposer==null){
-            Proposer = new HashMap();
+            Proposer = new HashMap<String,String>();
             initProposer();
         }
         if (Finder==null){
-            Finder = new HashMap();
+            Finder = new HashMap<String,String>();
             initFinder();
         }
         if (Error==null){
-            Error = new HashMap();
+            Error = new HashMap<String,String>();
             initError();
         }
     }
@@ -56,14 +55,7 @@ public class ResponseMessages {
     }
     
     public void initFinder(){
-        Finder.put("000", "A Person with that loginName was not found.");
-        Finder.put("001", "The Person with that loginName is an Associate");
-        Finder.put("010", "The Person with that loginName is a Member of the Teaching Staff");
-        Finder.put("011", "The Person with that loginName is an Associate and a Member of the Teaching Staff");
-        Finder.put("100", "The Person with that loginName is a Student");
-        Finder.put("101", "The Person with that loginName is a Student and an Associate");
-        Finder.put("110", "The Person with that loginName is a Student and a Member of the Teaching Staff");
-        Finder.put("111", "The Person was found to possess every Role");
+        Finder.put("200", "A Person with that loginName was not found.");
     }
 
     public void initError(){
@@ -85,19 +77,19 @@ public class ResponseMessages {
     public String getErrorMessage(String code, String source){
       if (code.equals("500")) return Error.get(code) + source + ".";
       else {
-        String content= source;
-        return content;
+        return source;
       }
     }
     
     public String getResponse(String code, String content, String title){
-      if (fromWeb==false){
+        boolean noError = !code.equals("500") && !code.equals("400") && !code.equals("401");
+        if (!fromWeb){
         String response="{";
         String response_code = "\"Response code\": " + code;
         response_code = formattedString(response_code, 1) + ",";
-        String message="";
+        String message;
 
-        if (!code.equals("500") && !code.equals("400") && !code.equals("401")){
+        if (noError){
             if (title.equals("Suggested LoginNames")) message= "\"Message\": \"" + getProposerMessage(code)+ "\"";
             else if (title.equals("Roles Found")) message= "\"Message\": \"" + getFinderMessage(code)+ "\"";
             else message= "\"Message\": \"" + getValidatorMessage(code)+ "\"";
@@ -131,19 +123,23 @@ public class ResponseMessages {
           String htmlBody="<header><h1 style=\"color: #ed7b42;\">" + title + "</h1></header><hr class=\"new1\"><div class=\"sidenav\"><a href=\"../index.html\">Main Hub</a><a href=\"../validator.html\">Validator</a><a href=\"../proposer.html\">Proposer</a><a href=\"../roleFinder.html\">Finder</a></div><div class=\"main\">{";
           String response_code = "\"Response code\": " + boldWord(code);
           response_code = formattedString(response_code, 1) + ",";
-          String message="";
+          String message;
 
-          if (!code.equals("500") && !code.equals("400") && !code.equals("401")){
-              String messageContent = "";
-              if (title.equals("Suggested LoginNames")) messageContent= boldWord(getProposerMessage(code));
+          if (noError){
+              String messageContent;
+              if (title.equals("Suggested LoginNames")) {
+                  messageContent= boldWord(getProposerMessage(code));
+              }
               else if (title.equals("Roles Found")) messageContent= boldWord(getFinderMessage(code));
               else messageContent=boldWord(getValidatorMessage(code));
               message= "\"Message\": \"" + messageContent + "\"";
               message = formattedString(message,1);
+              if (title.equals("Suggested LoginNames") || title.equals("Roles Found")) {
+                  if (content!=null && !content.equals("")) message = message.concat(",");
+              }
               message+=content;
           }
           else{
-              title="Error";
               message= "\"Message\": \"" + boldWord(getErrorMessage(code, content))+ "\"";
               message = formattedString(message,1);
           }
@@ -155,9 +151,9 @@ public class ResponseMessages {
 
     public String formattedString(String line, int tabs){
       String formattedString="";
-      String newLine = "";
-      String tab = "";
-      if (fromWeb==false){
+      String newLine;
+      String tab;
+      if (!fromWeb){
         newLine = "\n";
         tab = "\t";
       }
@@ -166,7 +162,7 @@ public class ResponseMessages {
         tab = "&emsp;";
       }
       formattedString+=newLine;
-      for (int i=0; i<tabs; i++) formattedString+=tab;
+      for (int i=0; i<tabs; i++) formattedString= formattedString.concat(tab);
       formattedString+=line;
       return formattedString;
     }

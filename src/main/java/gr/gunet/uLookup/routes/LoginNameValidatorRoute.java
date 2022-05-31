@@ -1,32 +1,23 @@
 package gr.gunet.uLookup.routes;
-import com.google.gson.Gson;
 import gr.gunet.uLookup.AcademicPerson;
 import gr.gunet.uLookup.Conflict;
 import gr.gunet.uLookup.LoginNameValidator;
 import gr.gunet.uLookup.db.HRMSDBView;
 import gr.gunet.uLookup.db.SISDBView;
-import gr.gunet.uLookup.generator.UserNameGen;
 import gr.gunet.uLookup.ldap.LdapManager;
 import gr.gunet.uLookup.tools.CustomJsonReader;
 import gr.gunet.uLookup.RequestPerson;
 import gr.gunet.uLookup.ResponseMessages;
 import gr.gunet.uLookup.db.DBConnectionPool;
 import gr.gunet.uLookup.ldap.LdapConnectionPool;
-import gr.gunet.uLookup.tools.PropertyReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
-import java.util.*;
-
+import java.util.Collection;
+import java.util.LinkedList;
+//import java.util.*;
 import org.ldaptive.LdapEntry;
 import spark.Request;
 import spark.Response;
 import spark.Route;
-import spark.Spark;
 
 public class LoginNameValidatorRoute implements Route{
     boolean fromWeb;
@@ -38,13 +29,14 @@ public class LoginNameValidatorRoute implements Route{
     String responseContent;
     String institution;
     ResponseMessages responses;
+    String title;
     public LoginNameValidatorRoute(String institution) {
       this.institution= institution;
     }
 
     @Override
-    public Object handle(Request req, Response res) throws Exception{
-        String title="";
+    public Object handle(Request req, Response res) {
+        title="";
         responses= new ResponseMessages(req.session().attribute("web"));
         RequestPerson reqPerson;
         if (!req.session().attribute("authorized").equals("true")){
@@ -52,24 +44,13 @@ public class LoginNameValidatorRoute implements Route{
           closeViews();
           return responses.getResponse("401", errorMessage, title);
         }
-        String htmlContent="";
         responseCode="";
 
         if (!req.session().attribute("web").equals("true")){
           fromWeb=false;
           res.type("application/json");
           CustomJsonReader jsonReader = new CustomJsonReader(req.body());
-          String loginName= jsonReader.readPropertyAsString("loginName");
-          
           disabledGracePeriod= jsonReader.readPropertyAsString("disabledGracePeriod");
-          if(disabledGracePeriod == null || disabledGracePeriod.trim().equals("")){
-            disabledGracePeriod = null;
-          }
-          else if (disabledGracePeriod.length()<3){
-              LocalDate ld = java.time.LocalDate.now().minusMonths(Integer.parseInt(req.queryParams("disabledGracePeriod")));
-              disabledGracePeriod= ld.toString();
-              disabledGracePeriod= disabledGracePeriod.replace("-", "");
-          }
           try{
               reqPerson = new RequestPerson(jsonReader);
           }catch(Exception e){
@@ -82,18 +63,7 @@ public class LoginNameValidatorRoute implements Route{
         else{
           fromWeb=true;
           res.type("text/html");
-          String loginName= req.queryParams("loginName");
           disabledGracePeriod= req.queryParams("disabledGracePeriod");
-
-          if(disabledGracePeriod == null || disabledGracePeriod.trim().equals("")){
-            disabledGracePeriod = null;
-          }
-          else if (disabledGracePeriod.length()<3){
-              LocalDate ld = java.time.LocalDate.now().minusMonths(Integer.parseInt(req.queryParams("disabledGracePeriod")));
-              disabledGracePeriod= ld.toString();
-              disabledGracePeriod= disabledGracePeriod.replace("-", "");
-          }
-
           try{
             reqPerson = new RequestPerson(req);
           }catch(Exception e){
@@ -103,11 +73,20 @@ public class LoginNameValidatorRoute implements Route{
               return responses.getResponse("400", errorMessage, title);
           }
         }
+        if(disabledGracePeriod == null || disabledGracePeriod.trim().equals("")){
+            disabledGracePeriod = null;
+        }
+        else if (disabledGracePeriod.length()<3){
+            LocalDate ld = java.time.LocalDate.now().minusMonths(Integer.parseInt(disabledGracePeriod));
+            disabledGracePeriod= ld.toString();
+            disabledGracePeriod= disabledGracePeriod.replace("-", "");
+        }
+
         verbose=reqPerson.getVerbose();
         
         System.out.println("-----------------------------------------------------------");
         System.out.println();
-        System.out.println("Rquest Date and Time: " + java.time.LocalDateTime.now());
+        System.out.println("Request Date and Time: " + java.time.LocalDateTime.now());
         System.out.println();
         System.out.println("Request Attributes: ");
         System.out.println("-SSN: "+ reqPerson.getSSN());
@@ -140,13 +119,7 @@ public class LoginNameValidatorRoute implements Route{
             }
         }
         catch(Exception e){
-            e.printStackTrace(System.err);
-            closeViews();
-            System.out.println("-Response code: 500");
-            System.out.println("-message: " + "\"Could not connect to the DS\"");
-            System.out.println("-----------------------------------------------------------");
-            System.out.println();
-            return responses.getResponse("500", "DS", title);
+            return errorMessage(e,"DS");
         }
 
         Collection<Conflict> conflicts;
@@ -160,13 +133,8 @@ public class LoginNameValidatorRoute implements Route{
             System.out.println();
             return responses.getResponse(responseCode, responseContent, title);
         }catch(Exception e){
-            e.printStackTrace(System.err);
             String errorSource= e.getMessage();
-            System.out.println("-Response code: 500");
-            System.out.println("-message: " + "\"Could not connect to the " + errorSource + "\"");
-            System.out.println("-----------------------------------------------------------");
-            System.out.println();
-            return responses.getResponse("500", errorSource, title);
+            return errorMessage(e,errorSource);
         }
     }
 
@@ -180,11 +148,11 @@ public class LoginNameValidatorRoute implements Route{
                 for(Conflict conflict : conflicts){
                     if(firstElem){
                         firstElem = false;
-                        responseContent+="[\n";
+                        responseContent= responseContent.concat("[\n");
                     }else{
-                        responseContent += ",\n";
+                        responseContent= responseContent.concat(",\n");
                     }
-                    responseContent += conflict.toJson(fromWeb);
+                    responseContent= responseContent.concat(conflict.toJson(fromWeb));
                 }
                 responseContent+= responses.formattedString("]", 1);
             }
@@ -206,26 +174,25 @@ public class LoginNameValidatorRoute implements Route{
     }
 
     public void getExistingLoginNames(RequestPerson reqPerson, LoginNameValidator loginChecker, Collection<Conflict> conflicts){
-        Collection<AcademicPerson> existingOwners = new Vector<AcademicPerson>();
-        Collection<LdapEntry> existingDSOwners = new Vector<LdapEntry>();
+        Collection<LdapEntry> existingDSOwners = new LinkedList<>();
 
-        SISDBView sis=null;
-        HRMSDBView hrms=null;
-        HRMSDBView hrms2=null;
-        LdapManager ldap=null;
+        SISDBView sis;
+        HRMSDBView hrms,hrms2;
+        LdapManager ldap;
         try {
             sis = Views.getSISConn();
             hrms = Views.getHRMSConn();
             hrms2 = Views.getHRMS2Conn();
             ldap = ldapDS.getConn();
 
-            existingOwners.addAll(sis.fetchAll(reqPerson, null));
+            Collection<AcademicPerson> existingOwners = new LinkedList<>();
+            existingOwners = sis.fetchAll(reqPerson, null);
             if (hrms != null) existingOwners.addAll(hrms.fetchAll(reqPerson, null));
             if (hrms2 != null) existingOwners.addAll(hrms2.fetchAll(reqPerson, null));
             if (reqPerson.getSSNCountry().equals("GR"))
                 existingDSOwners.addAll(ldap.search(ldap.createSearchFilter("schGrAcPersonSSN=" + reqPerson.getSSN())));
 
-            Vector<String> existingUserNames= new Vector<String>();
+            LinkedList<String> existingUserNames= new LinkedList<>();
             String foundNames="";
             if (!existingOwners.isEmpty() || !existingDSOwners.isEmpty()) {
                 foundNames+= ( "," + responses.formattedString("\"personPairedWith\": [", 1));
@@ -234,8 +201,8 @@ public class LoginNameValidatorRoute implements Route{
                     for (AcademicPerson person : existingOwners) {
                         if (!existingUserNames.contains(person.getLoginName())) {
                             if (firstElem) firstElem=false;
-                            else foundNames += ",";
-                            foundNames+= responses.formattedString("\"" + person.getLoginName() + "\"", 2);
+                            else foundNames = foundNames.concat(",");
+                            foundNames = foundNames.concat(responses.formattedString("\"" + person.getLoginName() + "\"", 2));
                             existingUserNames.add(person.getLoginName());
                         }
                     }
@@ -245,8 +212,8 @@ public class LoginNameValidatorRoute implements Route{
                         String uid = person.getAttribute("uid").getStringValue();
                         if (!existingUserNames.contains(uid)) {
                             if (firstElem) firstElem=false;
-                            else foundNames += ",";
-                            foundNames+= responses.formattedString("\"" + uid + "\"", 2);
+                            else foundNames = foundNames.concat(",");
+                            foundNames = foundNames.concat(responses.formattedString("\"" + uid + "\"", 2));
                             existingUserNames.add(uid);
                         }
                     }
@@ -277,8 +244,27 @@ public class LoginNameValidatorRoute implements Route{
         }
     }
 
+    public String errorMessage(Exception e, String source){
+        e.printStackTrace(System.err);
+        closeViews();
+        if (source!=null){
+            System.out.println("-Response code: 500");
+            System.out.println("-message: " + "\"Could not connect to the " + source + ".\"");
+            System.out.println("-----------------------------------------------------------");
+            System.out.println();
+            return responses.getResponse("500", source, title);
+        }
+        else{
+            System.out.println("-Response code: 501");
+            System.out.println("-message: An error has occurred");
+            System.out.println("-----------------------------------------------------------");
+            System.out.println();
+            return responses.getResponse("501", "An error has occurred.", title);
+        }
+    }
+
     public void closeViews(){
-        Views.clean();
-        ldapDS.clean();
+        DBConnectionPool.clean();
+        LdapConnectionPool.clean();
     }
 }

@@ -13,7 +13,7 @@ import gr.gunet.uLookup.tools.CommandLineParser;
 public class Main implements SparkApplication {
     String institution = null;
     String mode = null;
-    ServerConfigurations configs= null;
+
     public Main(){}
     @Override
     public void init(){
@@ -29,7 +29,6 @@ public class Main implements SparkApplication {
         Spark.before("/validator.html", authFilter);
         Spark.before("/proposer.html", authFilter);
         Spark.before("/roleFinder.html", authFilter);
-
 
         ValidateToken validateToken;
         try{
@@ -67,7 +66,7 @@ public class Main implements SparkApplication {
         staticHandler.configure("/static");
         Spark.before((request, response) -> staticHandler.consume(request.raw(), response.raw()));
 
-        Spark.get("/index/", (req,res) -> returnStatic(req,res));
+        Spark.get("/index/", this::returnStatic);
 
         CleanupThread cleanThread= new CleanupThread();
         cleanThread.run();
@@ -89,7 +88,7 @@ public class Main implements SparkApplication {
     }
 
     public String returnStatic(Request request,Response response){
-        response.redirect(configs.getConfiguration("base_url")+"index.html");
+        response.redirect(ServerConfigurations.getConfiguration("base_url")+"index.html");
         return null;
     }
 }

@@ -21,7 +21,7 @@ public class Conflict {
     }
     
     public String toJson(boolean fromWeb){
-        if (fromWeb==false){
+        if (!fromWeb){
           String json = "\t\t{";
 
           json += "\n\t\t\t\"type\":";
