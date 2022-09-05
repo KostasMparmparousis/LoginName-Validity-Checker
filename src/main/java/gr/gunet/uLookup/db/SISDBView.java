@@ -14,7 +14,7 @@ import java.util.List;
 public class SISDBView extends DBManager{
     private static final HashMap<String,String> ATTRIBUTE_DATA_TYPES;
     static{
-        ATTRIBUTE_DATA_TYPES = new HashMap();
+        ATTRIBUTE_DATA_TYPES = new HashMap<>();
         ATTRIBUTE_DATA_TYPES.put("registrationid", "varchar");
         ATTRIBUTE_DATA_TYPES.put("systemid", "varchar");
         ATTRIBUTE_DATA_TYPES.put("ssn", "varchar");
@@ -24,7 +24,7 @@ public class SISDBView extends DBManager{
         ATTRIBUTE_DATA_TYPES.put("mobilephone", "varchar");
     }
     
-    private String entityVersion;
+    private final String entityVersion;
     
     public SISDBView(String propertyFile) throws Exception{
         this(new PropertyReader(CONN_FILE_DIR+"/"+propertyFile));
@@ -33,11 +33,7 @@ public class SISDBView extends DBManager{
     public SISDBView(PropertyReader propReader) throws Exception{
         this(propReader.getProperty("databaseType"),propReader);
     }
-    
-    public SISDBView(String connector,String propertyFile) throws Exception{
-        this(connector,new PropertyReader(CONN_FILE_DIR+"/"+propertyFile));
-    }
-    
+
     public SISDBView(String connector,PropertyReader propReader) throws Exception{
         super(connector,propReader);
         this.entityVersion = propReader.getProperty("entityVersion");
@@ -49,7 +45,7 @@ public class SISDBView extends DBManager{
             throw new Exception("Field with name '"+attributeName+"' does not have a type registered");
         }
         if(attributeType.equals("number") && !attributeValue.matches("\\d+")){
-            return new HashSet();
+            return new HashSet<>();
         }
         
         String sql = "SELECT sp FROM SISPersonEntity_v"+entityVersion+" sp WHERE sp."+attributeName;
@@ -66,18 +62,25 @@ public class SISDBView extends DBManager{
             sql += " AND (sp.enrollmentStatus IN ('active','interim') OR sp.enrollmentStatusDate > '"+disabledGracePeriod+"')";
         }
         
-        List<AcademicPerson> retVals = new LinkedList();
-        if(entityVersion.equals("1")){
-            List<SISPersonEntity_v1> results = select(sql,SISPersonEntity_v1.class);
-            retVals.addAll(results);
-        }else if(entityVersion.equals("2")){
-            List<SISPersonEntity_v2> results = select(sql,SISPersonEntity_v2.class);
-            retVals.addAll(results);
-        }else if(entityVersion.equals("3")){
-            List<SISPersonEntity_v3> results = select(sql,SISPersonEntity_v3.class);
-            retVals.addAll(results);
-        }else{
-            throw new Exception("Unsupported entity version '"+entityVersion+"' on SIS DB View.");
+        List<AcademicPerson> retVals = new LinkedList<>();
+        switch (entityVersion) {
+            case "1": {
+                List<SISPersonEntity_v1> results = select(sql, SISPersonEntity_v1.class);
+                retVals.addAll(results);
+                break;
+            }
+            case "2": {
+                List<SISPersonEntity_v2> results = select(sql, SISPersonEntity_v2.class);
+                retVals.addAll(results);
+                break;
+            }
+            case "3": {
+                List<SISPersonEntity_v3> results = select(sql, SISPersonEntity_v3.class);
+                retVals.addAll(results);
+                break;
+            }
+            default:
+                throw new Exception("Unsupported entity version '" + entityVersion + "' on SIS DB View.");
         }
         return retVals;
     }
@@ -88,7 +91,7 @@ public class SISDBView extends DBManager{
             throw new Exception("Field with name '"+attributeName+"' does not have a type registered");
         }
         if(attributeType.equals("number") && !attributeValue.matches("\\d+")){
-            return new HashSet();
+            return new HashSet<>();
         }
         
         String sql = "SELECT sp FROM SISPersonEntity_v"+entityVersion+" sp WHERE sp."+attributeName;
@@ -99,22 +102,29 @@ public class SISDBView extends DBManager{
         }else{
             throw new Exception("Unknown data type '"+attributeType+"' encountered on attribute '"+attributeName+"' on CrossChecker:fetch");
         }
-        if(onlyActive == true){
+        if(onlyActive){
             sql += " AND sp.enrollmentStatus IN ('active','interim')";
         }
 
-        List<AcademicPerson> retVals = new LinkedList();
-        if(entityVersion.equals("1")){
-            List<SISPersonEntity_v1> results = select(sql,SISPersonEntity_v1.class);
-            retVals.addAll(results);
-        }else if(entityVersion.equals("2")){
-            List<SISPersonEntity_v2> results = select(sql,SISPersonEntity_v2.class);
-            retVals.addAll(results);
-        }else if(entityVersion.equals("3")){
-            List<SISPersonEntity_v3> results = select(sql,SISPersonEntity_v3.class);
-            retVals.addAll(results);
-        }else{
-            throw new Exception("Unsupported entity version '"+entityVersion+"' on HRMS DB View.");
+        List<AcademicPerson> retVals = new LinkedList<>();
+        switch (entityVersion) {
+            case "1": {
+                List<SISPersonEntity_v1> results = select(sql, SISPersonEntity_v1.class);
+                retVals.addAll(results);
+                break;
+            }
+            case "2": {
+                List<SISPersonEntity_v2> results = select(sql, SISPersonEntity_v2.class);
+                retVals.addAll(results);
+                break;
+            }
+            case "3": {
+                List<SISPersonEntity_v3> results = select(sql, SISPersonEntity_v3.class);
+                retVals.addAll(results);
+                break;
+            }
+            default:
+                throw new Exception("Unsupported entity version '" + entityVersion + "' on HRMS DB View.");
         }
         return retVals;
     }
@@ -123,18 +133,25 @@ public class SISDBView extends DBManager{
         String sql = "SELECT sp FROM SISPersonEntity_v"+entityVersion+" sp WHERE sp.SSN='" + ssn;
         sql += "' AND sp.ssnCountry = '"+ssnCountry+"'";
 
-        List<AcademicPerson> retVals = new LinkedList();
-        if(entityVersion.equals("1")){
-            List<SISPersonEntity_v1> results = select(sql,SISPersonEntity_v1.class);
-            retVals.addAll(results);
-        }else if(entityVersion.equals("2")){
-            List<SISPersonEntity_v2> results = select(sql,SISPersonEntity_v2.class);
-            retVals.addAll(results);
-        }else if(entityVersion.equals("3")){
-            List<SISPersonEntity_v3> results = select(sql,SISPersonEntity_v3.class);
-            retVals.addAll(results);
-        }else{
-            throw new Exception("Unsupported entity version '"+entityVersion+"' on HRMS DB View.");
+        List<AcademicPerson> retVals = new LinkedList<>();
+        switch (entityVersion) {
+            case "1": {
+                List<SISPersonEntity_v1> results = select(sql, SISPersonEntity_v1.class);
+                retVals.addAll(results);
+                break;
+            }
+            case "2": {
+                List<SISPersonEntity_v2> results = select(sql, SISPersonEntity_v2.class);
+                retVals.addAll(results);
+                break;
+            }
+            case "3": {
+                List<SISPersonEntity_v3> results = select(sql, SISPersonEntity_v3.class);
+                retVals.addAll(results);
+                break;
+            }
+            default:
+                throw new Exception("Unsupported entity version '" + entityVersion + "' on HRMS DB View.");
         }
         return retVals;
     }
@@ -157,18 +174,25 @@ public class SISDBView extends DBManager{
             sql += " AND (sp.enrollmentStatus IN ('active','interim') OR sp.enrollmentStatusDate > '"+disabledGracePeriod+"')";
         }
 
-        List<AcademicPerson> retVals = new LinkedList();
-        if(entityVersion.equals("1")){
-            List<SISPersonEntity_v1> results = select(sql,SISPersonEntity_v1.class);
-            retVals.addAll(results);
-        }else if(entityVersion.equals("2")){
-            List<SISPersonEntity_v2> results = select(sql,SISPersonEntity_v2.class);
-            retVals.addAll(results);
-        }else if(entityVersion.equals("3")){
-            List<SISPersonEntity_v3> results = select(sql,SISPersonEntity_v3.class);
-            retVals.addAll(results);
-        }else{
-            throw new Exception("Unsupported entity version '"+entityVersion+"' on HRMS DB View.");
+        List<AcademicPerson> retVals = new LinkedList<>();
+        switch (entityVersion) {
+            case "1": {
+                List<SISPersonEntity_v1> results = select(sql, SISPersonEntity_v1.class);
+                retVals.addAll(results);
+                break;
+            }
+            case "2": {
+                List<SISPersonEntity_v2> results = select(sql, SISPersonEntity_v2.class);
+                retVals.addAll(results);
+                break;
+            }
+            case "3": {
+                List<SISPersonEntity_v3> results = select(sql, SISPersonEntity_v3.class);
+                retVals.addAll(results);
+                break;
+            }
+            default:
+                throw new Exception("Unsupported entity version '" + entityVersion + "' on HRMS DB View.");
         }
         return retVals;
     }

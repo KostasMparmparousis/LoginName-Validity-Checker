@@ -6,31 +6,24 @@ import java.util.HashSet;
 import spark.Request;
 
 public class RequestPerson implements AcademicPerson{
-    private Collection<String> ssn;
-    private Collection<String> ssnCountry;
-    private Collection<String> tin;
-    private Collection<String> tinCountry;
-    private String SSN;
-    private String SSNCountry;
+    private final Collection<String> ssn;
+    private final Collection<String> ssnCountry;
+    private final Collection<String> tin;
+    private final Collection<String> tinCountry;
+    private final String SSN;
+    private final String SSNCountry;
     private String TIN;
     private String TINCountry;
-    private String firstNameEl;
-    private String firstNameEn;
-    private String lastNameEl;
-    private String lastNameEn;
-    private String birthDate;
-    private String birthYear;
-    private String gender;
-    private String citizenship;
-    private String loginName;
-    private String institution;
-    private boolean verbose;
+    private final String birthDate;
+    private final String birthYear;
+    private final String loginName;
+    private final boolean verbose;
     public RequestPerson(CustomJsonReader jsonReader) throws Exception{
-      this.ssn=new HashSet();
-      this.ssnCountry=new HashSet();
-      this.tin=new HashSet();
-      this.tinCountry=new HashSet();
-      
+      this.ssn=new HashSet<>();
+      this.ssnCountry=new HashSet<>();
+      this.tin=new HashSet<>();
+      this.tinCountry=new HashSet<>();
+
       SSN= jsonReader.readPropertyAsString("ssn");
       if(SSN == null || SSN.trim().equals("")){
         throw new Exception("No ssn provided");
@@ -48,14 +41,19 @@ public class RequestPerson implements AcademicPerson{
       }
 
       TIN= jsonReader.readPropertyAsString("tin");
-      if (TIN!=null && !TIN.trim().equals("")) tin.add(TIN);
-      
-      TINCountry= jsonReader.readPropertyAsString("tinCountry");
-      if (TINCountry!=null && !TINCountry.trim().equals("")) tinCountry.add(TINCountry);
+      if(TIN == null || TIN.trim().equals("")){
+        TIN=null;
+      }
+      else{
+        tin.add(TIN);
+      }
 
-      this.birthYear = jsonReader.readPropertyAsString("birthYear");
-      if(this.birthYear == null || this.birthYear.trim().equals("")){
-        throw new Exception("No birthYear provided");
+      TINCountry= jsonReader.readPropertyAsString("tinCountry");
+      if(TINCountry == null || TINCountry.trim().equals("")){
+        TINCountry=null;
+      }
+      else{
+        tinCountry.add(TINCountry);
       }
 
       this.birthDate = jsonReader.readPropertyAsString("birthDate");
@@ -68,38 +66,31 @@ public class RequestPerson implements AcademicPerson{
 
       this.loginName = jsonReader.readPropertyAsString("loginName");
       if(this.loginName == null || this.loginName.trim().equals("")){
-        throw new Exception("No loginName provided");
+        throw new Exception("No loginName provided.");
       }
       else if (!loginName.equals(loginName.trim())){
-        throw new Exception("Whitespace character found");
+        throw new Exception("Whitespace character found.");
       }
       else if (loginName.length() < 4 || loginName.length() > 20){
-        throw new Exception("LoginName length outside character limits");
+        throw new Exception("LoginName length outside character limits.");
       }else if (!loginName.matches("([a-z0-9]+[._-]?[a-z0-9]+)+")){
-        throw new Exception("Invalid loginName format");
-      }
-      else{
         for(int i=0;i<loginName.length();i++){
             char ch = loginName.charAt(i);
             if(Character.isUpperCase(ch)){
-                throw new Exception("Capital character found");
+                throw new Exception("Capital character found.");
             }
         }
+        throw new Exception("Invalid loginName format.");
       }
-
-      this.institution = jsonReader.readPropertyAsString("institution");
-      if(this.institution == null || this.institution.trim().equals("")){
-        throw new Exception("No institution provided");
-      }
-
-      verbose=jsonReader.readPropertyAsBoolean("verbose");
+      String Verbose=jsonReader.readPropertyAsString("verbose");
+      verbose= Verbose != null && !Verbose.trim().equals("") && !Verbose.equals("No");
     }
 
     public RequestPerson(Request req) throws Exception{
-      this.ssn=new HashSet();
-      this.ssnCountry=new HashSet();
-      this.tin=new HashSet();
-      this.tinCountry=new HashSet();
+      this.ssn=new HashSet<>();
+      this.ssnCountry=new HashSet<>();
+      this.tin=new HashSet<>();
+      this.tinCountry=new HashSet<>();
 
       SSN= req.queryParams("ssn");
       if(SSN == null || SSN.trim().equals("")){
@@ -161,10 +152,7 @@ public class RequestPerson implements AcademicPerson{
       }
       
       String Verbose=req.queryParams("verbose");
-      if(Verbose == null || Verbose.trim().equals("")|| Verbose.equals("No")){
-        verbose=false;
-      }
-      else verbose=true;
+      verbose= Verbose != null && !Verbose.trim().equals("") && !Verbose.equals("No");
 
     }
 
@@ -214,22 +202,24 @@ public class RequestPerson implements AcademicPerson{
         return null;
     }
 
-    public String getFirstNameEl(){
-        return this.firstNameEl;
+    @Override
+    public String getFirstNameEl() {
+        return null;
     }
 
-    public String getFirstNameEn(){
-        return this.firstNameEn;
+    @Override
+    public String getFirstNameEn() {
+        return null;
     }
 
     @Override
     public String getLastNameEl() {
-        return this.lastNameEl;
+        return null;
     }
 
     @Override
     public String getLastNameEn() {
-        return this.lastNameEn;
+        return null;
     }
 
     @Override
@@ -244,12 +234,12 @@ public class RequestPerson implements AcademicPerson{
 
     @Override
     public String getGender() {
-        return this.gender;
+        return null;
     }
 
     @Override
     public String getCitizenship() {
-        return this.citizenship;
+        return null;
     }
 
     @Override
@@ -260,10 +250,6 @@ public class RequestPerson implements AcademicPerson{
     @Override
     public String getAcademicID() {
         return null;
-    }
-
-    public String getInstitution() {
-        return institution;
     }
 
     public Boolean getVerbose(){

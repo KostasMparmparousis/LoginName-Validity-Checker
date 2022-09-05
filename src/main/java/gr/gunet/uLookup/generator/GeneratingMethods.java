@@ -8,10 +8,8 @@ public class GeneratingMethods {
     AcademicPerson academicPerson;
     LdapEntry dsPerson;
     String[] Separators;
-    String prefix;
     String FNplacement;
     String LNplacement;
-    String inscriptionYear;
     String firstName;
     String lastName;
 
@@ -33,7 +31,7 @@ public class GeneratingMethods {
         this.LNplacement=LNplacement;
         if (dsPerson.getAttribute("displayName")!=null) {
             String displayName = dsPerson.getAttribute("displayName").getStringValue();
-            String names[] = displayName.split(" ");
+            String[] names = displayName.split(" ");
             this.firstName = names[0];
             this.lastName = names[1];
         }
@@ -50,7 +48,7 @@ public class GeneratingMethods {
     }
 
     public  Vector<String> FullNames(){
-        Vector<String> vec = new Vector<String>();
+        Vector<String> vec = new Vector<>();
         int count=0;
         for (String Separator: Separators){
             Vector<String> Names= orderOfNames(firstName, lastName, Separator);
@@ -61,7 +59,7 @@ public class GeneratingMethods {
     }
 
     public Vector<String> partOfNames(int FNchars, String FNtakeFrom, int LNchars, String LNtakeFrom){
-        Vector<String> vec = new Vector<String>();
+        Vector<String> vec = new Vector<>();
         if (FNchars==0 && LNchars==0) return vec;
         int FNlength=firstName.length();
         int LNlength=lastName.length();
@@ -86,7 +84,7 @@ public class GeneratingMethods {
     }
 
     public Vector<String> percentOfNames(double FNpercent, String FNtakeFrom, double LNpercent, String LNtakeFrom){
-        Vector<String> vec = new Vector<String>();
+        Vector<String> vec = new Vector<>();
         if (FNpercent==0.0 && LNpercent==0.0) return vec;
         int count=0;
         int FNlength= (firstName.length());
@@ -110,7 +108,7 @@ public class GeneratingMethods {
     }
 
     public Vector<String> prefixedLastNames(int FNchars){
-      Vector<String> vec = new Vector<String>();
+      Vector<String> vec = new Vector<>();
       int FNlength=firstName.length();
       if (FNchars==0) return vec;
       else if (FNchars > FNlength) FNchars=FNlength;
@@ -130,20 +128,20 @@ public class GeneratingMethods {
     }
 
     public Vector<String> orderOfNames(String FirstName, String LastName, String Separator){
-        Vector<String> vec = new Vector<String>();
+        Vector<String> vec = new Vector<>();
         if (FNplacement==null) FNplacement="";
         if (LNplacement==null) LNplacement="";
 
         if (FNplacement.equals("start"))
         {
-            if (LNplacement.equals("") || LNplacement==null || LNplacement.equals("end")){
+            if (LNplacement.equals("") || LNplacement.equals("end")){
                 vec.add(FirstName+Separator+LastName);
                 return vec;
             }
         }
         if (LNplacement.equals("start"))
         {
-            if (FNplacement.equals("") || FNplacement==null || FNplacement.equals("end")){
+            if (FNplacement.equals("") || FNplacement.equals("end")){
                 vec.add(LastName+Separator+FirstName);
                 return vec;
             }
@@ -156,7 +154,7 @@ public class GeneratingMethods {
 
     public String getSubstring(String Name, int chars, String TakeFrom, int length){
         Random rand= new Random();
-        String N="";
+        String N;
         if (chars==0) return Name;
         if (TakeFrom==null) TakeFrom="";
         switch(TakeFrom){
@@ -167,7 +165,7 @@ public class GeneratingMethods {
                 N=Name.substring(length-chars , length);
                 break;
             default:
-                int randomInd=0;
+                int randomInd;
                 do{
                     randomInd= rand.nextInt(length - chars + 1);
                 } while((randomInd+chars)>length);
@@ -176,8 +174,8 @@ public class GeneratingMethods {
         return N;
     }
 
-    public Vector<String> randomNames(int minLimit, int maxLimit, int namesNeeded, Vector<String> proposedNames){
-        Vector<String> vec = new Vector<String>();
+    public Vector<String> randomNames(int minLimit, int maxLimit, int namesNeeded){
+        Vector<String> vec = new Vector<>();
         Random rand = new Random();
         int size1,size2;
         if (minLimit==0) minLimit=5;
@@ -185,7 +183,7 @@ public class GeneratingMethods {
         for (int i=0; i<namesNeeded; i++){
              boolean check = false;
             int j=0;
-            while (check != true) {
+            while (!check) {
                 String name;
                 size1 = rand.nextInt(firstName.length());
                 size2 = rand.nextInt(lastName.length()) ;
@@ -193,7 +191,7 @@ public class GeneratingMethods {
                 if ((size1 + size2) >= minLimit && (size1 + size2) <= maxLimit) {
                     name = firstName.substring(0, size1) + lastName.substring(0, size2);
                     boolean Test=inVector(vec, name);
-                        if (Test==false) {
+                        if (!Test) {
                             vec.add(name);
                             check = true;
                         }
@@ -210,19 +208,6 @@ public class GeneratingMethods {
             if (name.equals(userName)) return true;
         }
         return false;
-    }
-
-    int hasDelimiter (String ID){
-        int count=0;
-        for (char ch: ID.toCharArray()) {
-            if (Character.isDigit(ch)==false) return count;
-            count++;
-        }
-        return -1;
-    }
-
-    public String capitalize(String str){
-        return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
     public String getFirstName(){

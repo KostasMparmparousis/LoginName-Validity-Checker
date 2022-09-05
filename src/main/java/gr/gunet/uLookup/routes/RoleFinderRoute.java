@@ -1,6 +1,5 @@
 package gr.gunet.uLookup.routes;
 
-import com.google.gson.Gson;
 import gr.gunet.uLookup.AcademicPerson;
 import gr.gunet.uLookup.ResponseMessages;
 import gr.gunet.uLookup.db.DBConnectionPool;
@@ -9,15 +8,17 @@ import gr.gunet.uLookup.db.SISDBView;
 import gr.gunet.uLookup.ldap.LdapConnectionPool;
 import gr.gunet.uLookup.ldap.LdapManager;
 import gr.gunet.uLookup.tools.CustomJsonReader;
-import gr.gunet.uLookup.tools.PropertyReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+
+import org.ldaptive.LdapAttribute;
+import org.ldaptive.LdapEntry;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
 
 public class RoleFinderRoute implements Route {
     DBConnectionPool Views;
@@ -25,24 +26,40 @@ public class RoleFinderRoute implements Route {
     String loginName;
     String institution;
     boolean onlyActive;
-    public RoleFinderRoute() {
+    ResponseMessages responses;
+    String primaryAffiliation;
+    String title;
+    public RoleFinderRoute(String institution) {
+      this.institution= institution;
     }
 
     @Override
     public Object handle(Request req, Response res) throws Exception {
-        ResponseMessages responses= new ResponseMessages();
-        String roleJson= "{";
-        String message="";
-        String roles="";
+        primaryAffiliation=null;
+        boolean fromWeb;
+
+        title= "Roles Found";
+        responses= new ResponseMessages(req.session().attribute("web"));
+        if (!req.session().attribute("authorized").equals("true")){
+          String errorMessage= "You were not authorized";
+          closeViews();
+          return responses.getResponse("401", errorMessage, title);
+        }
+
+        String roles;
         String response_code="";
 
-//        PropertyReader propReader= new PropertyReader(CONN_FILE_DIR+"/institution.properties");
-//        institution= propReader.getProperty("institution");
-        institution= req.session().attribute("institution");
-        String htmlResponse= "<html><head><meta charset=\"ISO-8859-1\"><title>Response</title><link rel=\"stylesheet\" href=\"../css/style.css\"></head><body>";
-        htmlResponse+="<header><h1 style=\"color: #ed7b42;\">Response</h1></header><hr class=\"new1\"><div class=\"sidenav\"><a href=\"../index.html\">Main Hub</a><a href=\"../validator.html\">Validator</a><a href=\"../proposer.html\">Proposer</a><a href=\"../roleFinder.html\">Finder</a></div><div class=\"main\">";
-
-        loginName = req.queryParams("loginName");
+        if (!req.session().attribute("web").equals("true")){
+          res.type("application/json");
+          CustomJsonReader jsonReader = new CustomJsonReader(req.body());
+          loginName = jsonReader.readPropertyAsString("loginName");
+          fromWeb=false;
+        }
+        else{
+          res.type("text/html");
+          loginName = req.queryParams("loginName");
+          fromWeb=true;
+        }
         String errorDescription="";
 
         if(loginName == null || loginName.trim().equals("")) {
@@ -56,7 +73,7 @@ public class RoleFinderRoute implements Route {
         else if (loginName.length() < 4 || loginName.length() > 20){
           response_code = "400";
           errorDescription="LoginName length outside character limits.";
-        }else if (!loginName.matches("([a-z0-9]+[._-]?[a-z0-9]+)+")){
+        }else if (!loginName.matches("([a-z\\d]+[._-]?[a-z\\d]+)+")){
           response_code = "400";
           for(int i=0;i<loginName.length();i++){
               char ch = loginName.charAt(i);
@@ -70,115 +87,147 @@ public class RoleFinderRoute implements Route {
 
         if (response_code.equals("400")){
           closeViews();
-          message= "<br>&emsp;\"message\": \"" + errorDescription + "\"";
-          roleJson+= "<br>&emsp;\"Response code\" : " + response_code + ",";
-          roleJson+=message;
-          htmlResponse+=roleJson;
-          htmlResponse+="<br>}</div></body></html>";
-          return htmlResponse;
+          return responses.getResponse("400", errorDescription, title);
         }
 
         Views = new DBConnectionPool(institution);
         ldapDS = new LdapConnectionPool(institution);
 
-        SISDBView sis=null;
-        HRMSDBView hrms=null;
-        HRMSDBView hrms2=null;
-        LdapManager ldap=null;
-        String errorJson="";
-        Collection<AcademicPerson> existingSISOwners=null, existingHRMSOwners=null, existingHRMS2Owners= null;
-        
-        try{
-          sis = Views.getSISConn();
-          existingSISOwners= sis.fetchAll("loginName", loginName, onlyActive);
-        }
-        catch (Exception e){
-            e.printStackTrace(System.err);
-            errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"  \"message\" : \"Could not connect to the SIS\"<br>}<br>";
-        }
+        Collection<String> currentRoles;
+        Object DSRoles= getDSRoles();
+        if (DSRoles instanceof String) return DSRoles;
+        else  currentRoles = new HashSet<>((Collection<String>) DSRoles);
 
-        try{
-          hrms = Views.getHRMSConn();
-          if (hrms!=null) existingHRMSOwners= hrms.fetchAll("loginName", loginName, onlyActive);
-        }
-        catch (Exception e){
-            e.printStackTrace(System.err);
-            errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"  \"message\" : \"Could not connect to the HRMS\"<br>}<br>";
-        }
+        Object viewRoles= getViewRoles();
+        if (viewRoles instanceof String) return viewRoles;
+        else  currentRoles.addAll((Collection<String>) viewRoles);
 
-        try{
-          hrms2 = Views.getHRMS2Conn();
-          if (hrms2!=null) existingHRMS2Owners= hrms2.fetchAll("loginName", loginName, onlyActive);
-        }
-        catch (Exception e){
-            e.printStackTrace(System.err);
-            errorJson="{<br>&emsp;\"Response code\" : 500,<br>" +"  \"message\" : \"Could not connect to the HRMS2\"<br>}<br>";
-        }
-
-        if (!errorJson.equals("")){
-          htmlResponse+=errorJson;
-          htmlResponse+="</div></body></html>";
-          return htmlResponse;
-        }
-
-        if (existingSISOwners.isEmpty() && existingHRMSOwners.isEmpty() && existingHRMS2Owners.isEmpty()){
-            response_code="000";
-            message= "<br>&emsp;\"message\": \"" + loginName + " not found in any Database\"";
+        if (currentRoles.isEmpty()){
+            response_code="200";
+            return responses.getResponse(response_code, "", title);
         }
         else {
-            response_code="";
+            response_code = "100";
             boolean firstElem = true;
-            message= "<br>&emsp;\"message\": \"" + loginName + " found\",";
-            roles= "<br>&emsp;\"Roles\" : [";
-            if (!existingSISOwners.isEmpty()) {
-                if(firstElem){
+            if (!fromWeb) roles = ",\n\t\"Affiliations\" : [";
+            else roles = "<br>&emsp;\"Affiliations\" : [";
+            for (String role : currentRoles) {
+                if (firstElem) {
                     firstElem = false;
-                }else{
-                    roles += ",";
+                } else {
+                    roles= roles.concat(",");
                 }
-                roles += "<br>&emsp;&emsp;";
-                roles += "\"Student\"";
-                response_code += "1";
+                if (!fromWeb) roles= roles.concat("\n\t\t");
+                else roles= roles.concat("<br>&emsp;&emsp;");
+                roles += "\"" + role + "\"";
             }
-            else response_code += "0";
+            if (!fromWeb) roles += "\n\t]";
+            else roles += "<br>&emsp;]";
 
-            if (existingHRMSOwners != null && !existingHRMSOwners.isEmpty()) {
-                if(firstElem){
-                    firstElem = false;
-                }else{
-                    roles += ",";
-                }
-                roles += "<br>&emsp;&emsp;";
-                roles += "\"Member of the Teaching Staff\"";
-                response_code += "1";
+            if (primaryAffiliation!=null){
+                if (!fromWeb) roles= roles.concat(",\n\t\"primaryAffiliation\" : \"" + primaryAffiliation + "\"");
+                else roles= roles.concat(",<br>&emsp;\"primaryAffiliation\" : \"" + primaryAffiliation + "\"");
             }
-            else response_code += "0";
-
-            if (existingHRMS2Owners != null && !existingHRMS2Owners.isEmpty()) {
-                if(firstElem){
-                    firstElem = false;
-                }else{
-                    roles += ",";
-                }
-                roles += "<br>&emsp;&emsp;";
-                roles += "\"Associate\"";
-                response_code += "1";
-            }
-            else response_code += "0";
-
-            roles+="<br>&emsp;]";
         }
-        roleJson+= "<br>&emsp;\"Response code\" : " + response_code + ",";
-        roleJson+=message;
-        roleJson+=roles;
-        roleJson+="<br>}<br>";
-        htmlResponse+=roleJson;
-        htmlResponse+="</div></body></html>";
-        return htmlResponse;
+        return responses.getResponse(response_code, roles, title);
+    }
+
+    private Object getDSRoles(){
+        LdapManager ds;
+        Collection<LdapEntry> existingDSOwners;
+        try {
+            ds = ldapDS.getConn();
+             existingDSOwners = ds.search(ds.createSearchFilter("uid=" + loginName));
+        }
+        catch (Exception e){
+            return errorMessage(e,"DS");
+        }
+
+        LdapAttribute primaryAffiliationAttribute;
+        LdapAttribute affiliation;
+        Collection<String> affiliations= new LinkedList<>();
+
+        for(LdapEntry existingDSOwner : existingDSOwners){
+            affiliation=existingDSOwner.getAttribute("eduPersonAffiliation");
+            primaryAffiliationAttribute=existingDSOwner.getAttribute("eduPersonPrimaryAffiliation");
+            if (affiliation!=null) affiliations= affiliation.getStringValues();
+            if (primaryAffiliationAttribute!=null) primaryAffiliation= primaryAffiliationAttribute.getStringValue();
+        }
+        return affiliations;
+    }
+
+    private Object getViewRoles() throws Exception{
+        Collection<String> viewRoles= new ArrayList<>();
+
+        Object existingSISOwners=getPerson(Views.getSISConn());
+        if (existingSISOwners instanceof String) return existingSISOwners;
+        else if (existingSISOwners!=null) {
+            Collection<AcademicPerson> SISOwners= (Collection<AcademicPerson>) existingSISOwners;
+            if (!SISOwners.isEmpty()) viewRoles.add("student");
+        }
+
+        Object existingHRMSOwners=getPerson(Views.getHRMSConn(), false);
+        if (existingHRMSOwners instanceof String) return existingHRMSOwners;
+        else if (existingHRMSOwners!=null) {
+            Collection<AcademicPerson> HRMSOwners= (Collection<AcademicPerson>) existingHRMSOwners;
+            if (!HRMSOwners.isEmpty()) viewRoles.add("faculty");
+        }
+
+        if (Views.getHRMS2Conn()==null) return viewRoles;
+        Object existingHRMS2Owners=getPerson(Views.getHRMS2Conn(), true);
+        if (existingHRMS2Owners instanceof String) return existingHRMS2Owners;
+        else if (existingHRMS2Owners!=null){
+            Collection<AcademicPerson> HRMS2Owners= (Collection<AcademicPerson>) existingHRMS2Owners;
+            if (!HRMS2Owners.isEmpty()) viewRoles.add("staff");
+        }
+
+        return viewRoles;
+    }
+
+    private Object getPerson(SISDBView view){
+        Collection<AcademicPerson> existingSISOwners;
+        try{
+            existingSISOwners= view.fetchAll("loginName", loginName, onlyActive);
+        }
+        catch (Exception e){
+            return errorMessage(e,"SIS");
+        }
+        return existingSISOwners;
+    }
+
+    private Object getPerson(HRMSDBView view, boolean ELKE){
+        Collection<AcademicPerson> existingHRMSOwners;
+        try{
+            existingHRMSOwners= view.fetchAll("loginName", loginName, onlyActive);
+        }
+        catch (Exception e){
+            if (!ELKE) return errorMessage(e,"HRMS");
+            else return errorMessage(e,"ELKE");
+        }
+        return existingHRMSOwners;
+    }
+
+    public String errorMessage(Exception e, String source){
+        e.printStackTrace(System.err);
+        closeViews();
+        if (source!=null){
+            System.out.println("-Response code: 500");
+            System.out.println("-message: " + "\"Could not connect to the " + source + ".\"");
+            System.out.println("-----------------------------------------------------------");
+            System.out.println();
+            return responses.getResponse("500", source, title);
+        }
+        else{
+            System.out.println("-Response code: 501");
+            System.out.println("-message: An error has occurred");
+            System.out.println("-----------------------------------------------------------");
+            System.out.println();
+            return responses.getResponse("501", "An error has occurred.", title);
+        }
     }
 
     public void closeViews(){
-        Views.clean();
-        ldapDS.clean();
+        DBConnectionPool.clean();
+        LdapConnectionPool.clean();
     }
 }

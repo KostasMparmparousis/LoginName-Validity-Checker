@@ -1,13 +1,12 @@
 package gr.gunet.uLookup.tools;
 
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
 public class PropertyReader {
-    private Properties properties;
-    private String propertyFileName;
+    private final Properties properties;
+    private final String propertyFileName;
 
     private String couldNotOpenPropertyFileError(){
         return "Failed to open "+propertyFileName+" file to read ldap properties.";
@@ -25,13 +24,9 @@ public class PropertyReader {
         this.propertyFileName = propFileName;
         this.properties = new Properties();
 
-        InputStream propertiesReader = null;
-        try{
-            propertiesReader = new FileInputStream(propFileName);
-            properties.load(propertiesReader);
-        }catch(IOException e){
-            throw e;
-        }
+        InputStream propertiesReader;
+        propertiesReader = new FileInputStream(propFileName);
+        properties.load(propertiesReader);
     }
 
     public String getProperty(String propertyName) throws Exception{
@@ -46,26 +41,22 @@ public class PropertyReader {
 
     public Short getPropertyAsShort(String propertyName) throws Exception{
         String property = getProperty(propertyName);
-        Short converted = Short.parseShort(property);
-        return converted;
+        return Short.parseShort(property);
     }
 
     public Long getPropertyAsLong(String propertyName) throws Exception{
         String property = getProperty(propertyName);
-        Long converted = Long.parseLong(property);
-        return converted;
+        return Long.parseLong(property);
     }
 
     public Boolean getPropertyAsBoolean(String propertyName) throws Exception{
         String property = getProperty(propertyName);
-        Boolean converted = Boolean.parseBoolean(property);
-        return converted;
+        return Boolean.parseBoolean(property);
     }
 
     public Float getPropertyAsFloat(String propertyName) throws Exception{
         String property = getProperty(propertyName);
-        Float converted = Float.parseFloat(property);
-        return converted;
+        return Float.parseFloat(property);
     }
 
     public Properties getPropertiesObject(){

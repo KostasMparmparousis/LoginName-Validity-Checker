@@ -16,7 +16,7 @@ import java.util.List;
 public class HRMSDBView extends DBManager{
     private static final HashMap<String,String> ATTRIBUTE_DATA_TYPES;
     static{
-        ATTRIBUTE_DATA_TYPES = new HashMap();
+        ATTRIBUTE_DATA_TYPES = new HashMap<>();
         ATTRIBUTE_DATA_TYPES.put("registrationid", "varchar");
         ATTRIBUTE_DATA_TYPES.put("systemid", "varchar");
         ATTRIBUTE_DATA_TYPES.put("ssn", "varchar");
@@ -26,7 +26,7 @@ public class HRMSDBView extends DBManager{
         ATTRIBUTE_DATA_TYPES.put("mobilephone", "varchar");
     }
 
-    private String entityVersion;
+    private final String entityVersion;
 
     public HRMSDBView(String propertyFile) throws Exception{
         this(new PropertyReader(CONN_FILE_DIR+"/"+propertyFile));
@@ -34,10 +34,6 @@ public class HRMSDBView extends DBManager{
 
     public HRMSDBView(PropertyReader propReader) throws Exception{
         this(propReader.getProperty("databaseType"),propReader);
-    }
-
-    public HRMSDBView(String connector,String propertyFile) throws Exception{
-        this(connector,new PropertyReader(CONN_FILE_DIR+"/"+propertyFile));
     }
 
     public HRMSDBView(String connector,PropertyReader propReader) throws Exception{
@@ -51,10 +47,10 @@ public class HRMSDBView extends DBManager{
             throw new Exception("Field with name '"+attributeName+"' does not have a type registered");
         }
         if(attributeType.equals("number") && !attributeValue.matches("\\d+")){
-            return new HashSet();
+            return new HashSet<>();
         }
 
-        List<AcademicPerson> retVals = new LinkedList();
+        List<AcademicPerson> retVals = new LinkedList<>();
 
         String sql = "SELECT hp FROM HRMSPersonEntity_v"+entityVersion+" hp WHERE hp."+attributeName;
         if(attributeType.equals("varchar")){
@@ -70,28 +66,34 @@ public class HRMSDBView extends DBManager{
             sql += " AND (hp.employeeStatus IN ('active','interim') OR hp.employeeStatusDate > '"+disabledGracePeriod+"')";
         }
 
-        if(entityVersion.equals("1")){
-            List<HRMSPersonEntity_v1> results = select(sql,HRMSPersonEntity_v1.class);
-            retVals.addAll(results);
-        }
-        else if(entityVersion.equals("2")){
-            List<HRMSPersonEntity_v2> results = select(sql,HRMSPersonEntity_v2.class);
-            retVals.addAll(results);
-        }
-        else if(entityVersion.equals("3")){
-            List<HRMSPersonEntity_v3> results = select(sql,HRMSPersonEntity_v3.class);
-            retVals.addAll(results);
-        }
-        else if(entityVersion.equals("4")){
-            List<HRMSPersonEntity_v4> results = select(sql,HRMSPersonEntity_v4.class);
-            retVals.addAll(results);
-        }
-        else if(entityVersion.equals("5")){
-            List<HRMSPersonEntity_v5> results = select(sql,HRMSPersonEntity_v5.class);
-            retVals.addAll(results);
-        }
-        else{
-            throw new Exception("Unsupported entity version '"+entityVersion+"' on HRMS DB View.");
+        switch (entityVersion) {
+            case "1": {
+                List<HRMSPersonEntity_v1> results = select(sql, HRMSPersonEntity_v1.class);
+                retVals.addAll(results);
+                break;
+            }
+            case "2": {
+                List<HRMSPersonEntity_v2> results = select(sql, HRMSPersonEntity_v2.class);
+                retVals.addAll(results);
+                break;
+            }
+            case "3": {
+                List<HRMSPersonEntity_v3> results = select(sql, HRMSPersonEntity_v3.class);
+                retVals.addAll(results);
+                break;
+            }
+            case "4": {
+                List<HRMSPersonEntity_v4> results = select(sql, HRMSPersonEntity_v4.class);
+                retVals.addAll(results);
+                break;
+            }
+            case "5": {
+                List<HRMSPersonEntity_v5> results = select(sql, HRMSPersonEntity_v5.class);
+                retVals.addAll(results);
+                break;
+            }
+            default:
+                throw new Exception("Unsupported entity version '" + entityVersion + "' on HRMS DB View.");
         }
         return retVals;
     }
@@ -102,10 +104,10 @@ public class HRMSDBView extends DBManager{
             throw new Exception("Field with name '"+attributeName+"' does not have a type registered");
         }
         if(attributeType.equals("number") && !attributeValue.matches("\\d+")){
-            return new HashSet();
+            return new HashSet<>();
         }
 
-        List<AcademicPerson> retVals = new LinkedList();
+        List<AcademicPerson> retVals = new LinkedList<>();
 
         String sql = "SELECT hp FROM HRMSPersonEntity_v"+entityVersion+" hp WHERE hp."+attributeName;
         if(attributeType.equals("varchar")){
@@ -115,32 +117,38 @@ public class HRMSDBView extends DBManager{
         }else{
             throw new Exception("Unknown data type '"+attributeType+"' encountered on attribute '"+attributeName+"' on CrossChecker:fetch");
         }
-        if(onlyActive == true){
+        if(onlyActive){
             sql += " AND hp.employeeStatus IN ('active','interim')";
         }
 
-        if(entityVersion.equals("1")){
-            List<HRMSPersonEntity_v1> results = select(sql,HRMSPersonEntity_v1.class);
-            retVals.addAll(results);
-        }
-        else if(entityVersion.equals("2")){
-            List<HRMSPersonEntity_v2> results = select(sql,HRMSPersonEntity_v2.class);
-            retVals.addAll(results);
-        }
-        else if(entityVersion.equals("3")){
-            List<HRMSPersonEntity_v3> results = select(sql,HRMSPersonEntity_v3.class);
-            retVals.addAll(results);
-        }
-        else if(entityVersion.equals("4")){
-            List<HRMSPersonEntity_v4> results = select(sql,HRMSPersonEntity_v4.class);
-            retVals.addAll(results);
-        }
-        else if(entityVersion.equals("5")){
-            List<HRMSPersonEntity_v5> results = select(sql,HRMSPersonEntity_v5.class);
-            retVals.addAll(results);
-        }
-        else{
-            throw new Exception("Unsupported entity version '"+entityVersion+"' on HRMS DB View.");
+        switch (entityVersion) {
+            case "1": {
+                List<HRMSPersonEntity_v1> results = select(sql, HRMSPersonEntity_v1.class);
+                retVals.addAll(results);
+                break;
+            }
+            case "2": {
+                List<HRMSPersonEntity_v2> results = select(sql, HRMSPersonEntity_v2.class);
+                retVals.addAll(results);
+                break;
+            }
+            case "3": {
+                List<HRMSPersonEntity_v3> results = select(sql, HRMSPersonEntity_v3.class);
+                retVals.addAll(results);
+                break;
+            }
+            case "4": {
+                List<HRMSPersonEntity_v4> results = select(sql, HRMSPersonEntity_v4.class);
+                retVals.addAll(results);
+                break;
+            }
+            case "5": {
+                List<HRMSPersonEntity_v5> results = select(sql, HRMSPersonEntity_v5.class);
+                retVals.addAll(results);
+                break;
+            }
+            default:
+                throw new Exception("Unsupported entity version '" + entityVersion + "' on HRMS DB View.");
         }
         return retVals;
     }
@@ -163,24 +171,35 @@ public class HRMSDBView extends DBManager{
             sql += " AND (hp.employeeStatus IN ('active','interim') OR hp.employeeStatusDate > '"+disabledGracePeriod+"')";
         }
 
-        List<AcademicPerson> retVals = new LinkedList();
-        if(entityVersion.equals("1")){
-            List<HRMSPersonEntity_v1> results = select(sql,HRMSPersonEntity_v1.class);
-            retVals.addAll(results);
-        }else if(entityVersion.equals("2")){
-            List<HRMSPersonEntity_v2> results = select(sql,HRMSPersonEntity_v2.class);
-            retVals.addAll(results);
-        }else if(entityVersion.equals("3")){
-            List<HRMSPersonEntity_v3> results = select(sql,HRMSPersonEntity_v3.class);
-            retVals.addAll(results);
-        }else if(entityVersion.equals("4")){
-            List<HRMSPersonEntity_v4> results = select(sql,HRMSPersonEntity_v4.class);
-            retVals.addAll(results);
-        }else if(entityVersion.equals("5")){
-            List<HRMSPersonEntity_v5> results = select(sql,HRMSPersonEntity_v5.class);
-            retVals.addAll(results);
-        }else{
-            throw new Exception("Unsupported entity version '"+entityVersion+"' on HRMS DB View.");
+        List<AcademicPerson> retVals = new LinkedList<>();
+        switch (entityVersion) {
+            case "1": {
+                List<HRMSPersonEntity_v1> results = select(sql, HRMSPersonEntity_v1.class);
+                retVals.addAll(results);
+                break;
+            }
+            case "2": {
+                List<HRMSPersonEntity_v2> results = select(sql, HRMSPersonEntity_v2.class);
+                retVals.addAll(results);
+                break;
+            }
+            case "3": {
+                List<HRMSPersonEntity_v3> results = select(sql, HRMSPersonEntity_v3.class);
+                retVals.addAll(results);
+                break;
+            }
+            case "4": {
+                List<HRMSPersonEntity_v4> results = select(sql, HRMSPersonEntity_v4.class);
+                retVals.addAll(results);
+                break;
+            }
+            case "5": {
+                List<HRMSPersonEntity_v5> results = select(sql, HRMSPersonEntity_v5.class);
+                retVals.addAll(results);
+                break;
+            }
+            default:
+                throw new Exception("Unsupported entity version '" + entityVersion + "' on HRMS DB View.");
         }
         return retVals;
     }
@@ -189,25 +208,35 @@ public class HRMSDBView extends DBManager{
         String sql = "SELECT hp FROM HRMSPersonEntity_v"+entityVersion+" hp WHERE hp.SSN='" + ssn;
         sql += "' AND hp.ssnCountry = '"+ssnCountry+"'";
 
-        List<AcademicPerson> retVals = new LinkedList();
-        if(entityVersion.equals("1")){
-            List<HRMSPersonEntity_v1> results = select(sql,HRMSPersonEntity_v1.class);
-            retVals.addAll(results);
-        }else if(entityVersion.equals("2")){
-            List<HRMSPersonEntity_v2> results = select(sql,HRMSPersonEntity_v2.class);
-            retVals.addAll(results);
-        }else if(entityVersion.equals("3")){
-            List<HRMSPersonEntity_v3> results = select(sql,HRMSPersonEntity_v3.class);
-            retVals.addAll(results);
-        }else if(entityVersion.equals("4")){
-            List<HRMSPersonEntity_v4> results = select(sql,HRMSPersonEntity_v4.class);
-            retVals.addAll(results);
-        }else if(entityVersion.equals("5")){
-            List<HRMSPersonEntity_v5> results = select(sql,HRMSPersonEntity_v5.class);
-            retVals.addAll(results);
-        }
-        else{
-            throw new Exception("Unsupported entity version '"+entityVersion+"' on HRMS DB View.");
+        List<AcademicPerson> retVals = new LinkedList<>();
+        switch (entityVersion) {
+            case "1": {
+                List<HRMSPersonEntity_v1> results = select(sql, HRMSPersonEntity_v1.class);
+                retVals.addAll(results);
+                break;
+            }
+            case "2": {
+                List<HRMSPersonEntity_v2> results = select(sql, HRMSPersonEntity_v2.class);
+                retVals.addAll(results);
+                break;
+            }
+            case "3": {
+                List<HRMSPersonEntity_v3> results = select(sql, HRMSPersonEntity_v3.class);
+                retVals.addAll(results);
+                break;
+            }
+            case "4": {
+                List<HRMSPersonEntity_v4> results = select(sql, HRMSPersonEntity_v4.class);
+                retVals.addAll(results);
+                break;
+            }
+            case "5": {
+                List<HRMSPersonEntity_v5> results = select(sql, HRMSPersonEntity_v5.class);
+                retVals.addAll(results);
+                break;
+            }
+            default:
+                throw new Exception("Unsupported entity version '" + entityVersion + "' on HRMS DB View.");
         }
         return retVals;
     }

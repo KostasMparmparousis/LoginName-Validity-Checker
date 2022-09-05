@@ -1,9 +1,5 @@
 <!DOCTYPE html>
-<!--
-Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
-Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit this template
--->
-<html>
+<html lang="">
     <head>
         <title>loginNameProposer</title>
         <meta charset="UTF-8">
@@ -25,62 +21,66 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
             <a href="proposer/Policy.html">Policy</a>
         </div>
         <div class="main">
-            <form action="loginNameProposer/" method="POST">
+            <form action="proposer/" method="POST">
                 
                     <h3>Search for past loginNames:</h3>
                     <p>
                     <div>
                         <label for="SSN" ><b class="parameter">SSN </b></label>
                         <div class="field">
-                            <input class="form" type="text" name="ssn" /> 
+                            <label>
+                                <input class="form" type="text" name="ssn" />
+                            </label>
                             <div class="tooltip">&#9432;
                                 <span class="tooltiptext">Τιμή του Αριθμού Μητρώου Κοινωνικής Ασφάλισης (Α.Μ.Κ.Α.) του αιτούμενου.</span>
                             </div> 
                         </div>
                     </div>
                     <br>
-                    </p>
 
-                    <p>
+                <p>
                     <div>
                         <label for="SSNCountry" ><b class="parameter">SSNCountry </b></label>
                         <div class="field">
-                            <input class="form" type="text" name="ssnCountry" /> 
+                            <label>
+                                <input class="form" type="text" name="ssnCountry" />
+                            </label>
                             <div class="tooltip">&#9432;
-                                <span class="tooltiptext">Χώρα έκδοσης του Α.Μ.Κ.Α. Σημειώνεται με την 2-γράμματη κωδικοποίηση του ISO 3166.</span>
+                                <span class="tooltiptext">Χώρα έκδοσης του Α.Μ.Κ.Α. Σημειώνεται με τη 2-γράμματη κωδικοποίηση του ISO 3166.</span>
                             </div> 
                         </div>
                     </div>
                     <br>
-                    </p>
-                    <h3>Generate new loginNames: </h3>
+                </p>
+                <h3>Generate new loginNames: </h3>
                     <p>
                     <div>
                         <label for="FN" ><b class="parameter">First Name </b></label>
                         <div class="field">
-                            <input class="form" type="text" name="firstName" /> 
+                            <label>
+                                <input class="form" type="text" name="firstName" />
+                            </label>
                             <div class="tooltip">&#9432;
                                 <span class="tooltiptext">Το όνομα του αιτούμενου με απόδοση σε λατινικούς χαρακτήρες.</span>
                             </div> 
                         </div>
                     </div>
                     <br>
-                    </p>
 
-                    <p>
+                <p>
                     <div>
                         <label for="LN" ><b class="parameter">Last Name </b></label>
                         <div class="field">
-                            <input class="form" type="text" name="lastName" /> 
+                            <label>
+                                <input class="form" type="text" name="lastName" />
+                            </label>
                             <div class="tooltip">&#9432;
                                 <span class="tooltiptext">Το επώνυμο του αιτούμενου με απόδοση σε λατινικούς χαρακτήρες.</span>
                             </div> 
                         </div>
                     </div>
                     <br>
-                    </p>
-                    <input class="submit" type="submit" value="Submit"/>
-                </fieldset>
+                <input class="submit" type="submit" value="Submit"/>
             </form>
         </div>
     </body>

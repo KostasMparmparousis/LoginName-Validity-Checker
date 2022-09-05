@@ -1,12 +1,8 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package gr.gunet.uLookup;
-
 import java.util.HashMap;
 
-public class ResponseMessages {
+public final class ResponseMessages {
+    boolean fromWeb;
     String htmlHeader= "<html><head><meta charset=\"ISO-8859-1\"><title>Response</title><link rel=\"stylesheet\" href=\"../css/style.css\"></head><body>{";
     String htmlFooter="<br>}<br></div></body></html>";
     private static HashMap<String,String> Validator = null;
@@ -14,21 +10,23 @@ public class ResponseMessages {
     private static HashMap<String,String> Finder = null;
     private static HashMap<String,String> Error=null;
 
-    public ResponseMessages(){
+    public ResponseMessages(String web){
+        fromWeb= web.equals("true");
+
         if (Validator==null){
-            Validator = new HashMap();
+            Validator = new HashMap<>();
             initValidator();
         }
         if (Proposer==null){
-            Proposer = new HashMap();
+            Proposer = new HashMap<>();
             initProposer();
         }
         if (Finder==null){
-            Finder = new HashMap();
+            Finder = new HashMap<>();
             initFinder();
         }
         if (Error==null){
-            Error = new HashMap();
+            Error = new HashMap<>();
             initError();
         }
     }
@@ -55,9 +53,9 @@ public class ResponseMessages {
         Proposer.put("300", "The following loginNames are available.");
         Proposer.put("310", "No suggestions available.");
     }
-
+    
     public void initFinder(){
-        Finder.put("000", "LoginName given was not found between active Accounts in any registries.");
+        Finder.put("200", "A Person with that loginName was not found.");
     }
 
     public void initError(){
@@ -79,57 +77,112 @@ public class ResponseMessages {
     public String getErrorMessage(String code, String source){
       if (code.equals("500")) return Error.get(code) + source + ".";
       else {
-        String content= source;
-        return content;
+        return source;
       }
     }
+    
+    public String getResponse(String code, String content, String title){
+        boolean noError = !code.equals("500") && !code.equals("400") && !code.equals("401");
+        if (!fromWeb){
+            String response="{";
+            String response_code = "\"Response code\": " + code;
+            response_code = formattedString(response_code, 1) + ",";
+            String message;
 
-    public String getValidatorResponse(String code, String content){
-        String title="";
-        switch(code.charAt(0)){
-            case '1':
-                title="No conflicts";
-                break;
-            case '2':
-                title="Conflicts found";
-                break;
-            case '3':
-                title="Warning";
-                break;
-            default:
-                title="Error";
-        }
-        String htmlBody="<header><h1 style=\"color: #ed7b42;\">" + title + "</h1></header><hr class=\"new1\"><div class=\"sidenav\"><a href=\"../index.html\">Main Hub</a><a href=\"../validator.html\">Validator</a><a href=\"../proposer.html\">Proposer</a><a href=\"../roleFinder.html\">Finder</a></div><div class=\"main\">{";
-        String response_code = "\"Response code\": " + boldWord(code);
-        response_code = formattedString(response_code, 1) + ",";
-        String message="";
+            if (noError){
+                switch (title) {
+                    case "Suggested LoginNames":
+                        message= "\"Message\": \"" + getProposerMessage(code)+ "\"";
+                        break;
+                    case "Roles Found":
+                        message= "\"Message\": \"" + getFinderMessage(code)+ "\"";
+                        break;
+                    default:
+                        message= "\"Message\": \"" + getValidatorMessage(code)+ "\"";
+                        break;
+                }
+                message = formattedString(message,1);
+                message+=content;
+            }
+            else{
+                message= "\"Message\": \"" + getErrorMessage(code, content)+ "\"";
+                message = formattedString(message,1);
+            }
 
-        if (!code.equals("500") && !code.equals("400")){
-            message= "\"Message\": \"" + boldWord(getValidatorMessage(code))+ "\"";
-            message = formattedString(message,1);
-            message+=content;
+            response= response + response_code + message + "\n}";
+            return response;
         }
         else{
-            message= "\"Message\": \"" + boldWord(getErrorMessage(code, content))+ "\"";
-            message = formattedString(message,1);
-        }
+            if (title.equals("")){
+              switch(code.charAt(0)){
+                case '1':
+                    title="No conflicts";
+                    break;
+                case '2':
+                    title="Conflicts found";
+                    break;
+                case '3':
+                    title="Warning";
+                    break;
+                default:
+                    title="Error";
+              }
+            }
+            String htmlBody="<header><h1 style=\"color: #ed7b42;\">" + title + "</h1></header><hr class=\"new1\"><div class=\"sidenav\"><a href=\"../index.html\">Main Hub</a><a href=\"../validator.html\">Validator</a><a href=\"../proposer.html\">Proposer</a><a href=\"../roleFinder.html\">Finder</a></div><div class=\"main\">{";
+            String response_code = "\"Response code\": " + boldWord(code);
+            response_code = formattedString(response_code, 1) + ",";
+            String message;
 
-        htmlBody= htmlBody + response_code + message;
-        return htmlHeader + htmlBody + htmlFooter;
+            if (noError){
+                String messageContent;
+                switch (title) {
+                    case "Suggested LoginNames":
+                        messageContent= boldWord(getProposerMessage(code));
+                        break;
+                    case "Roles Found":
+                        messageContent= boldWord(getFinderMessage(code));
+                        break;
+                    default:
+                        messageContent=boldWord(getValidatorMessage(code));
+                        break;
+                }
+                message= "\"Message\": \"" + messageContent + "\"";
+                message = formattedString(message,1);
+                if (title.equals("Suggested LoginNames") || title.equals("Roles Found")) {
+                    if (content!=null && !content.equals("")) message = message.concat(",");
+                }
+                message+=content;
+            }
+            else{
+                message= "\"Message\": \"" + boldWord(getErrorMessage(code, content))+ "\"";
+                message = formattedString(message,1);
+            }
+
+            htmlBody= htmlBody + response_code + message;
+            return htmlHeader + htmlBody + htmlFooter;
+        }
+    }
+
+    public String formattedString(String line, int tabs){
+      String formattedString="";
+      String newLine;
+      String tab;
+      if (!fromWeb){
+        newLine = "\n";
+        tab = "\t";
+      }
+      else{
+        newLine = "<br>";
+        tab = "&emsp;";
+      }
+      formattedString+=newLine;
+      for (int i=0; i<tabs; i++) formattedString= formattedString.concat(tab);
+      formattedString+=line;
+      return formattedString;
     }
 
     public String boldWord(String word){
         return "<b>" + word + "</b>";
-    }
-
-    public String formattedString(String line, int tabs){
-        String formattedString="";
-        String newLine = "<br>";
-        String tab = "&emsp;";
-        formattedString+=newLine;
-        for (int i=0; i<tabs; i++) formattedString+=tab;
-        formattedString+=line;
-        return formattedString;
     }
 
 }
