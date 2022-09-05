@@ -12,35 +12,26 @@ import org.ldaptive.LdapEntry;
 import org.ldaptive.LdapException;
 
 public class LoginNameValidator {
-    private DBConnectionPool Views;
-    private LdapConnectionPool ldapDS;
+    private final DBConnectionPool Views;
+    private final LdapConnectionPool ldapDS;
 
     public LoginNameValidator(DBConnectionPool Views, LdapConnectionPool ldapDS) {
         this.Views=Views;
         this.ldapDS=ldapDS;
     }
 
-    public Collection<Conflict> checkForValidityConflicts(AcademicPerson loginNameOwner,String loginName,String disabledGracePeriod) throws Exception{
-        return checkForUniquenessConflicts(loginNameOwner,loginName,disabledGracePeriod);
-    }
-
     public  Collection<Conflict> checkForValidityConflicts(AcademicPerson loginNameOwner,String disabledGracePeriod) throws Exception{
-        return checkForUniquenessConflicts(loginNameOwner,disabledGracePeriod);
-    }
-
-    private Collection<Conflict> checkForUniquenessConflicts(AcademicPerson loginNameOwner,String disabledGracePeriod) throws Exception{
         return checkForUniquenessConflicts(loginNameOwner, loginNameOwner.getLoginName(), disabledGracePeriod);
     }
 
     private  Collection<Conflict> checkForUniquenessConflicts(AcademicPerson loginNameOwner,String loginName,String disabledGracePeriod) throws LdapException, Exception{
-        Collection<Conflict> conflicts = new HashSet();
+        Collection<Conflict> conflicts = new HashSet<>();
         Collection<LdapEntry> existingDSOwners;
         Collection<AcademicPerson> existingOwners;
 
-        SISDBView sis=null;
-        HRMSDBView hrms=null;
-        HRMSDBView hrms2=null;
-        LdapManager ldap=null;
+        SISDBView sis;
+        HRMSDBView hrms, hrms2;
+        LdapManager ldap;
 
         try{
           sis=Views.getSISConn();
@@ -89,7 +80,7 @@ public class LoginNameValidator {
             conflicts.addAll(samePersonChecks(loginNameOwner,new SchGrAcPerson(existingDSOwner, loginName),"DS"));
           }
         }
-        catch(Exception e){
+        catch(LdapException e){
             e.printStackTrace(System.err);
             throw new Exception("DS");
         }
@@ -98,15 +89,14 @@ public class LoginNameValidator {
     }
 
     public Collection<String> getLoginNameSources(AcademicPerson loginNameOwner, String disabledGracePeriod) throws Exception{
-      return getLoginNameSources(loginNameOwner, loginNameOwner.getLoginName(),disabledGracePeriod);
+      return getLoginNameSources(loginNameOwner.getLoginName(),disabledGracePeriod);
     }
 
-    private Collection<String> getLoginNameSources(AcademicPerson loginNameOwner,String loginName,String disabledGracePeriod) throws LdapException,Exception{
-      Collection<String> loginNameSources= new HashSet();
-      SISDBView sis=null;
-      HRMSDBView hrms=null;
-      HRMSDBView hrms2=null;
-      LdapManager ldap=null;
+    private Collection<String> getLoginNameSources(String loginName, String disabledGracePeriod) throws LdapException,Exception{
+      Collection<String> loginNameSources= new HashSet<>();
+      SISDBView sis;
+      HRMSDBView hrms,hrms2;
+      LdapManager ldap;
       Collection<LdapEntry> existingDSOwners;
       Collection<AcademicPerson> existingOwners;
 
@@ -118,7 +108,7 @@ public class LoginNameValidator {
             return loginNameSources;
           }
       }
-      catch(Exception e){
+      catch(LdapException e){
           e.printStackTrace(System.err);
           throw new Exception("DS");
       }
@@ -159,22 +149,28 @@ public class LoginNameValidator {
       return loginNameSources;
     }
 
-    public Collection<String> getUIDPersons(AcademicPerson loginNameOwner,String disabledGracePeriod) throws Exception{
-        return getUIDPersons(loginNameOwner,loginNameOwner.getLoginName(), disabledGracePeriod);
+    public Collection<String> getUIDPersons(AcademicPerson loginNameOwner) throws Exception{
+        return getUIDPersons(loginNameOwner.getLoginName());
     }
 
-    private Collection<String> getUIDPersons(AcademicPerson loginNameOwner,String loginName,String disabledGracePeriod) throws LdapException,Exception{
-        Collection<String> UIDPersons = new HashSet();
-        LdapManager ds=null;
-        ds= ldapDS.getConn();
-        Collection<LdapEntry> existingDSOwners= ds.search(ds.createSearchFilter("(!(schGrAcPersonID=*))","uid="+loginName));
-        if (!existingDSOwners.isEmpty()){
-          for (LdapEntry uidPerson: existingDSOwners){
-              if (uidPerson.getAttribute("uid")!=null && (uidPerson.getAttribute("uid").getStringValue()).equals(loginName)){
-                UIDPersons.add(loginName);
-              }
-          }
-        }
+    private Collection<String> getUIDPersons(String loginName) throws LdapException,Exception{
+        Collection<String> UIDPersons = new HashSet<>();
+        LdapManager ds;
+        //try {
+            ds= ldapDS.getConn();
+            Collection<LdapEntry> existingDSOwners= ds.search(ds.createSearchFilter("(!(schGrAcPersonID=*))","uid="+loginName));
+            if (!existingDSOwners.isEmpty()){
+                for (LdapEntry uidPerson: existingDSOwners){
+                    if (uidPerson.getAttribute("uid")!=null && (uidPerson.getAttribute("uid").getStringValue()).equals(loginName)){
+                        UIDPersons.add(loginName);
+                    }
+                }
+            }
+//        }
+//        catch(LdapException e){
+//            e.printStackTrace(System.err);
+//            throw new Exception("DS");
+//        }
         return UIDPersons;
     }
 
@@ -182,14 +178,11 @@ public class LoginNameValidator {
         return getNullAttributes(loginNameOwner,loginNameOwner.getLoginName(), disabledGracePeriod);
     }
 
-    private Collection<String> getNullAttributes(AcademicPerson loginNameOwner,String loginName,String disabledGracePeriod) throws LdapException,Exception{
-        Collection<String> nullAttributes = new HashSet();
-        Collection<LdapEntry> DSOwners;
-        Collection<AcademicPerson> existingOwners= null;
-        SISDBView sis=null;
-        HRMSDBView hrms=null;
-        HRMSDBView hrms2=null;
-        LdapManager ldap=null;
+    private Collection<String> getNullAttributes(AcademicPerson loginNameOwner,String loginName,String disabledGracePeriod) throws Exception{
+        Collection<String> nullAttributes = new HashSet<>();
+        Collection<AcademicPerson> existingOwners;
+        SISDBView sis;
+        HRMSDBView hrms,hrms2;
 
         try{
             sis=Views.getSISConn();
@@ -223,14 +216,14 @@ public class LoginNameValidator {
         }
 
         if (!existingOwners.isEmpty()) {
-            nullAttributes = findNullAttributes(existingOwners, disabledGracePeriod, loginNameOwner);
+            nullAttributes = findNullAttributes(existingOwners, loginNameOwner);
         }
 
         return nullAttributes;
     }
 
-    private Collection<String> findNullAttributes(Collection<AcademicPerson> existingOwners, String disabledGracePeriod, AcademicPerson loginNameOwner){
-        Collection<String> nullAttributes = new HashSet();
+    private Collection<String> findNullAttributes(Collection<AcademicPerson> existingOwners, AcademicPerson loginNameOwner){
+        Collection<String> nullAttributes = new HashSet<>();
         String ssn=null;
         String ssnCountry=null;
         String tin=null;
@@ -260,7 +253,7 @@ public class LoginNameValidator {
     }
 
     private Collection<Conflict> samePersonChecks(AcademicPerson loginNameOwner, AcademicPerson existingOwner, String existingOwnerSource){
-        Collection<Conflict> conflicts = new HashSet();
+        Collection<Conflict> conflicts = new HashSet<>();
 
         String conflType = "existing-login";
         String conflDesc = "A record exists in '"+existingOwnerSource+"' with the same loginName, but a different";

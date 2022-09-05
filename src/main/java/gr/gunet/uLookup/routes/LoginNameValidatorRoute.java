@@ -108,7 +108,7 @@ public class LoginNameValidatorRoute implements Route{
 
         Collection<String> UIDPersons;
         try{
-            UIDPersons=loginChecker.getUIDPersons(reqPerson, disabledGracePeriod);
+            UIDPersons=loginChecker.getUIDPersons(reqPerson);
             if (!UIDPersons.isEmpty()){
                 String uid= UIDPersons.iterator().next();
                 System.out.println("-Response code: 300");
@@ -185,7 +185,7 @@ public class LoginNameValidatorRoute implements Route{
             hrms2 = Views.getHRMS2Conn();
             ldap = ldapDS.getConn();
 
-            Collection<AcademicPerson> existingOwners = new LinkedList<>();
+            Collection<AcademicPerson> existingOwners;
             existingOwners = sis.fetchAll(reqPerson, null);
             if (hrms != null) existingOwners.addAll(hrms.fetchAll(reqPerson, null));
             if (hrms2 != null) existingOwners.addAll(hrms2.fetchAll(reqPerson, null));

@@ -93,10 +93,10 @@ public class RoleFinderRoute implements Route {
         Views = new DBConnectionPool(institution);
         ldapDS = new LdapConnectionPool(institution);
 
-        Collection<String> currentRoles = new HashSet<>();
+        Collection<String> currentRoles;
         Object DSRoles= getDSRoles();
         if (DSRoles instanceof String) return DSRoles;
-        else  currentRoles.addAll((Collection<String>) DSRoles);
+        else  currentRoles = new HashSet<>((Collection<String>) DSRoles);
 
         Object viewRoles= getViewRoles();
         if (viewRoles instanceof String) return viewRoles;
@@ -109,7 +109,7 @@ public class RoleFinderRoute implements Route {
         else {
             response_code = "100";
             boolean firstElem = true;
-            if (!fromWeb) roles = "\n\t\"Affiliations\" : [";
+            if (!fromWeb) roles = ",\n\t\"Affiliations\" : [";
             else roles = "<br>&emsp;\"Affiliations\" : [";
             for (String role : currentRoles) {
                 if (firstElem) {
@@ -137,7 +137,7 @@ public class RoleFinderRoute implements Route {
         Collection<LdapEntry> existingDSOwners;
         try {
             ds = ldapDS.getConn();
-             existingDSOwners = ds.search(ds.createSearchFilter("(schGrAcPersonID=*)", "uid=" + loginName));
+             existingDSOwners = ds.search(ds.createSearchFilter("uid=" + loginName));
         }
         catch (Exception e){
             return errorMessage(e,"DS");

@@ -19,13 +19,15 @@ public class Main implements SparkApplication {
     public void init(){
         Spark.ipAddress("127.0.0.1");
         ServerConfigurations configs= new ServerConfigurations(institution, mode);
-        BasicAuthFilter authFilter = new BasicAuthFilter(institution, configs);
+        BasicAuthFilter authFilter = new BasicAuthFilter(institution);
         Spark.before("/validator/", authFilter);
         Spark.before("/validator", authFilter);
         Spark.before("/proposer/", authFilter);
         Spark.before("/proposer", authFilter);
         Spark.before("/finder/", authFilter);
         Spark.before("/finder", authFilter);
+        Spark.before("/help/", authFilter);
+        Spark.before("/help", authFilter);
         Spark.before("/validator.html", authFilter);
         Spark.before("/proposer.html", authFilter);
         Spark.before("/roleFinder.html", authFilter);
@@ -59,8 +61,8 @@ public class Main implements SparkApplication {
         Spark.post("/proposer", new LoginNameProposerRoute(institution));
         Spark.post("/finder/", new RoleFinderRoute(institution));
         Spark.post("/finder", new RoleFinderRoute(institution));
-        Spark.get("/help/", new HelpPageRoute());
-        Spark.get("/help", new HelpPageRoute());
+        Spark.post("/help/", new HelpPageRoute());
+        Spark.post("/help", new HelpPageRoute());
         
         StaticFilesConfiguration staticHandler = new StaticFilesConfiguration();
         staticHandler.configure("/static");

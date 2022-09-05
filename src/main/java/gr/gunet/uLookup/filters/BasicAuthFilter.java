@@ -8,13 +8,12 @@ import spark.Request;
 import spark.Response;
 import spark.Spark;
 
+
 public class BasicAuthFilter implements Filter{
     ValidateToken validateToken;
     String institution;
-    ServerConfigurations configs;
-  public BasicAuthFilter(String institution, ServerConfigurations configs) {
+  public BasicAuthFilter(String institution) {
     this.institution= institution;
-    this.configs=configs;
   }
     
     @Override

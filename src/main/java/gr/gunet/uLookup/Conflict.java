@@ -1,13 +1,13 @@
 package gr.gunet.uLookup;
 
 public class Conflict {
-    private String type;
-    private String description;
-    private String conflictingField;
-    private String conflictingRecordKey;
-    private String conflictSource;
-    private String requestValue;
-    private String conflictingValue;
+    private final String type;
+    private final String description;
+    private final String conflictingField;
+    private final String conflictingRecordKey;
+    private final String conflictSource;
+    private final String requestValue;
+    private final String conflictingValue;
     
     
     public Conflict(String type,String desc,String conflField,String conflRecKey,String conflSrc, String requestValue, String conflictingValue){

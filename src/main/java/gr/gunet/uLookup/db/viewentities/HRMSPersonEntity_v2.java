@@ -142,7 +142,7 @@ public class HRMSPersonEntity_v2 implements Serializable,AcademicPerson{
 
     @Override
     public Collection<String> getSsn() {
-      Collection<String> ssn= new HashSet();
+      Collection<String> ssn= new HashSet<>();
       if (SSN!=null) ssn.add(SSN);
       return ssn;
     }
@@ -158,7 +158,7 @@ public class HRMSPersonEntity_v2 implements Serializable,AcademicPerson{
 
     @Override
     public Collection<String> getSsnCountry() {
-      Collection<String> ssncountry= new HashSet();
+      Collection<String> ssncountry= new HashSet<>();
       if(ssnCountry!=null) ssncountry.add(ssnCountry.toUpperCase());
       return ssncountry;
     }
@@ -174,7 +174,7 @@ public class HRMSPersonEntity_v2 implements Serializable,AcademicPerson{
 
     @Override
     public Collection<String> getTin() {
-      Collection<String> Tin= new HashSet();
+      Collection<String> Tin= new HashSet<>();
       if (tin!=null) Tin.add(tin);
       return Tin;
     }
@@ -190,7 +190,7 @@ public class HRMSPersonEntity_v2 implements Serializable,AcademicPerson{
 
     @Override
     public Collection<String> getTinCountry() {
-      Collection<String> tincountry= new HashSet();
+      Collection<String> tincountry= new HashSet<>();
       if(tinCountry!=null) tincountry.add(tinCountry.toUpperCase());
       return tincountry;
     }

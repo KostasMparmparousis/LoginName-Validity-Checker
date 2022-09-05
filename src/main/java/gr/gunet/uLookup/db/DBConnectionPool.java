@@ -7,14 +7,14 @@ import java.nio.file.Paths;
 
 public class DBConnectionPool {
   private final static long CONNECTION_LIFETIME = 60000;
-  private final static HashMap<String,SISDBView> SISconnections = new HashMap();
-  private final static HashMap<String,Long> sis_last_usage = new HashMap();
-  private final static HashMap<String,HRMSDBView> HRMSconnections = new HashMap();
-  private final static HashMap<String,Long> hrms_last_usage = new HashMap();
-  private final static HashMap<String,HRMSDBView> HRMS2connections = new HashMap();
-  private final static HashMap<String,Long> hrms2_last_usage = new HashMap();
-  private String View;
-  private String CONN_FILE_DIR = "/etc/v_vd/conn/";
+  private final static HashMap<String,SISDBView> SISconnections = new HashMap<>();
+  private final static HashMap<String,Long> sis_last_usage = new HashMap<>();
+  private final static HashMap<String,HRMSDBView> HRMSconnections = new HashMap<>();
+  private final static HashMap<String,Long> hrms_last_usage = new HashMap<>();
+  private final static HashMap<String,HRMSDBView> HRMS2connections = new HashMap<>();
+  private final static HashMap<String,Long> hrms2_last_usage = new HashMap<>();
+  private final String View;
+  private final String CONN_FILE_DIR = "/etc/v_vd/conn/";
   
 
   public DBConnectionPool(String View){
@@ -86,13 +86,11 @@ public class DBConnectionPool {
 
   public static void clean(){
 
-    sis_last_usage.entrySet().forEach((entry) ->{
-      Long usedAt = entry.getValue();
+    sis_last_usage.forEach((View, usedAt) -> {
       long currentTime = System.currentTimeMillis();
-      if((currentTime - usedAt) > CONNECTION_LIFETIME) {
-        String View = entry.getKey();
+      if ((currentTime - usedAt) > CONNECTION_LIFETIME) {
         sis_last_usage.remove(View);
-        for(Map.Entry<String,SISDBView> conn : SISconnections.entrySet()){
+        for (Map.Entry<String, SISDBView> conn : SISconnections.entrySet()) {
           if (conn.getKey().equals(View)) {
             conn.getValue().inactivate();
             SISconnections.remove(View);
@@ -101,13 +99,11 @@ public class DBConnectionPool {
       }
     });
 
-    hrms_last_usage.entrySet().forEach((entry) ->{
-      Long usedAt = entry.getValue();
+    hrms_last_usage.forEach((View, usedAt) -> {
       long currentTime = System.currentTimeMillis();
-      if((currentTime - usedAt) > CONNECTION_LIFETIME) {
-        String View = entry.getKey();
+      if ((currentTime - usedAt) > CONNECTION_LIFETIME) {
         hrms_last_usage.remove(View);
-        for(Map.Entry<String,HRMSDBView> conn : HRMSconnections.entrySet()){
+        for (Map.Entry<String, HRMSDBView> conn : HRMSconnections.entrySet()) {
           if (conn.getKey().equals(View)) {
             conn.getValue().inactivate();
             HRMSconnections.remove(View);
@@ -115,14 +111,12 @@ public class DBConnectionPool {
         }
       }
     });
-    
-    hrms2_last_usage.entrySet().forEach((entry) ->{
-      Long usedAt = entry.getValue();
+
+    hrms2_last_usage.forEach((View, usedAt) -> {
       long currentTime = System.currentTimeMillis();
-      if((currentTime - usedAt) > CONNECTION_LIFETIME) {
-        String View = entry.getKey();
+      if ((currentTime - usedAt) > CONNECTION_LIFETIME) {
         hrms2_last_usage.remove(View);
-        for(Map.Entry<String,HRMSDBView> conn : HRMS2connections.entrySet()){
+        for (Map.Entry<String, HRMSDBView> conn : HRMS2connections.entrySet()) {
           if (conn.getKey().equals(View)) {
             conn.getValue().inactivate();
             HRMS2connections.remove(View);

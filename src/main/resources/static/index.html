@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="">
     <head>
         <meta charset="ISO-8859-1">
         <title>mainHub</title>
@@ -25,14 +25,13 @@
                 <li>The <b>Human Resource Management Software of the Research Committee (<i>ELKE</i>)</b>, for contractual staff, associates, researchers etc.</li>
                 <li>The <b>Directory Service (<i>DS/LDAP</i>)</b> for any other type of members that do not fit into any of the above categories such as the guests accounts.</li>
             </ul>
-            </p>
             <p>
                 This distributed schema of entry points, has been dictated mostly by the universities' organizational structure and the fact that the authoritative
                 systems where you create, manage and delete identities, have been organized vertically
                 i.e. one authoritative system for students, one for staff members, other of researchers etc.
                 This design choice comes with its pros and cons.
             </p>
-            <img src="https://i.ibb.co/jvfJCVF/test-1.png" alt="test-1" style="width: 66%;" border="0">
+            <img src="https://i.ibb.co/jvfJCVF/test-1.png" alt="test-1" style="width: 66%;">
             <p>
                 It is certainly more agile in many aspects
                 considering that each system serves different types of requirements, however in terms of Identity
@@ -51,7 +50,6 @@
                         </ul>
                     </li>
                 </ul>
-            </p>
             <p>
                 <b>uLookup</b> is an all-around mechanism designed to <b>assist in the allocation of a username</b> to a new university member or to an additional account of an existing member.
                 The service checks for the availability of a username across all authoritative identity sources and can respond to a query with supplementary information regarding the usernames 
@@ -64,15 +62,13 @@
                     <li>the application stacks of the four authoritative identity sources, which may access the service <b>via its API</b>.</li>
                     <li>the administrators of the institutional users' catalog (DS/LDAP) <b>via the uLookup web application</b>.</li>
                 </ul>
-            </p>
             <p>
                 <i>uLookup</i> offers the following services/endpoints:
                 <ul>
                     <li> <b>loginNameValidator</b> - checks if the provided loginName can be assigned to the specified person.</li>
                     <li> <b>loginNameProposer</b> - recommends a valid loginName for the specified person.</li>
-                    <li> <b>roleFinder</b> - provides information regarding the specified person's roles in the University (Student, Member of the Teaching Staff, Associate etc), if they already have such a role.</li>
+                    <li> <b>roleFinder</b> - provides information regarding the specified person's roles in the University (Student, Member of the Teaching Staff, Associate etc.), if they already have such a role.</li>
                 </ul>
-            </p>
             <p>
                 The endpoints respond with a <b>JSON</b> formatted answer. 
             </p>
@@ -101,13 +97,12 @@
                     <li>Locating previous loginNames based on given SSN & SSNCountry.</li>
                     <li>Generating new loginNames based on given firstName & lastName in the request.</li>
                 </ul>
-            </p>
             <p>
                 The endpoint <a href="proposer.html">LoginNameProposer</a> shall propose loginNames that can be safely attributed to a new Account.
             </p>
             <h3 style="margin:revert;">roleFinder</h3>
             <p>
-                A difficult task for a university with thousands of active members can be to determine a person's Role in their institution. Search for a person's active Roles in a institution based on a given userName.
+                A difficult task for a university with thousands of active members can be to determine a person's Role in their institution. Search for a person's active Roles in an institution based on a given userName.
             </p>
             <p>
                 The endpoint <a href="roleFinder.html">roleFinder</a> conducts a search based on a given loginName and decides whether a person is a Student, a Member of the Teaching Staff, an Associate, or a combination of the above.

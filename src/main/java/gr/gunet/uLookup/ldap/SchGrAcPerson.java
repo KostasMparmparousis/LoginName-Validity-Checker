@@ -7,31 +7,28 @@ import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
 
 public class SchGrAcPerson implements AcademicPerson{
-    private Collection<String> uids;
-    private String academicID;
+    private final String academicID;
     private Collection<String> ssn;
+    private Collection<String> uids;
     private String SSN;
     private String SSNCountry;
     private String TIN;
     private String TINCountry;
     private Collection<String> ssnCountry;
     private Collection<String> tin;
-    private Collection<String> tinCountry;
+    private final Collection<String> tinCountry;
     private String lastNameEl;
     private String lastNameEn;
     private String birthDate;
     private String birthYear;
     private String gender;
     private String citizenship;
-    
-    private String loginNameOfConcern;
-    private String SsnOfConcern;
-    
+    private final String loginNameOfConcern;
+
     public SchGrAcPerson(LdapEntry entity, String conflictingLoginName) throws Exception{
-        this.ssn=new HashSet();
-        this.ssnCountry=new HashSet();
-        this.tin=new HashSet();
-        this.tinCountry=new HashSet();
+        this.ssn=new HashSet<>();
+        this.ssnCountry=new HashSet<>();
+        this.tin=new HashSet<>();
 
         LdapAttribute uidAttribute = entity.getAttribute("uid");
         LdapAttribute academicIDAttribute = entity.getAttribute("schGrAcPersonID");
@@ -43,19 +40,14 @@ public class SchGrAcPerson implements AcademicPerson{
         LdapAttribute genderAttribute = entity.getAttribute("schacGender");
         LdapAttribute citizenshipAttribute = entity.getAttribute("schacCountryOfCitizenship");
         LdapAttribute ssnAttribute = entity.getAttribute("schGrAcPersonSSN");
-        
-        if(uidAttribute == null){
-            this.uids = null;
-        }else{
-            this.uids = uidAttribute.getStringValues();
-        }
-        
+
+        if(uidAttribute != null) uids = uidAttribute.getStringValues();
+
         this.academicID = academicIDAttribute.getStringValue();
-        
-        this.ssn = new HashSet();
-        this.ssnCountry = new HashSet();
-        this.tin = new HashSet();
-        this.tinCountry = new HashSet();
+        this.ssn = new HashSet<>();
+        this.ssnCountry = new HashSet<>();
+        this.tin = new HashSet<>();
+        tinCountry = new HashSet<>();
         
         if(uniqueIDAttribute != null){
             Collection<String> uniqueIDs = uniqueIDAttribute.getStringValues();
@@ -65,11 +57,11 @@ public class SchGrAcPerson implements AcademicPerson{
                     throw new Exception("Could not parse a value in attribute schacPersonalUniqueID");
                 }
                 String type = uniqueIDSplit[6];
-                if(type.toUpperCase().equals("SSN")){
+                if(type.equalsIgnoreCase("SSN")){
                     ssn.add(uniqueIDSplit[7]);
                     ssnCountry.add(uniqueIDSplit[5].toUpperCase());
                     SSNCountry=uniqueIDSplit[5].toUpperCase();
-                }else if(type.toUpperCase().equals("TIN")){
+                }else if(type.equalsIgnoreCase("TIN")){
                     tin.add(uniqueIDSplit[7]);
                     TIN=uniqueIDSplit[7];
                     tinCountry.add(uniqueIDSplit[5].toUpperCase());
@@ -88,63 +80,6 @@ public class SchGrAcPerson implements AcademicPerson{
         this.loginNameOfConcern = conflictingLoginName;
     }
 
-    public SchGrAcPerson(LdapEntry entity, String conflictingSSN, int SSN) throws Exception{
-        LdapAttribute uidAttribute = entity.getAttribute("uid");
-        LdapAttribute academicIDAttribute = entity.getAttribute("schGrAcPersonID");
-        LdapAttribute uniqueIDAttribute = entity.getAttribute("schacPersonalUniqueID");
-        LdapAttribute lastNameElAttribute = entity.getAttribute("sn;lang-el");
-        LdapAttribute lastNameEnAttribute = entity.getAttribute("sn;lang-en");
-        LdapAttribute dateOfBirthAttribute = entity.getAttribute("schacDateOfBirth");
-        LdapAttribute yearOfBirthAttribute = entity.getAttribute("schacYearOfBirth");
-        LdapAttribute genderAttribute = entity.getAttribute("schacGender");
-        LdapAttribute citizenshipAttribute = entity.getAttribute("schacCountryOfCitizenship");
-        
-        if(uidAttribute == null){
-            this.uids = null;
-        }else{
-            this.uids = uidAttribute.getStringValues();
-        }
-        
-        this.academicID = academicIDAttribute.getStringValue();
-        
-        this.ssn = new HashSet();
-        this.ssnCountry = new HashSet();
-        this.tin = new HashSet();
-        this.tinCountry = new HashSet();
-        
-        if(uniqueIDAttribute != null){
-            Collection<String> uniqueIDs = uniqueIDAttribute.getStringValues();
-            for(String uniqueID : uniqueIDs){
-                String[] uniqueIDSplit = uniqueID.split(":");
-                if(uniqueIDSplit.length != 8){
-                    throw new Exception("Could not parse a value in attribute schacPersonalUniqueID");
-                }
-                String type = uniqueIDSplit[6];
-                if(type.toUpperCase().equals("SSN")){
-                    ssn.add(uniqueIDSplit[7]);
-                    ssnCountry.add(uniqueIDSplit[5].toUpperCase());
-                }else if(type.toUpperCase().equals("TIN")){
-                    tin.add(uniqueIDSplit[7]);
-                    tinCountry.add(uniqueIDSplit[5].toUpperCase());
-                }
-            }
-        }
-        if (lastNameElAttribute!=null) this.lastNameEl = lastNameElAttribute.getStringValue();
-        if (lastNameEnAttribute!=null) this.lastNameEn = lastNameEnAttribute.getStringValue();
-        if (dateOfBirthAttribute!=null) this.birthDate = dateOfBirthAttribute.getStringValue();
-        if (yearOfBirthAttribute!=null) this.birthYear = yearOfBirthAttribute.getStringValue();
-        else if (dateOfBirthAttribute!=null) this.birthYear = this.birthDate.substring(0, 4);
-        this.gender = genderAttribute.getStringValue();
-        this.citizenship = citizenshipAttribute.getStringValue();
-        
-        this.SsnOfConcern = conflictingSSN;
-        this.loginNameOfConcern= uidAttribute.getStringValue();
-    }
-
-    public Collection<String> getUids() {
-        return uids;
-    }
-    
     @Override
     public String getAcademicID() {
         return academicID;
@@ -177,9 +112,13 @@ public class SchGrAcPerson implements AcademicPerson{
     
     @Override
     public Collection<String> getTinCountry() {
-        return ssnCountry;
+        return tinCountry;
     }
-    
+
+    public Collection<String> getUids() {
+        return uids;
+    }
+
     @Override
     public String getRegistrationID() {
         return null;

@@ -5,7 +5,7 @@ import java.util.HashMap;
 public class ServerConfigurations {
     private static HashMap<String,String> configurations = null;
     public ServerConfigurations(String institution, String mode){
-      configurations = new HashMap();
+      configurations = new HashMap<>();
       if (mode.equals("local")) configurations.put("base_url", "http://localhost:4567");
       else {
         String base_url= "https://ulookup." + institution + ".gr";

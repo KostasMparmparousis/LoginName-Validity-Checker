@@ -1,14 +1,28 @@
 package gr.gunet.uLookup.routes;
 
+import gr.gunet.uLookup.ResponseMessages;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 
-public class HelpPageRoute implements Route{
 
+public class HelpPageRoute implements Route{
+    String title;
+    ResponseMessages responses;
     @Override
-    public Object handle(Request request, Response response) {
-        return "<html><body><p>Placeholder for help section</p></body></html>";
+    public Object handle(Request req, Response res) {
+        responses= new ResponseMessages(req.session().attribute("web"));
+        title="Suggested LoginNames";
+        String message= "{}";
+        if (!req.session().attribute("authorized").equals("true")){
+          String errorMessage= "You were not authorized";
+          return responses.getResponse("401", errorMessage, title);
+        }
+        if (!req.session().attribute("web").equals("true")){
+          res.type("application/json");
+          message= "{ \"message\": \"This is the help section\" }";
+        }
+        return message;
     }
     
 }

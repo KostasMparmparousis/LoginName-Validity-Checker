@@ -6,29 +6,23 @@ import java.util.HashSet;
 import spark.Request;
 
 public class RequestPerson implements AcademicPerson{
-    private Collection<String> ssn;
-    private Collection<String> ssnCountry;
-    private Collection<String> tin;
-    private Collection<String> tinCountry;
-    private String SSN;
-    private String SSNCountry;
+    private final Collection<String> ssn;
+    private final Collection<String> ssnCountry;
+    private final Collection<String> tin;
+    private final Collection<String> tinCountry;
+    private final String SSN;
+    private final String SSNCountry;
     private String TIN;
     private String TINCountry;
-    private String firstNameEl;
-    private String firstNameEn;
-    private String lastNameEl;
-    private String lastNameEn;
-    private String birthDate;
-    private String birthYear;
-    private String gender;
-    private String citizenship;
-    private String loginName;
-    private boolean verbose;
+    private final String birthDate;
+    private final String birthYear;
+    private final String loginName;
+    private final boolean verbose;
     public RequestPerson(CustomJsonReader jsonReader) throws Exception{
-      this.ssn=new HashSet();
-      this.ssnCountry=new HashSet();
-      this.tin=new HashSet();
-      this.tinCountry=new HashSet();
+      this.ssn=new HashSet<>();
+      this.ssnCountry=new HashSet<>();
+      this.tin=new HashSet<>();
+      this.tinCountry=new HashSet<>();
 
       SSN= jsonReader.readPropertyAsString("ssn");
       if(SSN == null || SSN.trim().equals("")){
@@ -89,17 +83,14 @@ public class RequestPerson implements AcademicPerson{
         throw new Exception("Invalid loginName format.");
       }
       String Verbose=jsonReader.readPropertyAsString("verbose");
-      if(Verbose == null || Verbose.trim().equals("")|| Verbose.equals("No")){
-        verbose=false;
-      }
-      else verbose=true;
+      verbose= Verbose != null && !Verbose.trim().equals("") && !Verbose.equals("No");
     }
 
     public RequestPerson(Request req) throws Exception{
-      this.ssn=new HashSet();
-      this.ssnCountry=new HashSet();
-      this.tin=new HashSet();
-      this.tinCountry=new HashSet();
+      this.ssn=new HashSet<>();
+      this.ssnCountry=new HashSet<>();
+      this.tin=new HashSet<>();
+      this.tinCountry=new HashSet<>();
 
       SSN= req.queryParams("ssn");
       if(SSN == null || SSN.trim().equals("")){
@@ -161,10 +152,7 @@ public class RequestPerson implements AcademicPerson{
       }
       
       String Verbose=req.queryParams("verbose");
-      if(Verbose == null || Verbose.trim().equals("")|| Verbose.equals("No")){
-        verbose=false;
-      }
-      else verbose=true;
+      verbose= Verbose != null && !Verbose.trim().equals("") && !Verbose.equals("No");
 
     }
 
@@ -214,22 +202,24 @@ public class RequestPerson implements AcademicPerson{
         return null;
     }
 
-    public String getFirstNameEl(){
-        return this.firstNameEl;
+    @Override
+    public String getFirstNameEl() {
+        return null;
     }
 
-    public String getFirstNameEn(){
-        return this.firstNameEn;
+    @Override
+    public String getFirstNameEn() {
+        return null;
     }
 
     @Override
     public String getLastNameEl() {
-        return this.lastNameEl;
+        return null;
     }
 
     @Override
     public String getLastNameEn() {
-        return this.lastNameEn;
+        return null;
     }
 
     @Override
@@ -244,12 +234,12 @@ public class RequestPerson implements AcademicPerson{
 
     @Override
     public String getGender() {
-        return this.gender;
+        return null;
     }
 
     @Override
     public String getCitizenship() {
-        return this.citizenship;
+        return null;
     }
 
     @Override

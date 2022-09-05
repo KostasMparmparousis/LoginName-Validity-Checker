@@ -1,7 +1,7 @@
 package gr.gunet.uLookup;
 import java.util.HashMap;
 
-public class ResponseMessages {
+public final class ResponseMessages {
     boolean fromWeb;
     String htmlHeader= "<html><head><meta charset=\"ISO-8859-1\"><title>Response</title><link rel=\"stylesheet\" href=\"../css/style.css\"></head><body>{";
     String htmlFooter="<br>}<br></div></body></html>";
@@ -14,19 +14,19 @@ public class ResponseMessages {
         fromWeb= web.equals("true");
 
         if (Validator==null){
-            Validator = new HashMap<String,String>();
+            Validator = new HashMap<>();
             initValidator();
         }
         if (Proposer==null){
-            Proposer = new HashMap<String,String>();
+            Proposer = new HashMap<>();
             initProposer();
         }
         if (Finder==null){
-            Finder = new HashMap<String,String>();
+            Finder = new HashMap<>();
             initFinder();
         }
         if (Error==null){
-            Error = new HashMap<String,String>();
+            Error = new HashMap<>();
             initError();
         }
     }
@@ -84,69 +84,83 @@ public class ResponseMessages {
     public String getResponse(String code, String content, String title){
         boolean noError = !code.equals("500") && !code.equals("400") && !code.equals("401");
         if (!fromWeb){
-        String response="{";
-        String response_code = "\"Response code\": " + code;
-        response_code = formattedString(response_code, 1) + ",";
-        String message;
+            String response="{";
+            String response_code = "\"Response code\": " + code;
+            response_code = formattedString(response_code, 1) + ",";
+            String message;
 
-        if (noError){
-            if (title.equals("Suggested LoginNames")) message= "\"Message\": \"" + getProposerMessage(code)+ "\"";
-            else if (title.equals("Roles Found")) message= "\"Message\": \"" + getFinderMessage(code)+ "\"";
-            else message= "\"Message\": \"" + getValidatorMessage(code)+ "\"";
-            message = formattedString(message,1);
-            message+=content;
+            if (noError){
+                switch (title) {
+                    case "Suggested LoginNames":
+                        message= "\"Message\": \"" + getProposerMessage(code)+ "\"";
+                        break;
+                    case "Roles Found":
+                        message= "\"Message\": \"" + getFinderMessage(code)+ "\"";
+                        break;
+                    default:
+                        message= "\"Message\": \"" + getValidatorMessage(code)+ "\"";
+                        break;
+                }
+                message = formattedString(message,1);
+                message+=content;
+            }
+            else{
+                message= "\"Message\": \"" + getErrorMessage(code, content)+ "\"";
+                message = formattedString(message,1);
+            }
+
+            response= response + response_code + message + "\n}";
+            return response;
         }
         else{
-            message= "\"Message\": \"" + getErrorMessage(code, content)+ "\"";
-            message = formattedString(message,1);
-        }
-
-        response= response + response_code + message + "\n}";
-        return response;
-      }
-      else{
-          if (title.equals("")){
-            switch(code.charAt(0)){
-              case '1':
-                  title="No conflicts";
-                  break;
-              case '2':
-                  title="Conflicts found";
-                  break;
-              case '3':
-                  title="Warning";
-                  break;
-              default:
-                  title="Error";
+            if (title.equals("")){
+              switch(code.charAt(0)){
+                case '1':
+                    title="No conflicts";
+                    break;
+                case '2':
+                    title="Conflicts found";
+                    break;
+                case '3':
+                    title="Warning";
+                    break;
+                default:
+                    title="Error";
+              }
             }
-          }
-          String htmlBody="<header><h1 style=\"color: #ed7b42;\">" + title + "</h1></header><hr class=\"new1\"><div class=\"sidenav\"><a href=\"../index.html\">Main Hub</a><a href=\"../validator.html\">Validator</a><a href=\"../proposer.html\">Proposer</a><a href=\"../roleFinder.html\">Finder</a></div><div class=\"main\">{";
-          String response_code = "\"Response code\": " + boldWord(code);
-          response_code = formattedString(response_code, 1) + ",";
-          String message;
+            String htmlBody="<header><h1 style=\"color: #ed7b42;\">" + title + "</h1></header><hr class=\"new1\"><div class=\"sidenav\"><a href=\"../index.html\">Main Hub</a><a href=\"../validator.html\">Validator</a><a href=\"../proposer.html\">Proposer</a><a href=\"../roleFinder.html\">Finder</a></div><div class=\"main\">{";
+            String response_code = "\"Response code\": " + boldWord(code);
+            response_code = formattedString(response_code, 1) + ",";
+            String message;
 
-          if (noError){
-              String messageContent;
-              if (title.equals("Suggested LoginNames")) {
-                  messageContent= boldWord(getProposerMessage(code));
-              }
-              else if (title.equals("Roles Found")) messageContent= boldWord(getFinderMessage(code));
-              else messageContent=boldWord(getValidatorMessage(code));
-              message= "\"Message\": \"" + messageContent + "\"";
-              message = formattedString(message,1);
-              if (title.equals("Suggested LoginNames") || title.equals("Roles Found")) {
-                  if (content!=null && !content.equals("")) message = message.concat(",");
-              }
-              message+=content;
-          }
-          else{
-              message= "\"Message\": \"" + boldWord(getErrorMessage(code, content))+ "\"";
-              message = formattedString(message,1);
-          }
-          
-          htmlBody= htmlBody + response_code + message;
-          return htmlHeader + htmlBody + htmlFooter;
-      }
+            if (noError){
+                String messageContent;
+                switch (title) {
+                    case "Suggested LoginNames":
+                        messageContent= boldWord(getProposerMessage(code));
+                        break;
+                    case "Roles Found":
+                        messageContent= boldWord(getFinderMessage(code));
+                        break;
+                    default:
+                        messageContent=boldWord(getValidatorMessage(code));
+                        break;
+                }
+                message= "\"Message\": \"" + messageContent + "\"";
+                message = formattedString(message,1);
+                if (title.equals("Suggested LoginNames") || title.equals("Roles Found")) {
+                    if (content!=null && !content.equals("")) message = message.concat(",");
+                }
+                message+=content;
+            }
+            else{
+                message= "\"Message\": \"" + boldWord(getErrorMessage(code, content))+ "\"";
+                message = formattedString(message,1);
+            }
+
+            htmlBody= htmlBody + response_code + message;
+            return htmlHeader + htmlBody + htmlFooter;
+        }
     }
 
     public String formattedString(String line, int tabs){
