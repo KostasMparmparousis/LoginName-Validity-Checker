@@ -36,7 +36,7 @@ public class DBManager {
         }
         return query.getResultList();
     }
-
+    
     public void inactivate(){
         if(entityManager != null){
             entityManager.close();
