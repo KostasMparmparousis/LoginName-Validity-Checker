@@ -148,9 +148,9 @@ public class LoginNameValidatorRoute implements Route{
                 for(Conflict conflict : conflicts){
                     if(firstElem){
                         firstElem = false;
-                        responseContent= responseContent.concat("[\n");
+                        responseContent= responseContent.concat("[");
                     }else{
-                        responseContent= responseContent.concat(",\n");
+                        responseContent= responseContent.concat(",");
                     }
                     responseContent= responseContent.concat(conflict.toJson(fromWeb));
                 }

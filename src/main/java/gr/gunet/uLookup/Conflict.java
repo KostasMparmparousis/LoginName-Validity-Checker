@@ -1,140 +1,52 @@
 package gr.gunet.uLookup;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 public class Conflict {
-    private final String type;
-    private final String description;
-    private final String conflictingField;
-    private final String conflictingRecordKey;
-    private final String conflictSource;
-    private final String requestValue;
-    private final String conflictingValue;
-    
+    LinkedHashMap<String, String> attributes;
     
     public Conflict(String type,String desc,String conflField,String conflRecKey,String conflSrc, String requestValue, String conflictingValue){
-        this.type = type;
-        this.description = desc;
-        this.conflictingField = conflField;
-        this.conflictingRecordKey = conflRecKey;
-        this.conflictSource = conflSrc;
-        this.requestValue= requestValue;
-        this.conflictingValue= conflictingValue;
+        attributes= new LinkedHashMap<>();
+        attributes.put("type", type);
+        attributes.put("description", desc);
+        attributes.put("conflictingData", conflField);
+        attributes.put("conflictingRecordKey", conflRecKey);
+        attributes.put("conflictSource", conflSrc);
+        attributes.put("requestValue", requestValue);
+        attributes.put("conflictingValue", conflictingValue);
     }
     
     public String toJson(boolean fromWeb){
+        String doubleTab;
+        String tripleTab;
+        String lineBreak;
         if (!fromWeb){
-          String json = "\t\t{";
-
-          json += "\n\t\t\t\"type\":";
-          if(type == null || type.trim().equals("")){
-              json += "null";
-          }else{
-              json += "\""+type+"\"";
-          }
-
-          json += ",\n\t\t\t\"description\":";
-          if(description == null || description.trim().equals("")){
-              json += "null";
-          }else{
-              json += "\""+description+"\"";
-          }
-
-          json += ",\n\t\t\t\"conflictingData\":";
-          if(conflictingField == null || conflictingField.trim().equals("")){
-              json += "null";
-          }else{
-              json += "\""+conflictingField+"\"";
-          }
-
-          json += ",\n\t\t\t\"conflictingRecordKey\":";
-          if(conflictingRecordKey == null || conflictingRecordKey.trim().equals("")){
-              json += "null";
-          }else{
-              json += "\""+conflictingRecordKey+"\"";
-          }
-
-          json += ",\n\t\t\t\"conflictSource\":";
-          if(conflictSource == null || conflictSource.trim().equals("")){
-              json += "null";
-          }else{
-              json += "\""+conflictSource+"\"";
-          }
-
-          json += ",\n\t\t\t\"requestValue\":";
-          if(requestValue == null || requestValue.trim().equals("")){
-              json += "null";
-          }else{
-              json += "\""+requestValue+"\"";
-          }
-
-          json += ",\n\t\t\t\"conflictingValue\":";
-          if(conflictingValue == null || conflictingValue.trim().equals("")){
-              json += "null";
-          }else{
-              json += "\""+conflictingValue+"\"";
-          }
-
-          return json+"\n\t\t}";
-        }else{
-          String json = "<br>&emsp;&emsp;{";
-
-        json += "<br>&emsp;&emsp;&emsp;\"type\":";
-        if(type == null || type.trim().equals("")){
-            json += "null";
-        }else{
-            json += "\""+type+"\"";
+            doubleTab="\t\t";
+            tripleTab="\t\t\t";
+            lineBreak="\n";
         }
-
-        json += ",<br>&emsp;&emsp;&emsp;\"description\":";
-        if(description == null || description.trim().equals("")){
-            json += "null";
-        }else{
-            json += "\""+description+"\"";
+        else{
+            doubleTab="&emsp;&emsp;";
+            tripleTab="&emsp;&emsp;&emsp;";
+            lineBreak="<br>";
         }
+        String json=lineBreak+doubleTab+"{";
 
-        json += ",<br>&emsp;&emsp;&emsp;\"conflictingData\":";
-        if(conflictingField == null || conflictingField.trim().equals("")){
-            json += "null";
-        }else{
-            json += "\""+conflictingField+"\"";
-        }
+        boolean firstElem=true;
+        for (Map.Entry<String, String> entry: attributes.entrySet()) {
+            String attributeName = "\"" + entry.getKey() + "\":";
+            String attributeValue = entry.getValue();
 
-        json += ",<br>&emsp;&emsp;&emsp;\"conflictingRecordKey\":";
-        if(conflictingRecordKey == null || conflictingRecordKey.trim().equals("")){
-            json += "null";
-        }else{
-            json += "\""+conflictingRecordKey+"\"";
+            if (firstElem) firstElem=false;
+            else json+=",";
+            json+=lineBreak+tripleTab+attributeName;
+            if(attributeValue == null || attributeValue.trim().equals("")){
+                json += "null";
+            }else{
+                json += "\""+attributeValue+"\"";
+            }
         }
-
-        json += ",<br>&emsp;&emsp;&emsp;\"conflictSource\":";
-        if(conflictSource == null || conflictSource.trim().equals("")){
-            json += "null";
-        }else{
-            json += "\""+conflictSource+"\"";
-        }
-        
-        json += ",<br>&emsp;&emsp;&emsp;\"requestValue\":";
-        if(requestValue == null || requestValue.trim().equals("")){
-            json += "null";
-        }else{
-            json += "\""+requestValue+"\"";
-        }
-        
-        json += ",<br>&emsp;&emsp;&emsp;\"conflictingValue\":";
-        if(conflictingValue == null || conflictingValue.trim().equals("")){
-            json += "null";
-        }else{
-            json += "\""+conflictingValue+"\"";
-        }
-
-        return json+"<br>&emsp;&emsp;}";
-        }
-    }
-
-    public String getConflictSource(){
-        return this.conflictSource;
-    }
-
-    public String getConflictRecordKey(){
-        return this.conflictingRecordKey;
+        return json+ lineBreak + doubleTab + "}";
     }
 }

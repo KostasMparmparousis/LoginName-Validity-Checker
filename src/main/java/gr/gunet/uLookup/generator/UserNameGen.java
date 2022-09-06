@@ -154,7 +154,7 @@ public class UserNameGen {
         SISDBView sis;
         HRMSDBView hrms, hrms2;
         LdapManager ldap;
-        HashMap<String, String> attributes = new HashMap<String, String>();
+        HashMap<String, String> attributes = new HashMap<>();
         attributes.put("loginName", loginName);
         if (disabledGracePeriod!=null) attributes.put("disabledGracePeriod", disabledGracePeriod);
 
