@@ -61,10 +61,6 @@ public class HRMSDBView extends DBManager{
             if(attributeType.equals("number") && !attributeValue.matches("\\d+")){
                 return new HashSet<>();
             }
-            if (attributeName.equals("disabledGracePeriod")){
-                gracePeriod= attributeValue;
-                continue;
-            }
 
             if (firstElem) firstElem=false;
             else sql = sql.concat(" AND hp.");

@@ -22,7 +22,6 @@ public class RoleFinderRoute implements Route {
     LdapConnectionPool ldapDS;
     String loginName;
     String institution;
-    boolean onlyActive;
     ResponseMessages responses;
     String primaryAffiliation;
     String title;
