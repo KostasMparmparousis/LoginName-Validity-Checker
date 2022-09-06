@@ -148,9 +148,6 @@ public final class ResponseMessages {
                 }
                 message= "\"Message\": \"" + messageContent + "\"";
                 message = formattedString(message,1);
-                if (title.equals("Suggested LoginNames") || title.equals("Roles Found")) {
-                    if (content!=null && !content.equals("")) message = message.concat(",");
-                }
                 message+=content;
             }
             else{

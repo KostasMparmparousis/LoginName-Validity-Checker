@@ -15,10 +15,7 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.*;
 
 public class RoleFinderRoute implements Route {
     DBConnectionPool Views;
@@ -110,7 +107,7 @@ public class RoleFinderRoute implements Route {
             response_code = "100";
             boolean firstElem = true;
             if (!fromWeb) roles = ",\n\t\"Affiliations\" : [";
-            else roles = "<br>&emsp;\"Affiliations\" : [";
+            else roles = ",<br>&emsp;\"Affiliations\" : [";
             for (String role : currentRoles) {
                 if (firstElem) {
                     firstElem = false;
@@ -186,8 +183,10 @@ public class RoleFinderRoute implements Route {
 
     private Object getPerson(SISDBView view){
         Collection<AcademicPerson> existingSISOwners;
+        HashMap<String, String> attributes = new HashMap<>();
+        attributes.put("loginName", loginName);
         try{
-            existingSISOwners= view.fetchAll("loginName", loginName, onlyActive);
+            existingSISOwners= view.fetchAll(attributes);
         }
         catch (Exception e){
             return errorMessage(e,"SIS");
@@ -197,8 +196,10 @@ public class RoleFinderRoute implements Route {
 
     private Object getPerson(HRMSDBView view, boolean ELKE){
         Collection<AcademicPerson> existingHRMSOwners;
+        HashMap<String, String> attributes = new HashMap<>();
+        attributes.put("loginName", loginName);
         try{
-            existingHRMSOwners= view.fetchAll("loginName", loginName, onlyActive);
+            existingHRMSOwners= view.fetchAll(attributes);
         }
         catch (Exception e){
             if (!ELKE) return errorMessage(e,"HRMS");

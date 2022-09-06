@@ -10,7 +10,6 @@ import java.util.List;
 
 public class DBManager {
     protected final static String CONN_FILE_DIR = "/etc/v_vd/conn";
-
     private final EntityManagerFactory emFactory;
     private EntityManager entityManager;
 
@@ -47,5 +46,4 @@ public class DBManager {
     public void activate(){
         entityManager = emFactory.createEntityManager();
     }
-
 }
