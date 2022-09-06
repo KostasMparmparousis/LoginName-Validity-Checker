@@ -12,8 +12,8 @@ import gr.gunet.uLookup.db.DBConnectionPool;
 import gr.gunet.uLookup.ldap.LdapConnectionPool;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
-//import java.util.*;
 import org.ldaptive.LdapEntry;
 import spark.Request;
 import spark.Response;
@@ -104,7 +104,7 @@ public class LoginNameValidatorRoute implements Route{
 
         Views= new DBConnectionPool(institution);
         ldapDS= new LdapConnectionPool(institution);
-        LoginNameValidator loginChecker = new LoginNameValidator(Views, ldapDS);
+        LoginNameValidator loginChecker = new LoginNameValidator(Views, ldapDS, disabledGracePeriod);
 
         Collection<String> UIDPersons;
         try{
@@ -125,7 +125,7 @@ public class LoginNameValidatorRoute implements Route{
         Collection<Conflict> conflicts;
         responseContent = "";
         try{
-            conflicts= loginChecker.checkForValidityConflicts(reqPerson,disabledGracePeriod);
+            conflicts= loginChecker.checkForValidityConflicts(reqPerson);
             getConflicts(conflicts,reqPerson, loginChecker);
 
             System.out.println("-Response code: " + responseCode);
@@ -148,9 +148,9 @@ public class LoginNameValidatorRoute implements Route{
                 for(Conflict conflict : conflicts){
                     if(firstElem){
                         firstElem = false;
-                        responseContent= responseContent.concat("[\n");
+                        responseContent= responseContent.concat("[");
                     }else{
-                        responseContent= responseContent.concat(",\n");
+                        responseContent= responseContent.concat(",");
                     }
                     responseContent= responseContent.concat(conflict.toJson(fromWeb));
                 }
@@ -175,6 +175,18 @@ public class LoginNameValidatorRoute implements Route{
 
     public void getExistingLoginNames(RequestPerson reqPerson, LoginNameValidator loginChecker, Collection<Conflict> conflicts){
         Collection<LdapEntry> existingDSOwners = new LinkedList<>();
+        HashMap<String, String> attributes = new HashMap<>();
+        attributes.put("loginName", reqPerson.getLoginName());
+        attributes.put("SSN", reqPerson.getSSN());
+        attributes.put("ssnCountry", reqPerson.getSSNCountry());
+        if (reqPerson.getTIN()!=null && reqPerson.getTINCountry()!=null){
+            attributes.put("tin", reqPerson.getTIN());
+            attributes.put("tinCountry", reqPerson.getTINCountry());
+        }
+        if (reqPerson.getBirthDate()!=null){
+            attributes.put("birthDate", reqPerson.getBirthDate());
+        }
+        if (disabledGracePeriod!=null) attributes.put("disabledGracePeriod", disabledGracePeriod);
 
         SISDBView sis;
         HRMSDBView hrms,hrms2;
@@ -186,9 +198,9 @@ public class LoginNameValidatorRoute implements Route{
             ldap = ldapDS.getConn();
 
             Collection<AcademicPerson> existingOwners;
-            existingOwners = sis.fetchAll(reqPerson, null);
-            if (hrms != null) existingOwners.addAll(hrms.fetchAll(reqPerson, null));
-            if (hrms2 != null) existingOwners.addAll(hrms2.fetchAll(reqPerson, null));
+            existingOwners = sis.fetchAll(attributes);
+            if (hrms != null) existingOwners.addAll(hrms.fetchAll(attributes));
+            if (hrms2 != null) existingOwners.addAll(hrms2.fetchAll(attributes));
             if (reqPerson.getSSNCountry().equals("GR"))
                 existingDSOwners.addAll(ldap.search(ldap.createSearchFilter("schGrAcPersonSSN=" + reqPerson.getSSN())));
 

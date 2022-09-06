@@ -78,7 +78,7 @@ public class HRMSPersonEntity_v1 implements Serializable,AcademicPerson{
     private String motherFirstNameEn;
     
     @Column(name = "birthdate")
-    private String birthdate;
+    private String birthDate;
     
     @Column(name = "birthYear")
     private String birthYear;
@@ -319,16 +319,16 @@ public class HRMSPersonEntity_v1 implements Serializable,AcademicPerson{
     }
 
     public String getBirthdate() {
-        return birthdate;
+        return birthDate;
     }
     
     @Override
     public String getBirthDate() {
-        return birthdate;
+        return birthDate;
     }
 
     public void setBirthdate(String birthdate) {
-        this.birthdate = birthdate;
+        this.birthDate = birthdate;
     }
 
     @Override

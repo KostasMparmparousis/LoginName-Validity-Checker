@@ -11,6 +11,7 @@ import gr.gunet.uLookup.ldap.LdapConnectionPool;
 import org.ldaptive.LdapEntry;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Vector;
 import spark.Request;
 import spark.Response;
@@ -76,6 +77,9 @@ public class LoginNameProposerRoute implements Route {
         Collection<LdapEntry> existingDSOwners = new Vector<>();
 
         message="";
+        HashMap<String, String> attributes = new HashMap<>();
+        attributes.put("SSN", SSN);
+        attributes.put("ssnCountry", SSNCountry);
 
         if (!findErrors().equals("")){
           return responses.getResponse("400", findErrors(), title);
@@ -89,7 +93,7 @@ public class LoginNameProposerRoute implements Route {
 
         try{
             SISDBView sis = Views.getSISConn();
-            existingOwners = new Vector<>(sis.fetchAll(SSN, SSNCountry));
+            existingOwners = new Vector<>(sis.fetchAll(attributes));
         }
         catch (Exception e){
             return errorMessage(e,"SIS");
@@ -97,7 +101,7 @@ public class LoginNameProposerRoute implements Route {
 
         try{
             HRMSDBView hrms = Views.getHRMSConn();
-            if (hrms != null) existingOwners.addAll(hrms.fetchAll(SSN, SSNCountry));
+            if (hrms != null) existingOwners.addAll(hrms.fetchAll(attributes));
         }
         catch (Exception e){
             return errorMessage(e,"HRMS");
@@ -105,7 +109,7 @@ public class LoginNameProposerRoute implements Route {
 
         try{
             HRMSDBView hrms2 = Views.getHRMS2Conn();
-            if (hrms2 != null) existingOwners.addAll(hrms2.fetchAll(SSN, SSNCountry));
+            if (hrms2 != null) existingOwners.addAll(hrms2.fetchAll(attributes));
         }
         catch (Exception e){
             return errorMessage(e,"ELKE");
@@ -122,8 +126,8 @@ public class LoginNameProposerRoute implements Route {
         Vector<String> existingUserNames= new Vector<>();
         if (!existingOwners.isEmpty() || !existingDSOwners.isEmpty()) {
             response_code+="1";
-            if (!fromWeb) personPairedWith= "\n\t\"personPairedWith\": [";
-            else personPairedWith= "<br>&emsp;\"personPairedWith\": [";
+            if (!fromWeb) personPairedWith= ",\n\t\"personPairedWith\": [";
+            else personPairedWith= ",<br>&emsp;\"personPairedWith\": [";
             boolean firstElem = true;
             if (!existingOwners.isEmpty()) {
                 for (AcademicPerson person : existingOwners) {
@@ -195,17 +199,21 @@ public class LoginNameProposerRoute implements Route {
         Vector<String> proposedNames = new Vector<>();
         UserNameGen loginGen = null;
         boolean firstElem = true;
+        HashMap<String, String> attributes = new HashMap<>();
+        attributes.put("SSN", SSN);
+        attributes.put("ssnCountry", SSNCountry);
         try {
             SISDBView sis = Views.getSISConn();
             HRMSDBView hrms = Views.getHRMSConn();
             HRMSDBView hrms2 = Views.getHRMS2Conn();
             LdapManager ldap = ldapDS.getConn();
 
+
             if (FN.trim().equals("") || LN.trim().equals("")){
                 if (!SSN.trim().equals("") && !SSNCountry.trim().equals("")){
-                    Collection<AcademicPerson> existingOwners = new Vector<>(sis.fetchAll(SSN, SSNCountry));
-                    if (hrms != null) existingOwners.addAll(hrms.fetchAll(SSN, SSNCountry));
-                    if (hrms2 != null) existingOwners.addAll(hrms2.fetchAll(SSN, SSNCountry));
+                    Collection<AcademicPerson> existingOwners = new Vector<>(sis.fetchAll(attributes));
+                    if (hrms != null) existingOwners.addAll(hrms.fetchAll(attributes));
+                    if (hrms2 != null) existingOwners.addAll(hrms2.fetchAll(attributes));
                     if ( SSNCountry.equals("GR") ){
                         existingDSOwners.addAll(ldap.search(ldap.createSearchFilter("schGrAcPersonSSN=" + SSN)));
                     }
@@ -222,7 +230,7 @@ public class LoginNameProposerRoute implements Route {
             if (proposedNames!=null && !proposedNames.isEmpty()){
                 response_code+="0";
                 message+= "Generator managed to create suggested names\",";
-                if (!personPairedWith.equals("")) personPairedWith+=",";
+                personPairedWith+=",";
                 if (!fromWeb) suggestedNames = "\n\t\"suggestions\":\t[";
                 else suggestedNames = "<br>&emsp;\"suggestions\":&emsp;[";
                 for(String login : proposedNames){

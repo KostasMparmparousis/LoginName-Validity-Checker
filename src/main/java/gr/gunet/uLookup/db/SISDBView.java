@@ -5,11 +5,8 @@ import gr.gunet.uLookup.db.viewentities.SISPersonEntity_v1;
 import gr.gunet.uLookup.db.viewentities.SISPersonEntity_v2;
 import gr.gunet.uLookup.db.viewentities.SISPersonEntity_v3;
 import gr.gunet.uLookup.tools.PropertyReader;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
+
+import java.util.*;
 
 public class SISDBView extends DBManager{
     private static final HashMap<String,String> ATTRIBUTE_DATA_TYPES;
@@ -18,18 +15,21 @@ public class SISDBView extends DBManager{
         ATTRIBUTE_DATA_TYPES.put("registrationid", "varchar");
         ATTRIBUTE_DATA_TYPES.put("systemid", "varchar");
         ATTRIBUTE_DATA_TYPES.put("ssn", "varchar");
+        ATTRIBUTE_DATA_TYPES.put("ssncountry", "varchar");
         ATTRIBUTE_DATA_TYPES.put("tin", "varchar");
+        ATTRIBUTE_DATA_TYPES.put("tincountry", "varchar");
+        ATTRIBUTE_DATA_TYPES.put("birthdate", "varchar");
         ATTRIBUTE_DATA_TYPES.put("loginname", "varchar");
         ATTRIBUTE_DATA_TYPES.put("extemail", "varchar");
         ATTRIBUTE_DATA_TYPES.put("mobilephone", "varchar");
     }
-    
+
     private final String entityVersion;
-    
+
     public SISDBView(String propertyFile) throws Exception{
         this(new PropertyReader(CONN_FILE_DIR+"/"+propertyFile));
     }
-    
+
     public SISDBView(PropertyReader propReader) throws Exception{
         this(propReader.getProperty("databaseType"),propReader);
     }
@@ -38,31 +38,46 @@ public class SISDBView extends DBManager{
         super(connector,propReader);
         this.entityVersion = propReader.getProperty("entityVersion");
     }
-    
-    public Collection<AcademicPerson> fetchAll(String attributeName, String attributeValue, String disabledGracePeriod) throws Exception{
-        String attributeType = ATTRIBUTE_DATA_TYPES.get(attributeName.toLowerCase());
-        if(attributeType == null || attributeType.equals("")){
-            throw new Exception("Field with name '"+attributeName+"' does not have a type registered");
+
+    public Collection<AcademicPerson> fetchAll(HashMap<String, String> attributes) throws Exception{
+        List<AcademicPerson> retVals = new LinkedList<>();
+        String sql = "SELECT sp FROM SISPersonEntity_v"+entityVersion+" sp WHERE sp.";
+        boolean firstElem=true;
+        String gracePeriod=null;
+        for (Map.Entry<String, String> entry: attributes.entrySet()){
+            String attributeName=entry.getKey();
+            String attributeValue=entry.getValue();
+            if (attributeName.equals("disabledGracePeriod")){
+                gracePeriod= attributeValue;
+                continue;
+            }
+
+            String attributeType = ATTRIBUTE_DATA_TYPES.get(attributeName.toLowerCase());
+            if(attributeType == null || attributeType.equals("")){
+                throw new Exception("Field with name '"+attributeName+"' does not have a type registered");
+            }
+            if(attributeType.equals("number") && !attributeValue.matches("\\d+")){
+                return new HashSet<>();
+            }
+
+            if (firstElem) firstElem=false;
+            else sql = sql.concat(" AND sp.");
+
+            if(attributeType.equals("varchar")){
+                sql = sql.concat(attributeName+"='"+attributeValue+"'");
+            }else if(attributeType.equals("number")){
+                sql = sql.concat(attributeName+"="+attributeValue);
+            }else{
+                throw new Exception("Unknown data type '"+attributeType+"' encountered on attribute '"+attributeName+"' on CrossChecker:fetch");
+            }
         }
-        if(attributeType.equals("number") && !attributeValue.matches("\\d+")){
-            return new HashSet<>();
-        }
-        
-        String sql = "SELECT sp FROM SISPersonEntity_v"+entityVersion+" sp WHERE sp."+attributeName;
-        if(attributeType.equals("varchar")){
-            sql += "='"+attributeValue+"'";
-        }else if(attributeType.equals("number")){
-            sql += "="+attributeValue;
-        }else{
-            throw new Exception("Unknown data type '"+attributeType+"' encountered on attribute '"+attributeName+"' on CrossChecker:fetch");
-        }
-        if(disabledGracePeriod == null){
+
+        if(gracePeriod == null){
             sql += " AND sp.enrollmentStatus IN ('active','interim')";
         }else{
-            sql += " AND (sp.enrollmentStatus IN ('active','interim') OR sp.enrollmentStatusDate > '"+disabledGracePeriod+"')";
+            sql += " AND (sp.enrollmentStatus IN ('active','interim') OR sp.enrollmentStatusDate > '"+gracePeriod+"')";
         }
-        
-        List<AcademicPerson> retVals = new LinkedList<>();
+
         switch (entityVersion) {
             case "1": {
                 List<SISPersonEntity_v1> results = select(sql, SISPersonEntity_v1.class);
@@ -81,118 +96,6 @@ public class SISDBView extends DBManager{
             }
             default:
                 throw new Exception("Unsupported entity version '" + entityVersion + "' on SIS DB View.");
-        }
-        return retVals;
-    }
-
-    public Collection<AcademicPerson> fetchAll(String attributeName, String attributeValue, boolean onlyActive) throws Exception{
-        String attributeType = ATTRIBUTE_DATA_TYPES.get(attributeName.toLowerCase());
-        if(attributeType == null || attributeType.equals("")){
-            throw new Exception("Field with name '"+attributeName+"' does not have a type registered");
-        }
-        if(attributeType.equals("number") && !attributeValue.matches("\\d+")){
-            return new HashSet<>();
-        }
-        
-        String sql = "SELECT sp FROM SISPersonEntity_v"+entityVersion+" sp WHERE sp."+attributeName;
-        if(attributeType.equals("varchar")){
-            sql += "='"+attributeValue+"'";
-        }else if(attributeType.equals("number")){
-            sql += "="+attributeValue;
-        }else{
-            throw new Exception("Unknown data type '"+attributeType+"' encountered on attribute '"+attributeName+"' on CrossChecker:fetch");
-        }
-        if(onlyActive){
-            sql += " AND sp.enrollmentStatus IN ('active','interim')";
-        }
-
-        List<AcademicPerson> retVals = new LinkedList<>();
-        switch (entityVersion) {
-            case "1": {
-                List<SISPersonEntity_v1> results = select(sql, SISPersonEntity_v1.class);
-                retVals.addAll(results);
-                break;
-            }
-            case "2": {
-                List<SISPersonEntity_v2> results = select(sql, SISPersonEntity_v2.class);
-                retVals.addAll(results);
-                break;
-            }
-            case "3": {
-                List<SISPersonEntity_v3> results = select(sql, SISPersonEntity_v3.class);
-                retVals.addAll(results);
-                break;
-            }
-            default:
-                throw new Exception("Unsupported entity version '" + entityVersion + "' on HRMS DB View.");
-        }
-        return retVals;
-    }
-
-    public Collection<AcademicPerson> fetchAll(String ssn, String ssnCountry) throws Exception{
-        String sql = "SELECT sp FROM SISPersonEntity_v"+entityVersion+" sp WHERE sp.SSN='" + ssn;
-        sql += "' AND sp.ssnCountry = '"+ssnCountry+"'";
-
-        List<AcademicPerson> retVals = new LinkedList<>();
-        switch (entityVersion) {
-            case "1": {
-                List<SISPersonEntity_v1> results = select(sql, SISPersonEntity_v1.class);
-                retVals.addAll(results);
-                break;
-            }
-            case "2": {
-                List<SISPersonEntity_v2> results = select(sql, SISPersonEntity_v2.class);
-                retVals.addAll(results);
-                break;
-            }
-            case "3": {
-                List<SISPersonEntity_v3> results = select(sql, SISPersonEntity_v3.class);
-                retVals.addAll(results);
-                break;
-            }
-            default:
-                throw new Exception("Unsupported entity version '" + entityVersion + "' on HRMS DB View.");
-        }
-        return retVals;
-    }
-
-    public Collection<AcademicPerson> fetchAll(AcademicPerson person, String disabledGracePeriod) throws Exception{
-        String sql = "SELECT sp FROM SISPersonEntity_v"+entityVersion+" sp WHERE sp.SSN='" + person.getSSN();
-        sql += "' AND sp.ssnCountry = '"+person.getSSNCountry()+"'";
-        if (person.getTIN()!=null && person.getTINCountry()!=null){
-            sql += " AND sp.tin = '"+person.getTIN()+"'";
-            sql += " AND sp.tinCountry = '"+person.getTINCountry()+"'";
-        }
-        if (person.getBirthDate()!=null){
-            sql += " AND sp.birthDate = '"+person.getBirthDate()+"'";
-            sql += " AND sp.birthYear = '"+person.getBirthYear()+"'";
-        }
-
-        if(disabledGracePeriod == null){
-            sql += " AND sp.enrollmentStatus IN ('active','interim')";
-        }else{
-            sql += " AND (sp.enrollmentStatus IN ('active','interim') OR sp.enrollmentStatusDate > '"+disabledGracePeriod+"')";
-        }
-
-        List<AcademicPerson> retVals = new LinkedList<>();
-        switch (entityVersion) {
-            case "1": {
-                List<SISPersonEntity_v1> results = select(sql, SISPersonEntity_v1.class);
-                retVals.addAll(results);
-                break;
-            }
-            case "2": {
-                List<SISPersonEntity_v2> results = select(sql, SISPersonEntity_v2.class);
-                retVals.addAll(results);
-                break;
-            }
-            case "3": {
-                List<SISPersonEntity_v3> results = select(sql, SISPersonEntity_v3.class);
-                retVals.addAll(results);
-                break;
-            }
-            default:
-                throw new Exception("Unsupported entity version '" + entityVersion + "' on HRMS DB View.");
         }
         return retVals;
     }

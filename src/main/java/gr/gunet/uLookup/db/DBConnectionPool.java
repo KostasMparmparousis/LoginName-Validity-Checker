@@ -16,7 +16,6 @@ public class DBConnectionPool {
   private final String View;
   private final String CONN_FILE_DIR = "/etc/v_vd/conn/";
   
-
   public DBConnectionPool(String View){
     this.View=View;
   }
@@ -85,7 +84,6 @@ public class DBConnectionPool {
   }
 
   public static void clean(){
-
     sis_last_usage.forEach((View, usedAt) -> {
       long currentTime = System.currentTimeMillis();
       if ((currentTime - usedAt) > CONNECTION_LIFETIME) {
@@ -124,6 +122,5 @@ public class DBConnectionPool {
         }
       }
     });
-
   }
 }
