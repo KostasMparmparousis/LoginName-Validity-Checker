@@ -87,7 +87,7 @@ public class ValidatorResults implements Results {
             else responseCode+="20"; //220
         }
         if (responseCode.length()<3) responseCode+="0";
-        return sendResponse(responseCode, responseContent, title);
+        return Results.sendResponse(responseCode,responseContent,title);
     }
 
 }

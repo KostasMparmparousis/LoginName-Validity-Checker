@@ -1,16 +1,8 @@
 package gr.gunet.uLookup.tools.generator;
 
-import gr.gunet.uLookup.db.DBConnectionPool;
-import gr.gunet.uLookup.db.HRMSDBView;
-import gr.gunet.uLookup.db.SISDBView;
-import gr.gunet.uLookup.db.ldap.LdapConnectionPool;
-import gr.gunet.uLookup.db.ldap.LdapManager;
 import gr.gunet.uLookup.db.personInstances.AcademicPerson;
 import org.ldaptive.LdapEntry;
-
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Vector;
 
 public class UserNameGen {
@@ -150,30 +142,4 @@ public class UserNameGen {
         return ProposedNames;
     }
 
-    public boolean checkIfUserNameExists(String loginName, DBConnectionPool Views, LdapConnectionPool ldapDS, String disabledGracePeriod){
-        SISDBView sis;
-        HRMSDBView hrms, hrms2;
-        LdapManager ldap;
-        HashMap<String, String> attributes = new HashMap<>();
-        attributes.put("loginName", loginName);
-        if (disabledGracePeriod!=null) attributes.put("disabledGracePeriod", disabledGracePeriod);
-
-        try{
-            sis=Views.getSISConn();
-            hrms=Views.getHRMSConn();
-            hrms2=Views.getHRMS2Conn();
-            ldap=ldapDS.getConn();
-
-            Collection<AcademicPerson> existingOwners= sis.fetchAll(attributes);
-            if (hrms!=null) existingOwners.addAll(hrms.fetchAll(attributes));
-            if (hrms2!=null) existingOwners.addAll(hrms2.fetchAll(attributes));
-            Collection<LdapEntry> existingDSOwners= ldap.search(ldap.createSearchFilter("(schGrAcPersonID=*)","uid="+loginName));
-            if (!existingOwners.isEmpty() || !existingDSOwners.isEmpty()) return true;
-        }
-        catch(Exception e){
-            e.printStackTrace();
-        }
-        return false;
-
-    }
 }

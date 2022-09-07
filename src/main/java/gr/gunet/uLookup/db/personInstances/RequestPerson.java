@@ -18,6 +18,7 @@ public class RequestPerson implements AcademicPerson {
     private final String birthYear;
     private final String loginName;
     private final boolean verbose;
+
     public RequestPerson(CustomJsonParser jsonReader) throws Exception{
       this.ssn=new HashSet<>();
       this.ssnCountry=new HashSet<>();
