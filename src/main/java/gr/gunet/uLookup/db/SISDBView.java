@@ -63,12 +63,15 @@ public class SISDBView extends DBManager{
             if (firstElem) firstElem=false;
             else sql = sql.concat(" AND sp.");
 
-            if(attributeType.equals("varchar")){
-                sql = sql.concat(attributeName+"='"+attributeValue+"'");
-            }else if(attributeType.equals("number")){
-                sql = sql.concat(attributeName+"="+attributeValue);
-            }else{
-                throw new Exception("Unknown data type '"+attributeType+"' encountered on attribute '"+attributeName+"' on CrossChecker:fetch");
+            switch (attributeType) {
+                case "varchar":
+                    sql = sql.concat(attributeName+"='"+attributeValue+"'");
+                    break;
+                case "number":
+                    sql = sql.concat(attributeName+"="+attributeValue);
+                    break;
+                default:
+                    throw new Exception("Unknown data type '"+attributeType+"' encountered on attribute '"+attributeName+"' on CrossChecker:fetch");
             }
         }
 
