@@ -1,6 +1,6 @@
 package gr.gunet.uLookup.db;
 
-import gr.gunet.uLookup.tools.PropertyReader;
+import gr.gunet.uLookup.tools.parsers.PropertyParser;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -13,7 +13,7 @@ public class DBManager {
     private final EntityManagerFactory emFactory;
     private EntityManager entityManager;
 
-    public DBManager(String connector,PropertyReader propReader){
+    public DBManager(String connector, PropertyParser propReader){
         emFactory = Persistence.createEntityManagerFactory(connector,propReader.getPropertiesObject());
         entityManager = null;
     }
