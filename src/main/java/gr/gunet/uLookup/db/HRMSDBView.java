@@ -1,12 +1,12 @@
 package gr.gunet.uLookup.db;
 
-import gr.gunet.uLookup.db.viewentities.HRMSPersonEntity_v5;
-import gr.gunet.uLookup.db.viewentities.HRMSPersonEntity_v3;
-import gr.gunet.uLookup.db.viewentities.HRMSPersonEntity_v2;
-import gr.gunet.uLookup.db.viewentities.HRMSPersonEntity_v4;
-import gr.gunet.uLookup.db.viewentities.HRMSPersonEntity_v1;
-import gr.gunet.uLookup.AcademicPerson;
-import gr.gunet.uLookup.tools.PropertyReader;
+import gr.gunet.uLookup.db.viewEntities.HRMSPersonEntity_v5;
+import gr.gunet.uLookup.db.viewEntities.HRMSPersonEntity_v3;
+import gr.gunet.uLookup.db.viewEntities.HRMSPersonEntity_v2;
+import gr.gunet.uLookup.db.viewEntities.HRMSPersonEntity_v4;
+import gr.gunet.uLookup.db.viewEntities.HRMSPersonEntity_v1;
+import gr.gunet.uLookup.db.personInstances.AcademicPerson;
+import gr.gunet.uLookup.tools.parsers.PropertyParser;
 
 import java.util.*;
 
@@ -29,14 +29,14 @@ public class HRMSDBView extends DBManager{
     private final String entityVersion;
 
     public HRMSDBView(String propertyFile) throws Exception{
-        this(new PropertyReader(CONN_FILE_DIR+"/"+propertyFile));
+        this(new PropertyParser(CONN_FILE_DIR+"/"+propertyFile));
     }
 
-    public HRMSDBView(PropertyReader propReader) throws Exception{
+    public HRMSDBView(PropertyParser propReader) throws Exception{
         this(propReader.getProperty("databaseType"),propReader);
     }
 
-    public HRMSDBView(String connector,PropertyReader propReader) throws Exception{
+    public HRMSDBView(String connector, PropertyParser propReader) throws Exception{
         super(connector,propReader);
         entityVersion = propReader.getProperty("entityVersion");
     }

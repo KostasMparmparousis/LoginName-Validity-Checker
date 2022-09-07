@@ -1,14 +1,19 @@
 package gr.gunet.uLookup;
-import gr.gunet.uLookup.routes.*;
+import gr.gunet.uLookup.endpoints.HelpPageRoute;
+import gr.gunet.uLookup.endpoints.finder.FinderRoute;
+import gr.gunet.uLookup.endpoints.proposer.ProposerRoute;
+import gr.gunet.uLookup.endpoints.validator.ValidatorRoute;
+import gr.gunet.uLookup.tools.CleanupThread;
+import gr.gunet.uLookup.tools.ServerConfigurations;
 import spark.Request;
 import spark.Response;
 import spark.Spark;
 import spark.servlet.SparkApplication;
 import spark.staticfiles.StaticFilesConfiguration;
-import gr.gunet.uLookup.filters.BasicAuthFilter;
-import gr.gunet.uLookup.routes.security.LogoutHandle;
-import gr.gunet.uLookup.routes.security.ValidateToken;
-import gr.gunet.uLookup.tools.CommandLineParser;
+import gr.gunet.uLookup.security.BasicAuthFilter;
+import gr.gunet.uLookup.security.LogoutHandle;
+import gr.gunet.uLookup.security.ValidateToken;
+import gr.gunet.uLookup.tools.parsers.CommandLineParser;
 
 public class Main implements SparkApplication {
     String institution = null;
@@ -55,12 +60,12 @@ public class Main implements SparkApplication {
         Spark.post("/logout",logoutHandle);
         Spark.post("/logout/",logoutHandle);
 
-        Spark.post("/validator/", new LoginNameValidatorRoute(institution));
-        Spark.post("/validator", new LoginNameValidatorRoute(institution));
-        Spark.post("/proposer/", new LoginNameProposerRoute(institution));
-        Spark.post("/proposer", new LoginNameProposerRoute(institution));
-        Spark.post("/finder/", new RoleFinderRoute(institution));
-        Spark.post("/finder", new RoleFinderRoute(institution));
+        Spark.post("/validator/", new ValidatorRoute(institution));
+        Spark.post("/validator", new ValidatorRoute(institution));
+        Spark.post("/proposer/", new ProposerRoute(institution));
+        Spark.post("/proposer", new ProposerRoute(institution));
+        Spark.post("/finder/", new FinderRoute(institution));
+        Spark.post("/finder", new FinderRoute(institution));
         Spark.post("/help/", new HelpPageRoute());
         Spark.post("/help", new HelpPageRoute());
         

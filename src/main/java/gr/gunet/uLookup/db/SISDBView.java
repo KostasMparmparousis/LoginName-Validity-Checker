@@ -1,10 +1,10 @@
 package gr.gunet.uLookup.db;
 
-import gr.gunet.uLookup.AcademicPerson;
-import gr.gunet.uLookup.db.viewentities.SISPersonEntity_v1;
-import gr.gunet.uLookup.db.viewentities.SISPersonEntity_v2;
-import gr.gunet.uLookup.db.viewentities.SISPersonEntity_v3;
-import gr.gunet.uLookup.tools.PropertyReader;
+import gr.gunet.uLookup.db.personInstances.AcademicPerson;
+import gr.gunet.uLookup.db.viewEntities.SISPersonEntity_v1;
+import gr.gunet.uLookup.db.viewEntities.SISPersonEntity_v2;
+import gr.gunet.uLookup.db.viewEntities.SISPersonEntity_v3;
+import gr.gunet.uLookup.tools.parsers.PropertyParser;
 
 import java.util.*;
 
@@ -27,14 +27,14 @@ public class SISDBView extends DBManager{
     private final String entityVersion;
 
     public SISDBView(String propertyFile) throws Exception{
-        this(new PropertyReader(CONN_FILE_DIR+"/"+propertyFile));
+        this(new PropertyParser(CONN_FILE_DIR+"/"+propertyFile));
     }
 
-    public SISDBView(PropertyReader propReader) throws Exception{
+    public SISDBView(PropertyParser propReader) throws Exception{
         this(propReader.getProperty("databaseType"),propReader);
     }
 
-    public SISDBView(String connector,PropertyReader propReader) throws Exception{
+    public SISDBView(String connector, PropertyParser propReader) throws Exception{
         super(connector,propReader);
         this.entityVersion = propReader.getProperty("entityVersion");
     }
