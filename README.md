@@ -38,7 +38,7 @@ A *conflict* occurs when the requested *loginName* is already attributed to a di
 
 The endpoint **loginNameValidator** is a mechanism that will locate any conflicts or inconsistencies if this *loginName* were to be used.  
 
-A complete guide is available [here](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/loginNameValidator).
+A complete guide is available [here](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Validator).
 
 ### loginNameSuggester
 Selecting a loginName for a new University Account is often not a straightforward procedure.
@@ -50,7 +50,7 @@ The endpoint **loginNameSuggester** addresses the latter scenario, suggesting po
 
 The endpoint shall propose loginNames that can be safely attributed to a new Account.  
 
-A complete guide is available [here](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/loginNameSuggester).
+A complete guide is available [here](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Proposer).
 
 ### roleFinder
 A difficult task for a university with thousands of active members can be to determine a person's Role in their institution. 
@@ -58,4 +58,4 @@ Search for a person's active Roles in a institution based on a given userName.
 
 The endpoint **roleFinder** conducts a search based on a given loginName and decides whether a person is a *Student*, a *Member of the Teaching Staff*, an *Associate*, or a combination of the above.
 
-A complete guide is available [here](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/roleFinder).
+A complete guide is available [here](https://github.com/KostasMparmparousis/LoginName-Validity-Checker/wiki/Finder).
