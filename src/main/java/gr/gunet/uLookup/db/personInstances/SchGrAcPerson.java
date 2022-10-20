@@ -24,6 +24,10 @@ public class SchGrAcPerson implements AcademicPerson{
     private String citizenship;
     private final String loginNameOfConcern;
 
+    public SchGrAcPerson(LdapEntry entity) throws Exception{
+        this(entity, "");
+    }
+
     public SchGrAcPerson(LdapEntry entity, String conflictingLoginName) throws Exception{
         this.ssn=new HashSet<>();
         this.ssnCountry=new HashSet<>();
@@ -58,6 +62,7 @@ public class SchGrAcPerson implements AcademicPerson{
                 String type = uniqueIDSplit[6];
                 if(type.equalsIgnoreCase("SSN")){
                     ssn.add(uniqueIDSplit[7]);
+                    SSN=uniqueIDSplit[7];
                     ssnCountry.add(uniqueIDSplit[5].toUpperCase());
                     SSNCountry=uniqueIDSplit[5].toUpperCase();
                 }else if(type.equalsIgnoreCase("TIN")){

@@ -69,7 +69,7 @@ public class Validator {
         LdapManager ds;
         try {
             ds= ldapDS.getConn();
-            Collection<LdapEntry> existingDSOwners= ds.search(ds.createSearchFilter("(!(schGrAcPersonID=*))","uid="+reqPerson.getLoginName()));
+            Collection<LdapEntry> existingDSOwners= ds.search(ds.createSearchFilter("(!(objectClass=schGrAcLinkageIdentifiers))","uid="+reqPerson.getLoginName()));
             if (!existingDSOwners.isEmpty()){
                 for (LdapEntry uidPerson: existingDSOwners){
                     if (uidPerson.getAttribute("uid")!=null && (uidPerson.getAttribute("uid").getStringValue()).equals(reqPerson.getLoginName())){
@@ -138,7 +138,7 @@ public class Validator {
 
         try{
             ldap=ldapDS.getConn();
-            existingDSOwners = ldap.search(ldap.createSearchFilter("(schGrAcPersonID=*)","uid="+reqPerson.getLoginName()));
+            existingDSOwners = ldap.search(ldap.createSearchFilter("uid="+reqPerson.getLoginName()));
             for(LdapEntry existingDSOwner : existingDSOwners){
                 conflicts.addAll(samePersonChecks(reqPerson,new SchGrAcPerson(existingDSOwner, reqPerson.getLoginName()),"DS"));
             }
@@ -179,21 +179,15 @@ public class Validator {
             existingOwners = sis.fetchAll(attributes);
             if (hrms != null) existingOwners.addAll(hrms.fetchAll(attributes));
             if (hrms2 != null) existingOwners.addAll(hrms2.fetchAll(attributes));
-            if (reqPerson.getSSNCountry().equals("GR"))
-                existingDSOwners.addAll(ldap.search(ldap.createSearchFilter("schGrAcPersonSSN=" + reqPerson.getSSN())));
+            existingDSOwners.addAll(ldap.search(ldap.createSearchFilter("schacPersonalUniqueID=*SSN:" + reqPerson.getSSN())));
+            for(LdapEntry existingDSOwner : existingDSOwners){
+                existingOwners.add(new SchGrAcPerson(existingDSOwner, reqPerson.getLoginName()));
+            }
 
             if (!existingOwners.isEmpty()) {
                 for (AcademicPerson person : existingOwners) {
                     if (!existingUserNames.contains(person.getLoginName())) {
                         existingUserNames.add(person.getLoginName());
-                    }
-                }
-            }
-            if (!existingDSOwners.isEmpty()) {
-                for (LdapEntry person : existingDSOwners) {
-                    String uid = person.getAttribute("uid").getStringValue();
-                    if (!existingUserNames.contains(uid)) {
-                        existingUserNames.add(uid);
                     }
                 }
             }
@@ -217,7 +211,7 @@ public class Validator {
 
         try{
             ldap=ldapDS.getConn();
-            existingDSOwners = ldap.search(ldap.createSearchFilter("(schGrAcPersonID=*)","uid="+reqPerson.getLoginName()));
+            existingDSOwners = ldap.search(ldap.createSearchFilter("uid="+reqPerson.getLoginName()));
             if (!existingDSOwners.isEmpty()){
                 loginNameSources.add("DS");
                 return loginNameSources;
@@ -269,6 +263,7 @@ public class Validator {
         Collection<AcademicPerson> existingOwners;
         SISDBView sis;
         HRMSDBView hrms,hrms2;
+        LdapManager ldap;
         HashMap<String, String> attributes = new HashMap<>();
         attributes.put("loginName", reqPerson.getLoginName());
         if (disabledGracePeriod!=null) attributes.put("disabledGracePeriod", disabledGracePeriod);
@@ -302,6 +297,18 @@ public class Validator {
         catch(Exception e){
             e.printStackTrace(System.err);
             throw new Exception("HRMS2");
+        }
+
+        try{
+            ldap=ldapDS.getConn();
+            Collection<LdapEntry> existingDSOwners=ldap.search(ldap.createSearchFilter("uid="+reqPerson.getLoginName()));
+            for(LdapEntry existingDSOwner : existingDSOwners){
+                existingOwners.add(new SchGrAcPerson(existingDSOwner, reqPerson.getLoginName()));
+            }
+        }
+        catch(LdapException e){
+            e.printStackTrace(System.err);
+            throw new Exception("DS");
         }
 
         if (!existingOwners.isEmpty()) {

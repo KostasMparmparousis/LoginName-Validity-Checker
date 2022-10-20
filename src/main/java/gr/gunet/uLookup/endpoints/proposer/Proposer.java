@@ -6,6 +6,7 @@ import gr.gunet.uLookup.db.SISDBView;
 import gr.gunet.uLookup.db.ldap.LdapConnectionPool;
 import gr.gunet.uLookup.db.ldap.LdapManager;
 import gr.gunet.uLookup.db.personInstances.AcademicPerson;
+import gr.gunet.uLookup.db.personInstances.SchGrAcPerson;
 import gr.gunet.uLookup.tools.ResponseMessages;
 import gr.gunet.uLookup.tools.generator.UserNameGen;
 import org.ldaptive.LdapEntry;
@@ -80,29 +81,21 @@ public class Proposer {
         }
 
         try{
-            String SSNCountry= attributes.get("ssnCountry");
             LdapManager ldap = ldapDS.getConn();
-            if (SSNCountry.equals("GR")) existingDSOwners.addAll(ldap.search(ldap.createSearchFilter("schGrAcPersonSSN=" + attributes.get("SSN"))));
+            existingDSOwners.addAll(ldap.search(ldap.createSearchFilter("schacPersonalUniqueID=*SSN:" + SSN)));
+            for(LdapEntry existingDSOwner : existingDSOwners){
+                existingOwners.add(new SchGrAcPerson(existingDSOwner));
+            }
         }
         catch (Exception e){
             return errorMessage(e,"DS");
         }
 
         Collection<String> existingUserNames= new LinkedList<>();
-        if (!existingOwners.isEmpty() || !existingDSOwners.isEmpty()) {
-            if (!existingOwners.isEmpty()) {
-                for (AcademicPerson person : existingOwners) {
-                    if (!existingUserNames.contains(person.getLoginName())) {
-                        existingUserNames.add(person.getLoginName());
-                    }
-                }
-            }
-            if (!existingDSOwners.isEmpty()) {
-                for (LdapEntry person : existingDSOwners) {
-                    String uid = person.getAttribute("uid").getStringValue();
-                    if (!existingUserNames.contains(uid)) {
-                        existingUserNames.add(uid);
-                    }
+        if (!existingOwners.isEmpty()) {
+            for (AcademicPerson person : existingOwners) {
+                if (!existingUserNames.contains(person.getLoginName())) {
+                    existingUserNames.add(person.getLoginName());
                 }
             }
         }
