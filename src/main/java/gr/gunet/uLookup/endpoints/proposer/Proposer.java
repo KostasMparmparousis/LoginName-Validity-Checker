@@ -22,7 +22,6 @@ public class Proposer {
     ResponseMessages responses;
     HashMap<String,String> attributes;
     Collection<AcademicPerson> existingOwners;
-    Collection<LdapEntry> existingDSOwners;
 
     public Proposer(String institution, ResponseMessages responses) {
         this.Views= new DBConnectionPool(institution);
@@ -47,7 +46,7 @@ public class Proposer {
         return responses.getResponse(results.get("code"), results.get("content"), results.get("title"));
     }
     public Object getExisting(){
-        existingDSOwners= new Vector<>();
+        Collection<LdapEntry> existingDSOwners= new Vector<>();
         existingOwners=new Vector<>();
         String SSN= attributes.get("SSN");
         String ssnCountry= attributes.get("ssnCountry");
@@ -110,10 +109,7 @@ public class Proposer {
 
         UserNameGen loginGen = null;
         if (FN.trim().equals("") || LN.trim().equals("")){
-            if (!existingOwners.isEmpty() || !existingDSOwners.isEmpty()){
-                if (!existingOwners.isEmpty()) loginGen= new UserNameGen(existingOwners.iterator().next());
-                else loginGen= new UserNameGen(existingDSOwners.iterator().next());
-            }
+            if (!existingOwners.isEmpty()) loginGen= new UserNameGen(existingOwners.iterator().next());
         }
         else loginGen=new UserNameGen(FN, LN);
         if (loginGen!=null){
@@ -138,14 +134,20 @@ public class Proposer {
             return errorMessage(e, "unknown");
         }
 
+        Collection<String> usedLoginNames= new Vector<>();
+        usedLoginNames=sis.fetchAllLoginNames();
+        if (hrms!=null) usedLoginNames.addAll(hrms.fetchAllLoginNames());
+        if (hrms2!=null) usedLoginNames.addAll(hrms2.fetchAllLoginNames());
+        Collection<LdapEntry> existingDSOwners= ldap.search(ldap.createSearchFilter("(!(objectClass=schGrAcLinkageIdentifiers))"));
+        if (!existingDSOwners.isEmpty()){
+            for (LdapEntry uidPerson: existingDSOwners){
+                if (uidPerson.getAttribute("uid")!=null)
+                    usedLoginNames.addAll(uidPerson.getAttribute("uid").getStringValues());
+            }
+        }
+
         for (String proposedName: proposedNames){
-            HashMap<String,String> searchAttributes= new HashMap<>();
-            searchAttributes.put("loginName", proposedName);
-            Collection<AcademicPerson> existingOwners= sis.fetchAll(searchAttributes);
-            if (hrms!=null) existingOwners.addAll(hrms.fetchAll(searchAttributes));
-            if (hrms2!=null) existingOwners.addAll(hrms2.fetchAll(searchAttributes));
-            Collection<LdapEntry> existingDSOwners= ldap.search(ldap.createSearchFilter("(schGrAcPersonID=*)","uid="+proposedName));
-            if (existingOwners.isEmpty() && existingDSOwners.isEmpty()) keptNames.add(proposedName);
+            if (!usedLoginNames.contains(proposedName)) keptNames.add(proposedName);
         }
         return keptNames;
     }

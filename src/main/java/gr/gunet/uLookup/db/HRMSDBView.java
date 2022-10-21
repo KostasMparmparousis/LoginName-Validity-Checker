@@ -114,4 +114,49 @@ public class HRMSDBView extends DBManager{
         }
         return retVals;
     }
+
+    public Collection<String> fetchAllLoginNames() throws Exception{
+        List<String> retVals = new LinkedList<>();
+        String sql = "SELECT hp FROM HRMSPersonEntity_v"+entityVersion+" hp WHERE hp.employeeStatus IN ('active','interim')";
+        switch (entityVersion) {
+            case "1": {
+                List<HRMSPersonEntity_v1> results = select(sql, HRMSPersonEntity_v1.class);
+                for (HRMSPersonEntity_v1 person: results){
+                    retVals.add(person.getLoginName());
+                }
+                break;
+            }
+            case "2": {
+                List<HRMSPersonEntity_v2> results = select(sql, HRMSPersonEntity_v2.class);
+                for (HRMSPersonEntity_v2 person: results){
+                    retVals.add(person.getLoginName());
+                }
+                break;
+            }
+            case "3": {
+                List<HRMSPersonEntity_v3> results = select(sql, HRMSPersonEntity_v3.class);
+                for (HRMSPersonEntity_v3 person: results){
+                    retVals.add(person.getLoginName());
+                }
+                break;
+            }
+            case "4": {
+                List<HRMSPersonEntity_v4> results = select(sql, HRMSPersonEntity_v4.class);
+                for (HRMSPersonEntity_v4 person: results){
+                    retVals.add(person.getLoginName());
+                }
+                break;
+            }
+            case "5": {
+                List<HRMSPersonEntity_v5> results = select(sql, HRMSPersonEntity_v5.class);
+                for (HRMSPersonEntity_v5 person: results){
+                    retVals.add(person.getLoginName());
+                }
+                break;
+            }
+            default:
+                throw new Exception("Unsupported entity version '" + entityVersion + "' on SIS DB View.");
+        }
+        return retVals;
+    }
 }
