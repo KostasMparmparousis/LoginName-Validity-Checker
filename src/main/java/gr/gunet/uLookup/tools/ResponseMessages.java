@@ -37,7 +37,7 @@ public final class ResponseMessages {
         Validator.put("102", "No conflicts. The Person owns the requested loginName.");
         Validator.put("110", "No conflicts. But this Person already owns a different loginName.");
 
-        Validator.put("200", "Conflicts found. After the lookup SSN-SSNCountry were identical, but one or more of the remaining attributes were different.");
+        Validator.put("200", "Conflicts found. After the lookup, one or more of the remaining attributes were found to be different.");
         Validator.put("210", "Conflicts found. The requested loginName belongs to someone else. However this Person is already paired with a different loginName.");
         Validator.put("220", "Conflicts found. The requested loginName belongs to someone else.");
 

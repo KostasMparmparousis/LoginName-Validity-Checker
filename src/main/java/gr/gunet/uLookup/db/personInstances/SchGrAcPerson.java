@@ -175,7 +175,7 @@ public class SchGrAcPerson implements AcademicPerson{
 
     @Override
     public String getLoginName() {
-        return this.loginNameOfConcern;
+        return this.uids.iterator().next();
     }
     
     @Override

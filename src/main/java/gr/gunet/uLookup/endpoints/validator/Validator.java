@@ -179,15 +179,21 @@ public class Validator {
             existingOwners = sis.fetchAll(attributes);
             if (hrms != null) existingOwners.addAll(hrms.fetchAll(attributes));
             if (hrms2 != null) existingOwners.addAll(hrms2.fetchAll(attributes));
-            existingDSOwners.addAll(ldap.search(ldap.createSearchFilter("schacPersonalUniqueID=*SSN:" + reqPerson.getSSN())));
-            for(LdapEntry existingDSOwner : existingDSOwners){
-                existingOwners.add(new SchGrAcPerson(existingDSOwner, reqPerson.getLoginName()));
-            }
 
             if (!existingOwners.isEmpty()) {
                 for (AcademicPerson person : existingOwners) {
                     if (!existingUserNames.contains(person.getLoginName())) {
                         existingUserNames.add(person.getLoginName());
+                    }
+                }
+            }
+
+            existingDSOwners.addAll(ldap.search(ldap.createSearchFilter("schacPersonalUniqueID=*SSN:" + reqPerson.getSSN())));
+            for(LdapEntry existingDSOwner : existingDSOwners){
+                SchGrAcPerson DSPerson=new SchGrAcPerson(existingDSOwner);
+                for (String uid: DSPerson.getUids()){
+                    if (!existingUserNames.contains(uid)) {
+                        existingUserNames.add(uid);
                     }
                 }
             }
@@ -263,7 +269,7 @@ public class Validator {
             ldap=ldapDS.getConn();
             Collection<LdapEntry> existingDSOwners=ldap.search(ldap.createSearchFilter("uid="+reqPerson.getLoginName()));
             for(LdapEntry existingDSOwner : existingDSOwners){
-                existingOwners.add(new SchGrAcPerson(existingDSOwner, reqPerson.getLoginName()));
+                existingOwners.add(new SchGrAcPerson(existingDSOwner));
             }
         }
         catch(LdapException e){

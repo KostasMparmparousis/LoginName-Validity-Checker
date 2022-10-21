@@ -79,17 +79,6 @@ public class Proposer {
             return errorMessage(e,"ELKE");
         }
 
-        try{
-            LdapManager ldap = ldapDS.getConn();
-            existingDSOwners.addAll(ldap.search(ldap.createSearchFilter("schacPersonalUniqueID=*SSN:" + SSN)));
-            for(LdapEntry existingDSOwner : existingDSOwners){
-                existingOwners.add(new SchGrAcPerson(existingDSOwner));
-            }
-        }
-        catch (Exception e){
-            return errorMessage(e,"DS");
-        }
-
         Collection<String> existingUserNames= new LinkedList<>();
         if (!existingOwners.isEmpty()) {
             for (AcademicPerson person : existingOwners) {
@@ -98,6 +87,23 @@ public class Proposer {
                 }
             }
         }
+
+        try{
+            LdapManager ldap = ldapDS.getConn();
+            existingDSOwners.addAll(ldap.search(ldap.createSearchFilter("schacPersonalUniqueID=*SSN:" + SSN)));
+            for(LdapEntry existingDSOwner : existingDSOwners){
+                SchGrAcPerson DSPerson=new SchGrAcPerson(existingDSOwner);
+                for (String uid: DSPerson.getUids()){
+                    if (!existingUserNames.contains(uid)) {
+                        existingUserNames.add(uid);
+                    }
+                }
+            }
+        }
+        catch (Exception e){
+            return errorMessage(e,"DS");
+        }
+
         return existingUserNames;
     }
 
@@ -139,8 +145,8 @@ public class Proposer {
         if (hrms!=null) usedLoginNames.addAll(hrms.fetchAllLoginNames());
         if (hrms2!=null) usedLoginNames.addAll(hrms2.fetchAllLoginNames());
 
+        String Filter= "(|(objectClass=account)(&(!(objectClass=schGrAcLinkageIdentifiers))(!(objectClass=schacLinkageIdentifiers))))";
         for (String proposedName: proposedNames){
-            String Filter= "(|(objectClass=account)(&(!(objectClass=schGrAcLinkageIdentifiers))(!(objectClass=schacLinkageIdentifiers))))";
             Collection<LdapEntry> existingDSOwners= ldap.search(ldap.createSearchFilter(Filter, "uid="+proposedName));
             if (!usedLoginNames.contains(proposedName) && (existingDSOwners==null || existingDSOwners.isEmpty())) keptNames.add(proposedName);
         }

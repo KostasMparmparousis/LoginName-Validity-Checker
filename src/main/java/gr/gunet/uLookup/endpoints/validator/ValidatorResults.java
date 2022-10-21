@@ -67,7 +67,6 @@ public class ValidatorResults implements Results {
                 else foundNames=foundNames.concat(",");
                 foundNames = foundNames.concat(responses.formattedString("\"" + loginName + "\"", 2));
             }
-
             if (previousLoginNames.contains(reqPerson.getLoginName())) { //
                 responseCode+="0";
                 if (conflicts.isEmpty()){
