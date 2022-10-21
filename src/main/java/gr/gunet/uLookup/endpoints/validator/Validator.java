@@ -69,7 +69,7 @@ public class Validator {
         LdapManager ds;
         try {
             ds= ldapDS.getConn();
-            Collection<LdapEntry> existingDSOwners= ds.search(ds.createSearchFilter("(!(objectClass=schGrAcLinkageIdentifiers))","uid="+reqPerson.getLoginName()));
+            Collection<LdapEntry> existingDSOwners= ds.search(ds.createSearchFilter("(&(!(objectClass=schGrAcLinkageIdentifiers))(!(objectClass=schacLinkageIdentifiers)))","uid="+reqPerson.getLoginName()));
             if (!existingDSOwners.isEmpty()){
                 for (LdapEntry uidPerson: existingDSOwners){
                     if (uidPerson.getAttribute("uid")!=null && (uidPerson.getAttribute("uid").getStringValue()).equals(reqPerson.getLoginName())){

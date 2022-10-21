@@ -138,16 +138,10 @@ public class Proposer {
         usedLoginNames=sis.fetchAllLoginNames();
         if (hrms!=null) usedLoginNames.addAll(hrms.fetchAllLoginNames());
         if (hrms2!=null) usedLoginNames.addAll(hrms2.fetchAllLoginNames());
-        Collection<LdapEntry> existingDSOwners= ldap.search(ldap.createSearchFilter("(!(objectClass=schGrAcLinkageIdentifiers))"));
-        if (!existingDSOwners.isEmpty()){
-            for (LdapEntry uidPerson: existingDSOwners){
-                if (uidPerson.getAttribute("uid")!=null)
-                    usedLoginNames.addAll(uidPerson.getAttribute("uid").getStringValues());
-            }
-        }
 
         for (String proposedName: proposedNames){
-            if (!usedLoginNames.contains(proposedName)) keptNames.add(proposedName);
+            Collection<LdapEntry> existingDSOwners= ldap.search(ldap.createSearchFilter("(&(!(objectClass=schGrAcLinkageIdentifiers))(!(objectClass=schacLinkageIdentifiers)))","uid="+proposedName));
+            if (!usedLoginNames.contains(proposedName) && (existingDSOwners==null || existingDSOwners.isEmpty())) keptNames.add(proposedName);
         }
         return keptNames;
     }
