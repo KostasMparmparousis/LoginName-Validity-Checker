@@ -71,7 +71,7 @@ public class ValidatorResults implements Results {
             if (previousLoginNames.contains(reqPerson.getLoginName())) { //
                 responseCode+="0";
                 if (conflicts.isEmpty()){
-                    if (!nameSources.contains("DS")) responseCode+="1"; //101
+                    if (nameSources.isEmpty()) responseCode+="1"; //101
                     else responseCode+="2"; //102
                 }
                 else responseCode+="0"; //200

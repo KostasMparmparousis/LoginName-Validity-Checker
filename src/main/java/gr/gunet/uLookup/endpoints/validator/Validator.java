@@ -200,14 +200,8 @@ public class Validator {
 
     private Collection<String> getLoginNameSources() throws LdapException,Exception{
         Collection<String> loginNameSources= new HashSet<>();
-        SISDBView sis;
-        HRMSDBView hrms,hrms2;
         LdapManager ldap;
         Collection<LdapEntry> existingDSOwners;
-        Collection<AcademicPerson> existingOwners;
-        HashMap<String, String> attributes = new HashMap<>();
-        attributes.put("loginName", reqPerson.getLoginName());
-        if (disabledGracePeriod!=null) attributes.put("disabledGracePeriod", disabledGracePeriod);
 
         try{
             ldap=ldapDS.getConn();
@@ -220,40 +214,6 @@ public class Validator {
         catch(LdapException e){
             e.printStackTrace(System.err);
             throw new Exception("DS");
-        }
-
-        try{
-            sis=Views.getSISConn();
-            existingOwners= sis.fetchAll(attributes);
-            if(!existingOwners.isEmpty()) loginNameSources.add("SIS");
-        }
-        catch(Exception e){
-            e.printStackTrace(System.err);
-            throw new Exception("SIS");
-        }
-
-        try{
-            hrms=Views.getHRMSConn();
-            if (hrms!=null){
-                existingOwners= hrms.fetchAll(attributes);
-                if(!existingOwners.isEmpty()) loginNameSources.add("HRMS");
-            }
-        }
-        catch(Exception e){
-            e.printStackTrace(System.err);
-            throw new Exception("HRMS");
-        }
-
-        try{
-            hrms2=Views.getHRMS2Conn();
-            if (hrms2!=null){
-                existingOwners= hrms2.fetchAll(attributes);
-                if(!existingOwners.isEmpty()) loginNameSources.add("HRMS2");
-            }
-        }
-        catch(Exception e){
-            e.printStackTrace(System.err);
-            throw new Exception("HRMS2");
         }
         return loginNameSources;
     }
