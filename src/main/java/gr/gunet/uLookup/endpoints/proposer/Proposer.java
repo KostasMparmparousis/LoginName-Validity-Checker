@@ -126,6 +126,7 @@ public class Proposer {
         SISDBView sis;
         HRMSDBView hrms, hrms2;
         LdapManager ldap;
+
         Collection<String> keptNames= new LinkedList<>();
         try {
             sis=Views.getSISConn();
@@ -137,12 +138,18 @@ public class Proposer {
             return errorMessage(e, "unknown");
         }
 
+        for (String proposedName: proposedNames){
+            HashMap<String, String> searchAttributes = new HashMap<>();
+            searchAttributes.put("loginName", proposedName);
+            Collection<AcademicPerson> existingSISOwners= sis.fetchAll(searchAttributes);
+            if (!existingSISOwners.isEmpty()) proposedNames.remove(proposedName);
+        }
+
         Collection<String> usedLoginNames= new Vector<>();
-        usedLoginNames=sis.fetchAllLoginNames();
         if (hrms!=null) usedLoginNames.addAll(hrms.fetchAllLoginNames());
         if (hrms2!=null) usedLoginNames.addAll(hrms2.fetchAllLoginNames());
-
         String Filter= "(|(objectClass=account)(&(!(objectClass=schGrAcLinkageIdentifiers))(!(objectClass=schacLinkageIdentifiers))))";
+
         for (String proposedName: proposedNames){
             Collection<LdapEntry> existingDSOwners= ldap.search(ldap.createSearchFilter(Filter, "uid="+proposedName));
             if (!usedLoginNames.contains(proposedName) && (existingDSOwners==null || existingDSOwners.isEmpty())) keptNames.add(proposedName);
