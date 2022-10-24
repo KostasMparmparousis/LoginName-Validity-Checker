@@ -8,9 +8,7 @@
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <hibernate.version>5.6.7.Final</hibernate.version>
-        <!--<hibernate.version>4.3.11.Final</hibernate.version>-->
-        <!--<hibernate.version>4.3.6.Final</hibernate.version>-->
+        <hibernate.version>4.3.11.Final</hibernate.version>
     </properties>
     <dependencies>
         <dependency>
@@ -43,18 +41,18 @@
             <artifactId>javassist</artifactId>
             <version>3.22.0-GA</version>
         </dependency>
-        <dependency> <!-- sql driver -->
+        <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
             <version>9.2.0.jre8</version>
         </dependency>
 <!--        <dependency>
-            <groupId>oracle</groupId>
-            <artifactId>ojdbc8</artifactId>
-            <version>19.11</version>
-        </dependency>-->
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+            <version>8.2.1.jre11</version>
+        </dependency>-->  <!--TLSv1-->
         <!-- https://mvnrepository.com/artifact/com.oracle.jdbc/ojdbc8 -->
-        <dependency> <!--asfa-->
+        <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
             <artifactId>ojdbc8</artifactId>
             <version>12.2.0.1</version>
@@ -76,26 +74,25 @@
             <version>12.2.0.1</version>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.25</version>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.19.0</version>
         </dependency>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.29</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.5</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
-<!--        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.17</version>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.5</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>5.1.46</version>
-        </dependency>-->
+        </dependency>
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
@@ -132,6 +129,9 @@
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>gr.gunet.uLookup.Main</mainClass>
+                                    <manifestEntries>
+                                        <Multi-Release>true</Multi-Release>
+                                    </manifestEntries>
                                 </transformer>
                             </transformers>
                         </configuration>

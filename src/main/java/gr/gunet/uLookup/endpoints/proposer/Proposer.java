@@ -6,6 +6,7 @@ import gr.gunet.uLookup.db.SISDBView;
 import gr.gunet.uLookup.db.ldap.LdapConnectionPool;
 import gr.gunet.uLookup.db.ldap.LdapManager;
 import gr.gunet.uLookup.db.personInstances.AcademicPerson;
+import gr.gunet.uLookup.db.personInstances.SchGrAcPerson;
 import gr.gunet.uLookup.tools.ResponseMessages;
 import gr.gunet.uLookup.tools.generator.UserNameGen;
 import org.ldaptive.LdapEntry;
@@ -21,7 +22,6 @@ public class Proposer {
     ResponseMessages responses;
     HashMap<String,String> attributes;
     Collection<AcademicPerson> existingOwners;
-    Collection<LdapEntry> existingDSOwners;
 
     public Proposer(String institution, ResponseMessages responses) {
         this.Views= new DBConnectionPool(institution);
@@ -40,13 +40,10 @@ public class Proposer {
         if (newNames instanceof String) return (String) newNames;
         HashMap<String, String> results= new ProposerResults((Collection<String>) existingNames,(Collection<String>) newNames,attributes, responses).getResults(fromWeb);
 
-        System.out.println("-Response code: " + results.get("code"));
-        System.out.println("-----------------------------------------------------------");
-        System.out.println();
         return responses.getResponse(results.get("code"), results.get("content"), results.get("title"));
     }
     public Object getExisting(){
-        existingDSOwners= new Vector<>();
+        Collection<LdapEntry> existingDSOwners= new Vector<>();
         existingOwners=new Vector<>();
         String SSN= attributes.get("SSN");
         String ssnCountry= attributes.get("ssnCountry");
@@ -79,33 +76,31 @@ public class Proposer {
             return errorMessage(e,"ELKE");
         }
 
-        try{
-            String SSNCountry= attributes.get("ssnCountry");
-            LdapManager ldap = ldapDS.getConn();
-            if (SSNCountry.equals("GR")) existingDSOwners.addAll(ldap.search(ldap.createSearchFilter("schGrAcPersonSSN=" + attributes.get("SSN"))));
-        }
-        catch (Exception e){
-            return errorMessage(e,"DS");
-        }
-
         Collection<String> existingUserNames= new LinkedList<>();
-        if (!existingOwners.isEmpty() || !existingDSOwners.isEmpty()) {
-            if (!existingOwners.isEmpty()) {
-                for (AcademicPerson person : existingOwners) {
-                    if (!existingUserNames.contains(person.getLoginName())) {
-                        existingUserNames.add(person.getLoginName());
-                    }
+        if (!existingOwners.isEmpty()) {
+            for (AcademicPerson person : existingOwners) {
+                if (!existingUserNames.contains(person.getLoginName())) {
+                    existingUserNames.add(person.getLoginName());
                 }
             }
-            if (!existingDSOwners.isEmpty()) {
-                for (LdapEntry person : existingDSOwners) {
-                    String uid = person.getAttribute("uid").getStringValue();
+        }
+
+        try{
+            LdapManager ldap = ldapDS.getConn();
+            existingDSOwners.addAll(ldap.search(ldap.createSearchFilter("schacPersonalUniqueID=*SSN:" + SSN)));
+            for(LdapEntry existingDSOwner : existingDSOwners){
+                SchGrAcPerson DSPerson=new SchGrAcPerson(existingDSOwner);
+                for (String uid: DSPerson.getUids()){
                     if (!existingUserNames.contains(uid)) {
                         existingUserNames.add(uid);
                     }
                 }
             }
         }
+        catch (Exception e){
+            return errorMessage(e,"DS");
+        }
+
         return existingUserNames;
     }
 
@@ -117,10 +112,7 @@ public class Proposer {
 
         UserNameGen loginGen = null;
         if (FN.trim().equals("") || LN.trim().equals("")){
-            if (!existingOwners.isEmpty() || !existingDSOwners.isEmpty()){
-                if (!existingOwners.isEmpty()) loginGen= new UserNameGen(existingOwners.iterator().next());
-                else loginGen= new UserNameGen(existingDSOwners.iterator().next());
-            }
+            if (!existingOwners.isEmpty()) loginGen= new UserNameGen(existingOwners.iterator().next());
         }
         else loginGen=new UserNameGen(FN, LN);
         if (loginGen!=null){
@@ -134,6 +126,7 @@ public class Proposer {
         SISDBView sis;
         HRMSDBView hrms, hrms2;
         LdapManager ldap;
+
         Collection<String> keptNames= new LinkedList<>();
         try {
             sis=Views.getSISConn();
@@ -146,13 +139,20 @@ public class Proposer {
         }
 
         for (String proposedName: proposedNames){
-            HashMap<String,String> searchAttributes= new HashMap<>();
+            HashMap<String, String> searchAttributes = new HashMap<>();
             searchAttributes.put("loginName", proposedName);
-            Collection<AcademicPerson> existingOwners= sis.fetchAll(searchAttributes);
-            if (hrms!=null) existingOwners.addAll(hrms.fetchAll(searchAttributes));
-            if (hrms2!=null) existingOwners.addAll(hrms2.fetchAll(searchAttributes));
-            Collection<LdapEntry> existingDSOwners= ldap.search(ldap.createSearchFilter("(schGrAcPersonID=*)","uid="+proposedName));
-            if (existingOwners.isEmpty() && existingDSOwners.isEmpty()) keptNames.add(proposedName);
+            Collection<AcademicPerson> existingSISOwners= sis.fetchAll(searchAttributes);
+            if (!existingSISOwners.isEmpty()) proposedNames.remove(proposedName);
+        }
+
+        Collection<String> usedLoginNames= new Vector<>();
+        if (hrms!=null) usedLoginNames.addAll(hrms.fetchAllLoginNames());
+        if (hrms2!=null) usedLoginNames.addAll(hrms2.fetchAllLoginNames());
+        String Filter= "(|(objectClass=account)(&(!(objectClass=schGrAcLinkageIdentifiers))(!(objectClass=schacLinkageIdentifiers))))";
+
+        for (String proposedName: proposedNames){
+            Collection<LdapEntry> existingDSOwners= ldap.search(ldap.createSearchFilter(Filter, "uid="+proposedName));
+            if (!usedLoginNames.contains(proposedName) && (existingDSOwners==null || existingDSOwners.isEmpty())) keptNames.add(proposedName);
         }
         return keptNames;
     }

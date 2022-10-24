@@ -1,5 +1,6 @@
 # Build folder
 target/
+logs/
 .idea/
 # Compiled class file
 *.class
@@ -27,9 +28,6 @@ target/
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
-
-#property files
-*.properties
 
 #database configurations
 src/main/resources/META-INF/persistence.xml

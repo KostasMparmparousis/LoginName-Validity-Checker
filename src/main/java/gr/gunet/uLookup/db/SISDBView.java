@@ -102,4 +102,35 @@ public class SISDBView extends DBManager{
         }
         return retVals;
     }
+
+    public Collection<String> fetchAllLoginNames() throws Exception{
+        List<String> retVals = new LinkedList<>();
+        String sql = "SELECT sp FROM SISPersonEntity_v"+entityVersion+" sp WHERE sp.enrollmentStatus IN ('active','interim')";
+        switch (entityVersion) {
+            case "1": {
+                List<SISPersonEntity_v1> results = select(sql, SISPersonEntity_v1.class);
+                for (SISPersonEntity_v1 person: results){
+                    retVals.add(person.getLoginName());
+                }
+                break;
+            }
+            case "2": {
+                List<SISPersonEntity_v2> results = select(sql, SISPersonEntity_v2.class);
+                for (SISPersonEntity_v2 person: results){
+                    retVals.add(person.getLoginName());
+                }
+                break;
+            }
+            case "3": {
+                List<SISPersonEntity_v3> results = select(sql, SISPersonEntity_v3.class);
+                for (SISPersonEntity_v3 person: results){
+                    retVals.add(person.getLoginName());
+                }
+                break;
+            }
+            default:
+                throw new Exception("Unsupported entity version '" + entityVersion + "' on SIS DB View.");
+        }
+        return retVals;
+    }
 }

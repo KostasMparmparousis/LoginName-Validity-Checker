@@ -6,7 +6,9 @@ import gr.gunet.uLookup.tools.parsers.CustomJsonParser;
 import spark.Request;
 import spark.Response;
 import spark.Route;
-
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDate;
 
 public class ValidatorRoute implements Route {
@@ -15,6 +17,7 @@ public class ValidatorRoute implements Route {
     String disabledGracePeriod = null;
     String institution;
     ResponseMessages responses;
+    FileWriter myWriter;
 
     public ValidatorRoute(String institution) {
         this.institution = institution;
@@ -23,6 +26,7 @@ public class ValidatorRoute implements Route {
     @Override
     public Object handle(Request req, Response res) throws Exception {
         responses = new ResponseMessages(req.session().attribute("web"));
+        myWriter = new FileWriter("logs/validatorLogFile.txt", true);
 
         RequestPerson reqPerson;
         if (!req.session().attribute("authorized").equals("true")) {
@@ -64,25 +68,39 @@ public class ValidatorRoute implements Route {
         Validator validator= new Validator(institution, disabledGracePeriod, responses);
         verbose = reqPerson.getVerbose();
 
-        System.out.println("-----------------------------------------------------------");
-        System.out.println();
-        System.out.println("Request Date and Time: " + java.time.LocalDateTime.now());
-        System.out.println();
-        System.out.println("Request Attributes: ");
-        System.out.println("-SSN: " + reqPerson.getSSN());
-        System.out.println("-SSNCountry: " + reqPerson.getSSNCountry());
-        System.out.println("-TIN: " + reqPerson.getTIN());
-        System.out.println("-TINCountry: " + reqPerson.getTINCountry());
-        System.out.println("-birthDate: " + reqPerson.getBirthDate());
-        System.out.println("-disabled Grace Period: " + disabledGracePeriod);
-        System.out.println("-loginName: " + reqPerson.getLoginName());
-        System.out.println("-institution: " + institution);
-        if (verbose) System.out.println("-verbose: YES");
-        else System.out.println("-verbose: NO");
-        System.out.println();
-        System.out.println("Response: ");
-
-        return validator.validateLoginName(reqPerson, fromWeb);
+        println("-----------------------------------------------------------");
+        println("");
+        println("Request Date and Time: " + java.time.LocalDateTime.now());
+        println("");
+        println("Request Attributes: ");
+        println("-SSN: " + reqPerson.getSSN());
+        println("-SSNCountry: " + reqPerson.getSSNCountry());
+        println("-TIN: " + reqPerson.getTIN());
+        println("-TINCountry: " + reqPerson.getTINCountry());
+        println("-birthDate: " + reqPerson.getBirthDate());
+        println("-disabled Grace Period: " + disabledGracePeriod);
+        println("-loginName: " + reqPerson.getLoginName());
+        println("-institution: " + institution);
+        if (verbose) println("-verbose: YES");
+        else println("-verbose: NO");
+        println("");
+        String response= validator.validateLoginName(reqPerson, fromWeb);
+        if (!fromWeb){
+            println("Response: ");
+            println(response);
+        }
+        myWriter.close();
+        return response;
     }
 
+    public void println(String textToPrint) throws IOException{
+        textToPrint= textToPrint.concat("\n");
+        try{
+            myWriter.write(textToPrint);
+        }
+        catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
 }

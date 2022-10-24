@@ -84,7 +84,7 @@ public class RequestPerson implements AcademicPerson {
         throw new Exception("Invalid loginName format.");
       }
       String Verbose=jsonReader.readPropertyAsString("verbose");
-      verbose= Verbose != null && !Verbose.trim().equals("") && !Verbose.equals("No");
+      verbose= Verbose != null && !Verbose.trim().equals("") && !Verbose.equals("false");
     }
 
     public RequestPerson(Request req) throws Exception{

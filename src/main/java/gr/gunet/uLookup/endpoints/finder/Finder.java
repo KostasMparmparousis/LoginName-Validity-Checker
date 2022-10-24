@@ -97,12 +97,19 @@ public class Finder {
 
     private Object getViewRoles() throws Exception{
         Collection<String> viewRoles= new ArrayList<>();
+        LdapManager ds;
+        Collection<LdapEntry> existingDSOwners;
 
         Object existingSISOwners=getPerson(Views.getSISConn());
         if (existingSISOwners instanceof String) return existingSISOwners;
         else if (existingSISOwners!=null) {
             Collection<AcademicPerson> SISOwners= (Collection<AcademicPerson>) existingSISOwners;
             if (!SISOwners.isEmpty()) viewRoles.add("student");
+            else{
+                ds= ldapDS.getConn();
+                existingDSOwners= ds.search(ds.createSearchFilter("schGrAcPersonalLinkageID=*sis*","uid="+loginName));
+                if (existingDSOwners!=null && !existingDSOwners.isEmpty()) viewRoles.add("student");
+            }
         }
 
         Object existingHRMSOwners=getPerson(Views.getHRMSConn(), false);
@@ -110,6 +117,11 @@ public class Finder {
         else if (existingHRMSOwners!=null) {
             Collection<AcademicPerson> HRMSOwners= (Collection<AcademicPerson>) existingHRMSOwners;
             if (!HRMSOwners.isEmpty()) viewRoles.add("faculty");
+            else{
+                ds= ldapDS.getConn();
+                existingDSOwners= ds.search(ds.createSearchFilter("schGrAcPersonalLinkageID=*hrms*","uid="+loginName));
+                if (existingDSOwners!=null && !existingDSOwners.isEmpty()) viewRoles.add("faculty");
+            }
         }
 
         if (Views.getHRMS2Conn()==null) return viewRoles;
@@ -118,6 +130,11 @@ public class Finder {
         else if (existingHRMS2Owners!=null){
             Collection<AcademicPerson> HRMS2Owners= (Collection<AcademicPerson>) existingHRMS2Owners;
             if (!HRMS2Owners.isEmpty()) viewRoles.add("staff");
+            else{
+                ds= ldapDS.getConn();
+                existingDSOwners= ds.search(ds.createSearchFilter("schGrAcPersonalLinkageID=*hrms2*","uid="+loginName));
+                if (existingDSOwners!=null && !existingDSOwners.isEmpty()) viewRoles.add("staff");
+            }
         }
 
         return viewRoles;
