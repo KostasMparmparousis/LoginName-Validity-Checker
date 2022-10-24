@@ -14,10 +14,17 @@ import gr.gunet.uLookup.security.BasicAuthFilter;
 import gr.gunet.uLookup.security.LogoutHandle;
 import gr.gunet.uLookup.security.ValidateToken;
 import gr.gunet.uLookup.tools.parsers.CommandLineParser;
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
 public class Main implements SparkApplication {
     String institution = null;
     String mode = null;
+    File logFile;
+    String log4jConfPath;
 
     public Main(){}
     @Override
@@ -25,6 +32,26 @@ public class Main implements SparkApplication {
         Spark.ipAddress("127.0.0.1");
         ServerConfigurations configs= new ServerConfigurations(institution, mode);
         BasicAuthFilter authFilter = new BasicAuthFilter(institution);
+        logFile = new File("logs/validatorLogFile.txt");
+        try {
+            logFile.createNewFile();
+        } catch (IOException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        logFile = new File("logs/proposerLogFile.txt");
+        try {
+            logFile.createNewFile();
+        } catch (IOException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        logFile = new File("logs/finderLogFile.txt");
+        try {
+            logFile.createNewFile();
+        } catch (IOException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        String log4jConfPath = "src/main/resources/log4j.properties";
+        PropertyConfigurator.configure(log4jConfPath);
         Spark.before("/validator/", authFilter);
         Spark.before("/validator", authFilter);
         Spark.before("/proposer/", authFilter);

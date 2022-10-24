@@ -2,6 +2,8 @@ package gr.gunet.uLookup.endpoints.proposer;
 
 import gr.gunet.uLookup.tools.ResponseMessages;
 import gr.gunet.uLookup.tools.parsers.CustomJsonParser;
+import java.io.FileWriter;
+import java.io.IOException;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -15,6 +17,7 @@ public class ProposerRoute implements Route {
     String FN;
     String LN;
     String institution;
+    FileWriter myWriter;
 
     ResponseMessages responses;
     String title;
@@ -26,6 +29,7 @@ public class ProposerRoute implements Route {
     @Override
     public Object handle(Request req, Response res) throws Exception {
         responses = new ResponseMessages(req.session().attribute("web"));
+        myWriter = new FileWriter("logs/proposerLogFile.txt", true);
         if (!req.session().attribute("authorized").equals("true")) {
             String errorMessage = "You were not authorized";
             return responses.getResponse("401", errorMessage, title);
@@ -55,18 +59,34 @@ public class ProposerRoute implements Route {
 
         Proposer proposer= new Proposer(institution,responses);
 
-        System.out.println("-----------------------------------------------------------");
-        System.out.println();
-        System.out.println("Request Date and Time: " + java.time.LocalDateTime.now());
-        System.out.println();
-        System.out.println("Request Attributes: ");
-        System.out.println("-SSN: " + SSN);
-        System.out.println("-SSNCountry: " + SSNCountry);
-        System.out.println("-FN: " + FN);
-        System.out.println("-LN: " + LN);
-        System.out.println("-institution: " + institution);
+        println("-----------------------------------------------------------");
+        println("");
+        println("Request Date and Time: " + java.time.LocalDateTime.now());
+        println("");
+        println("Request Attributes: ");
+        println("-SSN: " + SSN);
+        println("-SSNCountry: " + SSNCountry);
+        println("-FN: " + FN);
+        println("-LN: " + LN);
+        println("-institution: " + institution);
 
-        System.out.println("Response: ");
-        return proposer.proposeNames(attributes, fromWeb);
+        String response= proposer.proposeNames(attributes, fromWeb);
+        if (!fromWeb){
+            println("Response: ");
+            println(response);
+        }
+        myWriter.close();
+        return response;
+    }
+
+    public void println(String textToPrint) throws IOException{
+        textToPrint= textToPrint.concat("\n");
+        try{
+            myWriter.write(textToPrint);
+        }
+        catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
     }
 }

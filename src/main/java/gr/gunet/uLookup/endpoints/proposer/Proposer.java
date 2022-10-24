@@ -40,9 +40,6 @@ public class Proposer {
         if (newNames instanceof String) return (String) newNames;
         HashMap<String, String> results= new ProposerResults((Collection<String>) existingNames,(Collection<String>) newNames,attributes, responses).getResults(fromWeb);
 
-        System.out.println("-Response code: " + results.get("code"));
-        System.out.println("-----------------------------------------------------------");
-        System.out.println();
         return responses.getResponse(results.get("code"), results.get("content"), results.get("title"));
     }
     public Object getExisting(){

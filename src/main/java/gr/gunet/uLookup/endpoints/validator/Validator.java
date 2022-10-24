@@ -55,9 +55,6 @@ public class Validator {
             Collection<String> nullAttrs= getNullAttributes();
             HashMap<String, String> results= new ValidatorResults(reqPerson, conflicts, previousLoginNames, nameSources, nullAttrs, responses).getResults(fromWeb);
 
-            System.out.println("-Response code: " + results.get("code"));
-            System.out.println("-----------------------------------------------------------");
-            System.out.println();
             return responses.getResponse(results.get("code"), results.get("content"), results.get("title"));
         }catch(Exception e){
             String errorSource= e.getMessage();
