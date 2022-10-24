@@ -1,5 +1,6 @@
 # Build folder
 target/
+logs/
 .idea/
 # Compiled class file
 *.class
