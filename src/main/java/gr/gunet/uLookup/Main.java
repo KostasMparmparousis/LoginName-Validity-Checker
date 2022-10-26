@@ -50,7 +50,7 @@ public class Main implements SparkApplication {
         } catch (IOException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
-        String log4jConfPath = "src/main/resources/log4j.properties";
+        String log4jConfPath = "/opt/uLookup/log4j.properties";
         PropertyConfigurator.configure(log4jConfPath);
         Spark.before("/validator/", authFilter);
         Spark.before("/validator", authFilter);
