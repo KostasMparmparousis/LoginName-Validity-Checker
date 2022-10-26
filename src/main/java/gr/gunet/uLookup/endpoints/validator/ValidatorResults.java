@@ -14,14 +14,12 @@ public class ValidatorResults implements Results {
     Collection<Conflict> conflicts;
     Collection<String> previousLoginNames;
     Collection<String> nameSources;
-    Collection<String> nullAttributes;
     ResponseMessages responses;
-    public ValidatorResults(RequestPerson reqPerson, Collection<Conflict> conflicts, Collection<String> previousLoginNames, Collection<String> nameSources, Collection<String> nullAttrs, ResponseMessages responses){
+    public ValidatorResults(RequestPerson reqPerson, Collection<Conflict> conflicts, Collection<String> previousLoginNames, Collection<String> nameSources, ResponseMessages responses){
         this.reqPerson=reqPerson;
         this.conflicts=conflicts;
         this.previousLoginNames= previousLoginNames;
         this.nameSources= nameSources;
-        this.nullAttributes= nullAttrs;
         this.responses=responses;
     }
 
@@ -46,16 +44,7 @@ public class ValidatorResults implements Results {
                 responseContent+= responses.formattedString("]", 1);
             }
         }
-        else{
-            if (nullAttributes!=null && !nullAttributes.isEmpty()){
-                if (nullAttributes.contains("ssn") || nullAttributes.contains("ssnCountry")){
-                    responseCode="310";
-                    responseContent="";
-                    return sendResponse(responseCode, responseContent, title);
-                }
-            }
-            responseCode+="1";
-        }
+        else responseCode+="1";
 
         String foundNames="";
         if (!previousLoginNames.isEmpty()){

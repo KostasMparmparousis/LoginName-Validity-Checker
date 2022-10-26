@@ -42,7 +42,7 @@ public final class ResponseMessages {
         Validator.put("220", "Conflicts found. The requested loginName belongs to someone else.");
 
         Validator.put("300", "A user with that loginName was found in the DS, but he was not created following the typical Account generation procedure.");
-        Validator.put("310", "LoginName was found after lookup, however we can not examine if it belongs to the same Person. One or more primary identifiers were NULL.");
+        Validator.put("310", "LoginName was found after lookup, however it is currently linked to a discontinued Account.");
     }
 
     public void initProposer(){

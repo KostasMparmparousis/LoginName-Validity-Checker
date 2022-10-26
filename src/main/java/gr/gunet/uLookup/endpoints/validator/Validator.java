@@ -35,6 +35,7 @@ public class Validator {
     public String validateLoginName(RequestPerson reqPerson, boolean fromWeb) throws LdapException,Exception{
         this.reqPerson=reqPerson;
         Collection<String> UIDPersons;
+        Collection<String> DSAccounts;
         try {
             UIDPersons=getUIDPersons();
             if (!UIDPersons.isEmpty()){
@@ -49,11 +50,23 @@ public class Validator {
             return errorMessage(e,"DS");
         }
         try {
+            DSAccounts=getDSAccounts();
+            if (!DSAccounts.isEmpty()){
+                String uid= DSAccounts.iterator().next();
+                System.out.println("-Response code: 310");
+                System.out.println("-message: \"" + uid + " is currently linked to a discontinued Account.\"");
+                System.out.println("-----------------------------------------------------------");
+                System.out.println();
+                return responses.getResponse("310", "", "");
+            }
+        } catch (Exception e) {
+            return errorMessage(e,"DS");
+        }
+        try {
             Collection<Conflict> conflicts= checkForUniquenessConflicts();
             Collection<String> previousLoginNames= findPreviousLoginNames();
             Collection<String> nameSources= getLoginNameSources();
-            Collection<String> nullAttrs= getNullAttributes();
-            HashMap<String, String> results= new ValidatorResults(reqPerson, conflicts, previousLoginNames, nameSources, nullAttrs, responses).getResults(fromWeb);
+            HashMap<String, String> results= new ValidatorResults(reqPerson, conflicts, previousLoginNames, nameSources, responses).getResults(fromWeb);
 
             return responses.getResponse(results.get("code"), results.get("content"), results.get("title"));
         }catch(Exception e){
@@ -80,6 +93,27 @@ public class Validator {
             throw new Exception("DS");
         }
         return UIDPersons;
+    }
+
+    private Collection<String> getDSAccounts() throws LdapException,Exception{
+        Collection<String> DSAccounts = new HashSet<>();
+        LdapManager ds;
+        try {
+            ds= ldapDS.getConn();
+            Collection<LdapEntry> existingDSOwners= ds.search(ds.createSearchFilter("(objectClass=account)","uid="+reqPerson.getLoginName()));
+            if (!existingDSOwners.isEmpty()){
+                for (LdapEntry dsAccount: existingDSOwners){
+                    if (dsAccount.getAttribute("uid")!=null && (dsAccount.getAttribute("uid").getStringValue()).equals(reqPerson.getLoginName())){
+                        DSAccounts.add(reqPerson.getLoginName());
+                    }
+                }
+            }
+        }
+        catch(LdapException e){
+            e.printStackTrace(System.err);
+            throw new Exception("DS");
+        }
+        return DSAccounts;
     }
 
     private  Collection<Conflict> checkForUniquenessConflicts() throws LdapException, Exception{
@@ -219,96 +253,6 @@ public class Validator {
             throw new Exception("DS");
         }
         return loginNameSources;
-    }
-
-    public Collection<String> getNullAttributes() throws Exception{
-        Collection<String> nullAttributes = new HashSet<>();
-        Collection<AcademicPerson> existingOwners;
-        SISDBView sis;
-        HRMSDBView hrms,hrms2;
-        LdapManager ldap;
-        HashMap<String, String> attributes = new HashMap<>();
-        attributes.put("loginName", reqPerson.getLoginName());
-        if (disabledGracePeriod!=null) attributes.put("disabledGracePeriod", disabledGracePeriod);
-
-        try{
-            sis=Views.getSISConn();
-            existingOwners= sis.fetchAll(attributes);
-        }
-        catch(Exception e){
-            e.printStackTrace(System.err);
-            throw new Exception("SIS");
-        }
-
-        try{
-            hrms=Views.getHRMSConn();
-            if (hrms!=null){
-                existingOwners.addAll(hrms.fetchAll(attributes));
-            }
-        }
-        catch(Exception e){
-            e.printStackTrace(System.err);
-            throw new Exception("HRMS");
-        }
-
-        try{
-            hrms2=Views.getHRMS2Conn();
-            if (hrms2!=null){
-                existingOwners.addAll(hrms2.fetchAll(attributes));
-            }
-        }
-        catch(Exception e){
-            e.printStackTrace(System.err);
-            throw new Exception("HRMS2");
-        }
-
-        try{
-            ldap=ldapDS.getConn();
-            Collection<LdapEntry> existingDSOwners=ldap.search(ldap.createSearchFilter("uid="+reqPerson.getLoginName()));
-            for(LdapEntry existingDSOwner : existingDSOwners){
-                existingOwners.add(new SchGrAcPerson(existingDSOwner));
-            }
-        }
-        catch(LdapException e){
-            e.printStackTrace(System.err);
-            throw new Exception("DS");
-        }
-
-        if (!existingOwners.isEmpty()) {
-            nullAttributes = findNullAttributes(existingOwners);
-        }
-
-        return nullAttributes;
-    }
-
-    private Collection<String> findNullAttributes(Collection<AcademicPerson> existingOwners){
-        Collection<String> nullAttributes = new HashSet<>();
-        String ssn=null;
-        String ssnCountry=null;
-        String tin=null;
-        String tinCountry=null;
-        String birthDate=null;
-        String birthYear=null;
-
-        for (AcademicPerson existingOwner: existingOwners){
-            if (existingOwner.getSSN()!=null) ssn=existingOwner.getSSN();
-            if (existingOwner.getSSNCountry()!=null) ssnCountry=existingOwner.getSSNCountry();
-            if (reqPerson.getTIN() !=null && reqPerson.getTINCountry()!=null){
-                if (existingOwner.getTIN()!=null) tin=existingOwner.getTIN();
-                if (existingOwner.getTINCountry()!=null) tinCountry=existingOwner.getTINCountry();
-            }
-            if (existingOwner.getBirthDate()!=null) birthDate=existingOwner.getBirthDate();
-            if (existingOwner.getBirthYear()!=null) birthYear=existingOwner.getBirthYear();
-        }
-
-        if (ssn==null) nullAttributes.add("ssn");
-        if (ssnCountry==null) nullAttributes.add("ssnCountry");
-        if (reqPerson.getTIN()!=null && tin==null) nullAttributes.add("tin");
-        if (reqPerson.getTINCountry()!=null && tinCountry==null) nullAttributes.add("tinCountry");
-        if (birthDate==null) nullAttributes.add("birthDate");
-        if (birthYear==null) nullAttributes.add("birthYear");
-
-        return  nullAttributes;
     }
 
     private Collection<Conflict> samePersonChecks(AcademicPerson loginNameOwner, AcademicPerson existingOwner, String existingOwnerSource){

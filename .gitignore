@@ -1,6 +1,6 @@
 # Build folder
 target/
-logs/*
+logs/
 .idea/
 # Compiled class file
 *.class
