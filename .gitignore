@@ -1,6 +1,5 @@
 # Build folder
 target/
-logs/
 .idea/
 # Compiled class file
 *.class
@@ -22,7 +21,6 @@ logs/
 *.tar.gz
 *.jar
 *.iml
-*.txt
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
