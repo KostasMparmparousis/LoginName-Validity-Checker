@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Vector;
 
 import org.ldaptive.LdapEntry;
 import org.ldaptive.LdapException;
@@ -35,7 +36,7 @@ public class Validator {
     public String validateLoginName(RequestPerson reqPerson, boolean fromWeb) throws LdapException,Exception{
         this.reqPerson=reqPerson;
         Collection<String> UIDPersons;
-        Collection<String> DSAccounts;
+        Collection<LdapEntry> DSAccounts;
         try {
             UIDPersons=getUIDPersons();
             if (!UIDPersons.isEmpty()){
@@ -52,12 +53,12 @@ public class Validator {
         try {
             DSAccounts=getDSAccounts();
             if (!DSAccounts.isEmpty()){
-                String uid= DSAccounts.iterator().next();
-                System.out.println("-Response code: 310");
-                System.out.println("-message: \"" + uid + " is currently linked to a discontinued Account.\"");
-                System.out.println("-----------------------------------------------------------");
-                System.out.println();
-                return responses.getResponse("310", "", "");
+                if (disabledGracePeriod==null || getRetentionAccounts(DSAccounts).isEmpty()){ //outside retention period
+                    return responses.getResponse("310", "", "");
+                }
+                else{  //inside retention period
+                    return responses.getResponse("310", "", ""); // exact response to be determined.
+                }
             }
         } catch (Exception e) {
             return errorMessage(e,"DS");
@@ -74,6 +75,7 @@ public class Validator {
             return errorMessage(e,errorSource);
         }
     }
+
     private Collection<String> getUIDPersons() throws LdapException,Exception{
         Collection<String> UIDPersons = new HashSet<>();
         LdapManager ds;
@@ -95,8 +97,8 @@ public class Validator {
         return UIDPersons;
     }
 
-    private Collection<String> getDSAccounts() throws LdapException,Exception{
-        Collection<String> DSAccounts = new HashSet<>();
+    private Collection<LdapEntry> getDSAccounts() throws LdapException,Exception{
+        Collection<LdapEntry> DSAccounts = new HashSet<>();
         LdapManager ds;
         try {
             ds= ldapDS.getConn();
@@ -104,7 +106,7 @@ public class Validator {
             if (!existingDSOwners.isEmpty()){
                 for (LdapEntry dsAccount: existingDSOwners){
                     if (dsAccount.getAttribute("uid")!=null && (dsAccount.getAttribute("uid").getStringValue()).equals(reqPerson.getLoginName())){
-                        DSAccounts.add(reqPerson.getLoginName());
+                        DSAccounts.add(dsAccount);
                     }
                 }
             }
@@ -114,6 +116,115 @@ public class Validator {
             throw new Exception("DS");
         }
         return DSAccounts;
+    }
+
+    private Collection <AcademicPerson> getRetentionAccounts(Collection<LdapEntry> DSAccounts) throws LdapException,Exception{
+        Collection<AcademicPerson> linkageAccounts = new Vector<>();
+        HashMap<String, String> attributes;
+        attributes = new HashMap<>();
+        attributes.put("loginName", reqPerson.getLoginName());
+        attributes.put("disabledGracePeriod", disabledGracePeriod);
+        for (LdapEntry dsAccount: DSAccounts){
+            Collection<String> linkages= dsAccount.getAttribute("schGrAcPersonalLinkageID").getStringValues();
+            if (!linkages.isEmpty()){
+                for (String linkage: linkages){
+                    if (linkage.toLowerCase().contains("registrationid")){
+                        linkageAccounts.addAll(getFromLinkage(linkage));
+                        if (!linkageAccounts.isEmpty()) return linkageAccounts;
+                    }
+                }
+                return linkageAccounts;
+            }
+        }
+
+        Collection<AcademicPerson> existingOwners;
+        SISDBView sis;
+        HRMSDBView hrms, hrms2;
+        try{
+            sis=Views.getSISConn();
+            existingOwners= sis.fetchAll(attributes);
+            if (!existingOwners.isEmpty()) return existingOwners;
+        }
+        catch(Exception e){
+            e.printStackTrace(System.err);
+            throw new Exception("SIS");
+        }
+
+        try{
+            hrms=Views.getHRMSConn();
+            if (hrms!=null){
+                existingOwners.addAll(hrms.fetchAll(attributes));
+                if (!existingOwners.isEmpty()) return existingOwners;
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace(System.err);
+            throw new Exception("HRMS");
+        }
+
+        try{
+            hrms2=Views.getHRMS2Conn();
+            if (hrms2!=null){
+                existingOwners.addAll(hrms2.fetchAll(attributes));
+                if (!existingOwners.isEmpty()) return existingOwners;
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace(System.err);
+            throw new Exception("HRMS2");
+        }
+        return existingOwners;
+    }
+
+    private Collection<AcademicPerson> getFromLinkage(String linkage) throws Exception{
+        SISDBView sis;
+        HRMSDBView hrms, hrms2;
+        Collection<AcademicPerson> existingOwners = null;
+        HashMap<String, String> attributes;
+        String registrationID= linkage.substring(linkage.lastIndexOf(":") + 1);
+        attributes = new HashMap<>();
+        attributes.put("loginName", reqPerson.getLoginName());
+        attributes.put("disabledGracePeriod", disabledGracePeriod);
+        attributes.put("registrationID", registrationID);
+
+        if (linkage.contains("sis")){
+            try{
+                sis=Views.getSISConn();
+                existingOwners= sis.fetchAll(attributes);
+                if (!existingOwners.isEmpty()) return existingOwners;
+            }
+            catch(Exception e){
+                e.printStackTrace(System.err);
+                throw new Exception("SIS");
+            }
+        }
+        else if (linkage.contains("hrms:1")){
+            try{
+                hrms=Views.getHRMSConn();
+                if (hrms!=null){
+                    existingOwners.addAll(hrms.fetchAll(attributes));
+                    if (!existingOwners.isEmpty()) return existingOwners;
+                }
+            }
+            catch(Exception e){
+                e.printStackTrace(System.err);
+                throw new Exception("HRMS");
+            }
+        }
+        else{
+            try{
+                hrms2=Views.getHRMS2Conn();
+                if (hrms2!=null){
+                    existingOwners.addAll(hrms2.fetchAll(attributes));
+                    if (!existingOwners.isEmpty()) return existingOwners;
+                }
+            }
+            catch(Exception e){
+                e.printStackTrace(System.err);
+                throw new Exception("HRMS2");
+            }
+        }
+        return existingOwners;
     }
 
     private  Collection<Conflict> checkForUniquenessConflicts() throws LdapException, Exception{
